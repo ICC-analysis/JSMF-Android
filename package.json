@@ -1,0 +1,22 @@
+{
+  "name": "jsmf-interact",
+  "version": "0.1.0",
+  "description": "JavaScript Modelling Framework Interaction/Visualisation Library",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "keywords": [
+    "Visualisation",
+    "interaction",
+    "interactive",
+    "modelling"
+  ],
+  "author": "Jean-Sebastien Sottet <jean-sebastien.sottet@list.lu> (http://www.list.lu)",
+  "license": "MIT",
+  "dependencies": {
+    "ejs": "^2.5.2",
+    "express": "^4.14.0",
+    "jsmf-core": "^0.10.1"
+  }
+}
