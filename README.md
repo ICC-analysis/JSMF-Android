@@ -2,13 +2,20 @@
 ## INSTALL
 
 ### Node Packages
-npm install express.js
-npm install jsmf-core
+Use node package manager:
+`npm install express.js`
+
+`npm install jsmf-core --save`
 
 ### Bower componnent
+Use the bower package manager.
+first Install Bower : see https://www.npmjs.com/package/bower.
 
-(first Install Bower : see https://www.npmjs.com/package/bower)
+Then type:
+`bower install`
 
-bower install
+(it will installmaterial-design-lite, d3 v3.15, etc...)
 
-(it will install bower install material-design-lite --save, bower install d3 --save)
+JSMF in the browser is not currently available as a bower package.
+Download it here: https://git.list.lu/jsmf/jsmf-browser
+(and ideally put it into the bower_component directory)
