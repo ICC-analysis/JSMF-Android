@@ -14,7 +14,7 @@ first Install Bower : see https://www.npmjs.com/package/bower.
 Then type:
 `bower install`
 
-(it will installmaterial-design-lite, d3 v3.15, etc...)
+(it will install material-design-lite, d3 v3.15, etc...)
 
 JSMF in the browser is not currently available as a bower package.
 Download it here: https://git.list.lu/jsmf/jsmf-browser

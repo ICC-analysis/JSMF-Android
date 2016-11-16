@@ -17,6 +17,8 @@
   "dependencies": {
     "ejs": "^2.5.2",
     "express": "^4.14.0",
-    "jsmf-core": "^0.10.1"
+    "jsmf": "^0.10.0",
+    "jsmf-core": "^0.10.1",
+	"builder" : "file:../jsmf-parser"
   }
 }

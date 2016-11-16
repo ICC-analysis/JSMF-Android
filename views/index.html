@@ -94,73 +94,20 @@ var colors = d3.scale.category10();
 var selected_node = null;
 
 var graph;
+    
+var Mgroup = [];
 
-/* Start model definition */
 var Model = jsmf.Model;
-var Class = jsmf.Class;
-
-var MM = new Model('MetaVisu');
-
-var ClassA = Class.newInstance("A");
-ClassA.addAttribute('wheels', Number);
-ClassA.setReference('next',ClassA,1)
-
-var ClassB = Class.newInstance("B");
-ClassB.setAttribute('name',String)
-ClassB.addAttribute('quality', String);
-ClassB.setReference('wheelQuality',ClassA,-1);
-
-ClassA.setReference('xf',ClassB,1);
-
-var ClassC = Class.newInstance("C");
-ClassC.addAttribute('name', String);
-
-ClassA.setReference('reminder',ClassC,-1);    
+var Class = jsmf.Class;    
     
-MM.add([ClassA,ClassB,ClassC])
-
-//model definition
-var smallA = ClassA.newInstance();
-smallA.wheels = 4;
-
-
-var bigA = ClassA.newInstance();
-bigA.wheels = 6;
-bigA.next=smallA
-    
-var smallB = ClassB.newInstance();
-smallB.name='TUV'
-smallB.quality = 'good';
-smallB.wheelQuality=[smallA,bigA];
-
-var xA  = ClassA.newInstance({wheels:2}); 
-    
-var xxA = ClassA.newInstance({wheels:1});
-
-smallA.next=xA;
-xA.next=xxA;
-    
-    
-var smallx = ClassB.newInstance({name:'NordVerif', quality:'medium'});  
-smallx.wheelQuality=[xA,xxA];  
-
-var cein = ClassC.newInstance({name:'Change'});
-smallA.reminder=cein;
-xxA.reminder=cein;
-
-var M = new Model('Testvisu')
-
-M.setReferenceModel(MM);
-
-M.add([smallA,smallB,bigA,cein,xA,xxA,smallx]);
-      
-/* End model definition */
-
-//
+var M = createModel();    
+ 
+//Set the behavior of the D3 graph display zone (add zoom and pane)
 var svg = d3.select('.page-content').append("svg").attr({"width":w,"height":h}).call(d3.behavior.zoom().on("zoom", function () {
     svg.attr("transform", "translate(" + d3.event.translate + ")" + " scale(" + d3.event.scale + ")")
   })).on("dblclick.zoom", null).append('g');   
-    
+  
+//Add behaviour of the add button (under construction)    
 d3.select("#add").on('click', function() {
 	addRow();
 });    
@@ -168,11 +115,12 @@ d3.select("#add").on('click', function() {
 //initial model should not be changed by the view...
 document.querySelector('#nav_redraw').addEventListener("click", function(e) {
         document.querySelector('.page-content svg g').innerHTML='';
-        drawGraph({nodes:M.elements(),edges:createLinks(M)});
+        var groups = groupInit(Mgroup,M);
+        drawGraph({nodes:M.elements(),edges:createLinks(M)}, groups);
 });
     
 
-// 
+//Set the behavior of the filter by node property 
 document.querySelector('#elementName').addEventListener("change", function(e) {
 		var valAttribute= this.value;
         var validEntryPoints = [];
@@ -186,7 +134,6 @@ document.querySelector('#elementName').addEventListener("change", function(e) {
             });
             return validEntryPoints},
         M);
-       // var depthV = document.getElementById('#depthSlider').value;
         var depthV = document.getElementById('depthSlider').value;
         console.log(depthV)
         var validME = jsmf.crawl({depth:depthV,searchMethod:jsmf.BFS_All},validEntryPoints[0]);
@@ -194,8 +141,9 @@ document.querySelector('#elementName').addEventListener("change", function(e) {
         modelView.add(validME);
         
         graph ={"nodes":modelView.elements(), "edges":createLinks(modelView)};
+        var groups = groupInit(Mgroup,M);    
         document.querySelector('.page-content svg g').innerHTML='';
-		drawGraph(graph);
+		drawGraph(graph,groups);
     });
   
     
@@ -204,49 +152,33 @@ function showMessage(value){
 }	  
     
     
-/* **/    
-var nodesM = M.elements();
 
 var colorTab = {}    
 
-
+//Create the button in the nav bar that allows to filter the graph against the meta-classes
 displayMetaClassFilter(M);
 
-    /*
-var MKey = Object.keys(M.modellingElements);
-
-// Create all the metamodel filtering elements 
-for(i in MKey) {
-    var M2Item = M.modellingElements[MKey[i]][0].conformsTo();
-    colorTab[M2Item.__name]=i;
-    var M2List = document.querySelector('#M2List');
-    var aList = document.createElement('a');
-    aList.classList.add('mdl-navigation__link')
-    aList.innerHTML = MKey[i];
-    M2List.appendChild(aList);
-    aList.addEventListener('click', function(d){
-                            var filter = d.srcElement.innerHTML;
-                            var filteredElements = M.modellingElements[filter];
-                            modelView = new Model('ViewFiltered');
-                            modelView.add(filteredElements);
-                            graph ={"nodes":modelView.elements(), "edges":createLinks(modelView)};
-                            document.querySelector('.page-content svg g').innerHTML='';
-                            drawGraph(graph);
-                    });
-}
-*/
+//   
+var nodesM = M.elements();
     
 // create links from JSMF references that are targetting nodes presents in Model M. (i.e., removing links pointing outisdes the model M)
 var links=createLinks(M); 
 
+    
+    
 //Set the graph
 var graph = {"nodes":nodesM, "edges":links};
-
-drawGraph(graph);
-
     
-function drawGraph(graph) {
-    
+//    
+var groups = groupInit(Mgroup,graph);    
+
+//Launch the display of the graph    
+drawGraph(graph,groups);
+
+/*
+*/
+function drawGraph(graph,groups) {
+       
     
     var force = d3.layout.force()
         .nodes(graph.nodes)
@@ -269,6 +201,7 @@ function drawGraph(graph) {
     
      edges.exit().remove();
     
+   
     var nodes = svg.selectAll("circle")
       .data(graph.nodes);
       nodes.enter()
@@ -279,9 +212,9 @@ function drawGraph(graph) {
           return colors(index);
       })
       .call(force.drag)
-	  .on('mousedown', function(d) {
+	  .on('click', function(d) {
       	if(d3.event.ctrlKey) return;
-      	// select node
+      	// select nodes to display its JSMF attributes
 		d3.event.stopPropagation()
       	mousedown_node = d;
       	if(mousedown_node === selected_node) selected_node = null;
@@ -289,10 +222,10 @@ function drawGraph(graph) {
 		displayAttributes(selected_node);
       	selected_link = null;
 		mousedown_node = null;
-	})
+	}) 
     .on('dblclick', function(d) {
-          console.log(uuid.unparse(d.__jsmf__.uuid))
-          
+        //console.log(uuid.unparse(d.__jsmf__.uuid))
+        //add behavior on double click: filter against the current node up to a depth of 2  
         var validEntryPoint = jsmf.filterModelElements(function(x){ 
             return uuid.unparse(x.__jsmf__.uuid) ==uuid.unparse(d.__jsmf__.uuid)
         },
@@ -302,8 +235,9 @@ function drawGraph(graph) {
         modelView.add(validME);
         
         graph ={"nodes":modelView.elements(), "edges":createLinks(modelView)};
+        var groups = groupInit(Mgroup,M);  
         document.querySelector('.page-content svg g').innerHTML='';
-		drawGraph(graph);
+		drawGraph(graph, groups);
       
       });
     
@@ -344,6 +278,21 @@ function drawGraph(graph) {
                'id':function(d,i) {return 'edgepath'+i}})
         .style("pointer-events", "none");
 
+    
+    // Draws the shape for model group
+     var groupPath = function (d) {
+                console.log('dy',d)
+                return "M" +
+                d3.geom.hull(d.map(function (e) { return [e.x, e.y]; }))
+                    .join("L")
+                + "Z";
+     };
+    
+    //
+    var nodeFill = function (n) {
+            return n.groupId != null ? fill(n.groupId) : "black";
+    };
+    
     var edgelabels = svg.selectAll(".edgelabel")
         .data(graph.edges)
         .enter()
@@ -356,6 +305,17 @@ function drawGraph(graph) {
                'font-size':10,
                'fill':'#aaa'});
 
+    var group = svg.selectAll("path")
+            .data(groups)
+            .attr("d", groupPath)
+            .attr("class", "group")
+            .enter().insert("path", "node")
+            .style("fill", nodeFill)
+            .style("stroke", nodeFill)
+            .style("stroke-width", 40)
+            .style("stroke-linejoin", "round")
+            .style("opacity", .2)
+    
     edgelabels.append('textPath')
         .attr('xlink:href',function(d,i) {return '#edgepath'+i})
         .style("pointer-events", "none")
@@ -376,7 +336,7 @@ function drawGraph(graph) {
             .attr('fill', '#ccc')
             .attr('stroke','#ccc');
      
-
+    
     force.on("tick", function(){
 
         edges.attr({"x1": function(d){return d.source.x;},
@@ -388,7 +348,9 @@ function drawGraph(graph) {
         nodes.attr({"cx":function(d){return d.x;},
                     "cy":function(d){return d.y;}
         });
-
+        
+        group.attr("d", groupPath);
+        
         nodelabels.attr("x", function(d) { return d.x; }) 
                   .attr("y", function(d) { return d.y; });
 
@@ -414,14 +376,14 @@ function addRow() {
 	var table = d3.select('#cellsProperties');
 	var tRow = table.append("tr");
 			tRow.append("td").attr("class","mdl-data-table__cell--non-numeric").append("input"). attr("class","mdl-textfield__input").attr("type","text").attr("value", "empty")
-.on("change", function(e) { //Adding event handler on change "value"
+.on("change", function(e) { //TODO Adding event handler on change "value"
 	d3.event.stopPropagation();
-	console.log(this.value);
+	//console.log(this.value);
 });
 			tRow.append("td").attr("class","mdl-data-table__cell--non-numeric").append("input"). attr("class","mdl-textfield__input").attr("type","text").attr("value", "empty")
-.on("change", function(e) { //Adding event handler on change "value"
+.on("change", function(e) { //TODO Adding event handler on change "value"
 	d3.event.stopPropagation();
-	console.log(this.value);
+	//console.log(this.value);
 });
 }    
     
@@ -474,12 +436,31 @@ function displayMetaClassFilter(M) {
                                 modelView = new Model('ViewFiltered');
                                 modelView.add(filteredElements);
                                 graph ={"nodes":modelView.elements(), "edges":createLinks(modelView)};
+                                var groups = groupInit(Mgroup,M);  
                                 document.querySelector('.page-content svg g').innerHTML='';
-                                drawGraph(graph);
+                                drawGraph(graph,groups);
                         });
     }
 
 }   
+ 
+    
+function filteredModelView(etamodel) {
+    var transformation = new jsmf.Transformation();
+    
+    var view ={
+        in : function(i){},
+        out : function (o) {
+            
+        }
+     }
+    
+    transformation.addRule(view);
+   // transformation.addRule();
+     //rule exec + copy existing transformation
+}
+    
+    
     
 /**
     @param M {JSMF.Model} a model
@@ -501,6 +482,123 @@ function createLinks(M) {
  return links;       
 }
     
+ 
+function createModel() {
+
+    var MM = new Model('MetaVisu');
+
+    var ClassA = Class.newInstance("A");
+    ClassA.addAttribute('wheels', Number);
+    ClassA.setReference('next',ClassA,1)
+
+    var ClassB = Class.newInstance("B");
+    ClassB.setAttribute('name',String)
+    ClassB.addAttribute('quality', String);
+    ClassB.setReference('wheelQuality',ClassA,-1);
+
+    ClassA.setReference('xf',ClassB,1);
+
+    var ClassC = Class.newInstance("C");
+    ClassC.addAttribute('name', String);
+
+    ClassA.setReference('reminder',ClassC,-1);    
+
+    MM.add([ClassA,ClassB,ClassC])
+
+    var smallA = ClassA.newInstance();
+    smallA.wheels = 4;
+
+
+    var bigA = ClassA.newInstance();
+    bigA.wheels = 6;
+    bigA.next=smallA
+
+    var smallB = ClassB.newInstance();
+    smallB.name='TUV'
+    smallB.quality = 'good';
+    smallB.wheelQuality=[smallA,bigA];
+
+    var xA  = ClassA.newInstance({wheels:2}); 
+
+    var xxA = ClassA.newInstance({wheels:1});
+
+    smallA.next=xA;
+    xA.next=xxA;
+
+
+    var smallx = ClassB.newInstance({name:'NordVerif', quality:'medium'});  
+    smallx.wheelQuality=[xA,xxA];  
+
+    var cein = ClassC.newInstance({name:'Change'});
+    smallA.reminder=cein;
+    xxA.reminder=cein;
+
+    var M = new Model('Testvisu')
+
+    M.setReferenceModel(MM);
+
+    M.add([smallA,smallB,bigA,cein,xA,xxA,smallx]);
+
+    return M;
+    
+}
+
+function groupInit(groups, megaM) {
+            
+    //To be initialized with a megamodel
+    console.log(megaM);
+    
+    var clustersMap={};
+     _.each(megaM.nodes, function(e){
+            if(clustersMap['Model']!==undefined) {
+                clustersMap['Model'].push(e)
+            } else {
+               clustersMap['Model'] = [e];  
+            }
+        }); //or megaM.elements
+        
+        /*d3.nest()
+        .key(function(d) {console.log(d); return d.name;})
+        .sortKeys(d3.ascending)
+        .entries(megaM);*/
+    //clustersMap['Test']=[1,2,3];
+    
+    var c = clustersMap.length;
+    
+    //console.log('c',clustersMap['Model'],clustersMap);
+    
+    groups.a = Math.min(w, h);
+    groups.r = groups.a * 0.20;
+
+    // initialise groups around a hexa shape
+    _.each(clustersMap, function(e,i){
+       // var i = 1;
+        var g = [];
+       // g.groupId = i;
+        g.x = w / 2;
+        g.y = h / 2;
+
+        // makes the clusters drawing
+        g.x = Math.cos(i / c * 2 * Math.PI) * 250 + w / 2 + Math.random();
+        g.y = Math.sin(i / c * 2 * Math.PI) * 250 + h / 2 + Math.random();
+
+        // hexagon shape
+        var shapeOfVisualisedCluster = 6;
+        //var howManyGood = e.length;
+        //var howManyDummy = shapeOfVisualisedCluster-howManyGood;
+
+        for (j = 0; j < shapeOfVisualisedCluster; j++) {
+            var alpha = (2 * Math.PI * j / shapeOfVisualisedCluster); 50
+            var dummy = { x: g.x + 10 * Math.sin(alpha), y: g.y + 10 * Math.cos(alpha) };
+            g.push(dummy);
+        }
+
+        groups[i] = g;
+            
+    });
+    
+    return groups;
+}    
     
 </script>
 
