@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>JSMF View</title>
+<script src="./bower_components/d3/d3.min.js"></script>
+<link rel="stylesheet" href="./bower_components/material-design-lite/material.min.css"/>
+<script src="./bower_components/material-design-lite/material.min.js"></script>
+<script type="text/javascript" src="./bower_components/jsmf-browser/dist/jsmf-browser.js"></script>
+<script type="text/javascript" src="./bower_components/lodash/dist/lodash.min.js"></script>
+<script src="./bower_components/node-uuid/uuid.js"></script>
+<style type="text/css">
+.mdl-textfield__input {
+	font-size:12px;
+}
+
+.mdl-button {
+margin-top: 0px;
+}
+
+</style>
+</head>
+<body>
+
+<div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer
+            mdl-layout--overlay-drawer-button">
+ <div class="mdl-layout__drawer">
+   <span class="mdl-layout-title" id="titleProperties">Node Properties</span>
+	<div id ="board">
+	</div>
+	<table class="mdl-data-table mdl-js-data-table">
+  <thead>
+    <tr>
+      <th class="mdl-data-table__cell--non-numeric">Properties</th>
+      <th class="mdl-data-table__cell--non-numeric">Value</th>
+    </tr>
+  </thead>
+  <tbody id="cellsProperties">
+	<tr>
+		<td class="mdl-data-table__cell--non-numeric">Editable</td>
+		<td class="mdl-data-table__cell">			
+			<input class="mdl-textfield__input" type="text" id="sample1" />
+		</td>
+	</tr>
+		<!-- will be filled by Node Infromation -->
+  </tbody>
+</table>
+
+<button id="add" class="mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-js-ripple-effect mdl-button--colored" data-upgraded=",MaterialButton,MaterialRipple">
+  <i class="material-icons">+</i>
+<span class="mdl-button__ripple-container"><span class="mdl-ripple"></span></span></button>
+  
+<div class="mdl-card__supporting-text">
+    <h5>Filter by node property</h5>
+    <div class="mdl-textfield mdl-js-textfield">
+    <input class="mdl-textfield__input" type="text" id="elementName">
+    <label class="mdl-textfield__label" for="sample1">Element name...</label>
+  </div>
+    <!-- Slider with Starting Value -->
+   Search Depth: <input class="mdl-slider mdl-js-slider" type="range"
+           min="0" max="10" value="2" tabindex="0" oninput="showMessage(this.value)" onchange="showMessage(this.value)" id="depthSlider">
+    <div id="depthValue"></div>
+    
+  </div>       
+     
+<div class="mdl-card__supporting-text">     
+    <h5>Meta-Class Filter</h5>
+     <nav class="mdl-navigation" id="M2List">
+        <a class="mdl-navigation__link" id="nav_redraw">Redraw</a>
+    </nav>
+</div> 
+
+     
+</div> <!-- end panel-->
+
+
+ <main  class="mdl-layout__content">
+	<div>
+    <div id="d3svg" class="page-content" style="height:auto">
+	</div>
+	</div>
+</main>
+
+
+
+<script type="text/javascript">
+
+var w = 1200;
+var h = 800;
+var linkDistance=150;
+
+var colors = d3.scale.category10();
+
+var selected_node = null;
+
+var graph;
+    
+var Mgroup = [];
+
+var Model = jsmf.Model;
+var Class = jsmf.Class;    
+    
+var s_M = <%- serializedModel %>;
+
+s_M = JSON.stringify(s_M);
+
+var M = jsmf.parse(s_M);
+ 
+//Set the behavior of the D3 graph display zone (add zoom and pane)
+var svg = d3.select('.page-content').append("svg").attr({"width":w,"height":h}).call(d3.behavior.zoom().on("zoom", function () {
+    svg.attr("transform", "translate(" + d3.event.translate + ")" + " scale(" + d3.event.scale + ")")
+  })).on("dblclick.zoom", null).append('g');   
+  
+//Add behaviour of the add button (under construction)    
+d3.select("#add").on('click', function() {
+	addRow();
+});    
+
+//initial model should not be changed by the view...
+document.querySelector('#nav_redraw').addEventListener("click", function(e) {
+        document.querySelector('.page-content svg g').innerHTML='';
+        var groups = groupInit(Mgroup,M);
+        drawGraph({nodes:M.elements(),edges:createLinks(M)}, groups);
+});
+    
+
+//Set the behavior of the filter by node property 
+document.querySelector('#elementName').addEventListener("change", function(e) {
+		var valAttribute= this.value;
+        var validEntryPoints = [];
+        jsmf.filterModelElements(function(x){
+            _.each(x.__jsmf__.attributes,
+                function(curr){
+                    console.log(curr);
+                    if(curr==valAttribute){                  
+                        validEntryPoints.push(x); 
+                    }
+            });
+            return validEntryPoints},
+        M);
+        var depthV = document.getElementById('depthSlider').value;
+        console.log(depthV)
+        var validME = jsmf.crawl({depth:depthV,searchMethod:jsmf.BFS_All},validEntryPoints[0]);
+        var modelView = new Model('View');
+        modelView.add(validME);
+        
+        graph ={"nodes":modelView.elements(), "edges":createLinks(modelView)};
+        var groups = groupInit(Mgroup,M);    
+        document.querySelector('.page-content svg g').innerHTML='';
+		drawGraph(graph,groups);
+    });
+  
+    
+function showMessage(value){
+         document.getElementById("depthValue").innerHTML = value;
+}	  
+    
+    
+
+var colorTab = {}    
+
+//Create the button in the nav bar that allows to filter the graph against the meta-classes
+displayMetaClassFilter(M);
+
+//   
+var nodesM = M.elements();
+    
+// create links from JSMF references that are targetting nodes presents in Model M. (i.e., removing links pointing outisdes the model M)
+var links=createLinks(M); 
+
+    
+    
+//Set the graph
+var graph = {"nodes":nodesM, "edges":links};
+    
+//    
+var groups = groupInit(Mgroup,graph);    
+
+//Launch the display of the graph    
+drawGraph(graph,groups);
+
+/*
+*/
+function drawGraph(graph,groups) {
+       
+    
+    var force = d3.layout.force()
+        .nodes(graph.nodes)
+        .links(graph.edges)
+        .size([w,h])
+        .linkDistance([linkDistance])
+        .charge([-1000])
+        .theta(0.5)
+        .gravity(0.05)
+        .start();
+ 
+    var edges = svg.selectAll("line")
+      .data(graph.edges);
+      edges.enter()
+      .append("line")
+      .attr("id",function(d,i) {return 'edge'+i})
+      .attr('marker-end','url(#arrowhead)')
+      .style("stroke","#ccc")
+      .style("pointer-events", "none");
+    
+     edges.exit().remove();
+    
+   
+    var nodes = svg.selectAll("circle")
+      .data(graph.nodes);
+      nodes.enter()
+      .append("circle")
+      .attr({"r":15})
+      .style("fill",function(d,i){
+          var index = colorTab[d.conformsTo().__name];
+          return colors(index);
+      })
+      .call(force.drag)
+	  .on('click', function(d) {
+      	if(d3.event.ctrlKey) return;
+      	// select nodes to display its JSMF attributes
+		d3.event.stopPropagation()
+      	mousedown_node = d;
+      	if(mousedown_node === selected_node) selected_node = null;
+      	else selected_node = mousedown_node;
+		displayAttributes(selected_node);
+      	selected_link = null;
+		mousedown_node = null;
+	}) 
+    .on('dblclick', function(d) {
+        //console.log(uuid.unparse(d.__jsmf__.uuid))
+        //add behavior on double click: filter against the current node up to a depth of 2  
+        var validEntryPoint = jsmf.filterModelElements(function(x){ 
+            return uuid.unparse(x.__jsmf__.uuid) ==uuid.unparse(d.__jsmf__.uuid)
+        },
+        M);  
+        var validME = jsmf.crawl({depth:2,searchMethod:jsmf.BFS_All},validEntryPoint[0]);
+        var modelView = new Model('View');
+        modelView.add(validME);
+        
+        graph ={"nodes":modelView.elements(), "edges":createLinks(modelView)};
+        var groups = groupInit(Mgroup,M);  
+        document.querySelector('.page-content svg g').innerHTML='';
+		drawGraph(graph, groups);
+      
+      });
+    
+    nodes.exit().remove();
+/*
+    var nodelabels = svg.selectAll(".nodelabel") 
+       .data(graph.nodes)
+       .enter()
+       .append("text")
+       .attr({"x":function(d){return d.x;},
+              "y":function(d){return d.y;},
+              "class":"nodelabel",
+              "stroke":"black"})
+       .text(function(d){
+           var result =" ";
+          // console.log(d.name);
+           if(d.name==undefined) {
+                for(i in d.__jsmf__.attributes) {
+                    if(d.__jsmf__.attributes[i]!=undefined) { 
+                        return d.__jsmf__.attributes[i];
+                    }
+                }
+           } else {
+                return d.name;
+           }
+       });
+*/
+    var edgepaths = svg.selectAll(".edgepath")
+        .data(graph.edges)
+        .enter()
+        .append('path')
+        .attr({'d': function(d) {return 'M '+d.source.x+' '+d.source.y+' L '+ d.target.x +' '+d.target.y},
+               'class':'edgepath',
+               'fill-opacity':0,
+               'stroke-opacity':0,
+               'fill':'blue',
+               'stroke':'red',
+               'id':function(d,i) {return 'edgepath'+i}})
+        .style("pointer-events", "none");
+   
+    // Draws the shape for model group
+/*
+     var groupPath = function (d) {
+                console.log('dy',d)
+                return "M" +
+                d3.geom.hull(d.map(function (e) { return [e.x, e.y]; }))
+                    .join("L")
+                + "Z";
+     };
+ */   
+    //
+    var nodeFill = function (n) {
+            return n.groupId != null ? fill(n.groupId) : "black";
+    };
+    /*
+    var edgelabels = svg.selectAll(".edgelabel")
+        .data(graph.edges)
+        .enter()
+        .append('text')
+        .style("pointer-events", "none")
+        .attr({'class':'edgelabel',
+               'id':function(d,i){return 'edgelabel'+i},
+               'dx':80,
+               'dy':0,
+               'font-size':10,
+               'fill':'#aaa'});
+*/
+/*
+    var group = svg.selectAll("path")
+            .data(groups)
+            .attr("d", groupPath)
+            .attr("class", "group")
+            .enter().insert("path", "node")
+            .style("fill", nodeFill)
+            .style("stroke", nodeFill)
+            .style("stroke-width", 40)
+            .style("stroke-linejoin", "round")
+            .style("opacity", .2)
+  */  
+/*
+    edgelabels.append('textPath')
+        .attr('xlink:href',function(d,i) {return '#edgepath'+i})
+        .style("pointer-events", "none")
+        .text(function(d,i){return d.name});
+  */  
+    svg.append('defs').append('marker')
+        .attr({'id':'arrowhead',
+               'viewBox':'-0 -5 10 10',
+               'refX':25,
+               'refY':0,
+               //'markerUnits':'strokeWidth',
+               'orient':'auto',
+               'markerWidth':10,
+               'markerHeight':10,
+               'xoverflow':'visible'})
+        .append('svg:path')
+            .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
+            .attr('fill', '#ccc')
+            .attr('stroke','#ccc');
+     
+    
+    force.on("tick", function(){
+
+        edges.attr({"x1": function(d){return d.source.x;},
+                    "y1": function(d){return d.source.y;},
+                    "x2": function(d){return d.target.x;},
+                    "y2": function(d){return d.target.y;}
+        });
+
+        nodes.attr({"cx":function(d){return d.x;},
+                    "cy":function(d){return d.y;}
+        });
+        
+        //group.attr("d", groupPath);
+        
+       // nodelabels.attr("x", function(d) { return d.x; }) 
+        //          .attr("y", function(d) { return d.y; });
+
+        edgepaths.attr('d', function(d) { var path='M '+d.source.x+' '+d.source.y+' L '+ d.target.x +' '+d.target.y;
+                                           return path});       
+
+/*
+        edgelabels.attr('transform',function(d,i){
+            if (d.target.x<d.source.x){
+                bbox = this.getBBox();
+                rx = bbox.x+bbox.width/2;
+                ry = bbox.y+bbox.height/2;
+                return 'rotate(180 '+rx+' '+ry+')';
+                }
+            else {
+                return 'rotate(0)';
+                }
+        });
+*/
+    });
+
+}
+
+function addRow() {
+	var table = d3.select('#cellsProperties');
+	var tRow = table.append("tr");
+			tRow.append("td").attr("class","mdl-data-table__cell--non-numeric").append("input"). attr("class","mdl-textfield__input").attr("type","text").attr("value", "empty")
+.on("change", function(e) { //TODO Adding event handler on change "value"
+	d3.event.stopPropagation();
+	//console.log(this.value);
+});
+			tRow.append("td").attr("class","mdl-data-table__cell--non-numeric").append("input"). attr("class","mdl-textfield__input").attr("type","text").attr("value", "empty")
+.on("change", function(e) { //TODO Adding event handler on change "value"
+	d3.event.stopPropagation();
+	//console.log(this.value);
+});
+}    
+    
+function displayAttributes(messageNode) {
+	//if messageNode .isJSMFElement
+	var tTitle = 'Class '+messageNode.conformsTo().__name;
+	var M2title = d3.select("#titleProperties").text(tTitle)
+	var table = d3.select('#cellsProperties');
+	table.html("");
+	for(x in messageNode.__jsmf__.attributes) {
+		var tRow = table.append("tr");
+		tRow.append("td").attr("class","mdl-data-table__cell--non-numeric").text(x);
+			tRow.append("td").
+							attr("class","mdl-data-table__cell--non-numeric").
+							append("input"). 
+							attr("class","mdl-textfield__input").
+							attr("type","text").
+							attr("value",messageNode[x]).
+							on("change", function(e) { //Adding event handler on change "value"
+								d3.event.stopPropagation();
+								console.log(this.value);
+								//update Class + model (or add "flexible attribute")
+ 							});
+	}
+
+}
+
+/**
+    @param M {Model} a model
+    builds the list (in navigation bar that allows to filter the graph against 
+    the type of model elements, i.e., the meta classes)
+*/   
+function displayMetaClassFilter(M) {
+    
+	var list = d3.select('#M2List');
+    var MKey = Object.keys(M.modellingElements);
+
+    /* Create all the metamodel filtering elements */
+    for(i in MKey) {
+        var M2Item = M.modellingElements[MKey[i]][0].conformsTo();
+        colorTab[M2Item.__name]=i;
+        var M2List = document.querySelector('#M2List');
+        var aList = document.createElement('a');
+        aList.classList.add('mdl-navigation__link')
+        aList.innerHTML = MKey[i];
+        M2List.appendChild(aList);
+        aList.addEventListener('click', function(d){
+                                var filter = d.srcElement.innerHTML;
+                                var filteredElements = M.modellingElements[filter];
+                                modelView = new Model('ViewFiltered');
+                                modelView.add(filteredElements);
+								var elemOne = [];
+	/*
+								for(i in filteredElements) {
+									var validME = jsmf.crawl({depth:1,searchMethod:jsmf.BFS_All},filteredElements[i]);
+									elemOne = _.concat(elemOne,validME);
+								}
+									//console.log(elemOne);
+								_.uniq(elemOne,function(e){ console.log(e.__jsmf__.uuid); return e.__jsmf__.uuid;});
+								modelView.add(elemOne);
+*/       
+                                graph = {"nodes":modelView.elements(), "edges":createLinks(modelView)};
+                                var groups = groupInit(Mgroup,M);  
+                                document.querySelector('.page-content svg g').innerHTML='';
+                                drawGraph(graph,groups);
+                        });
+    }
+
+}   
+ 
+    
+function filteredModelView(etamodel) {
+    var transformation = new jsmf.Transformation();
+    
+    var view ={
+        in : function(i){},
+        out : function (o) {
+            
+        }
+     }
+    
+    transformation.addRule(view);
+   // transformation.addRule();
+     //rule exec + copy existing transformation
+}
+    
+    
+    
+/**
+    @param M {JSMF.Model} a model
+    @return Link return a collection of links in the scope of the model M (i.e., targetted nodes are in M).
+*/
+function createLinks(M) {
+ var links=[];
+    var cNode = M.elements();
+    for(i in cNode) {
+        for(j in cNode[i].__jsmf__.references) {
+            for(z in cNode[i][j]) {
+                if(_.includes(cNode,cNode[i][j][z])) { //patch for filtering elements in models
+                    var link = {'name':j, 'source':cNode[i], 'target':cNode[i][j][z]}; 
+                    links.push(link);
+                }
+            }			
+        }
+    }   
+ return links;       
+}
+    
+ 
+function groupInit(groups, megaM) {
+            
+    //To be initialized with a megamodel
+    console.log(megaM);
+    
+    var clustersMap={};
+     _.each(megaM.nodes, function(e){
+            if(clustersMap['Model']!==undefined) {
+                clustersMap['Model'].push(e)
+            } else {
+               clustersMap['Model'] = [e];  
+            }
+        }); //or megaM.elements
+        
+        /*d3.nest()
+        .key(function(d) {console.log(d); return d.name;})
+        .sortKeys(d3.ascending)
+        .entries(megaM);*/
+    //clustersMap['Test']=[1,2,3];
+    
+    var c = clustersMap.length;
+    
+    //console.log('c',clustersMap['Model'],clustersMap);
+    
+    groups.a = Math.min(w, h);
+    groups.r = groups.a * 0.20;
+
+    // initialise groups around a hexa shape
+    _.each(clustersMap, function(e,i){
+       // var i = 1;
+        var g = [];
+       // g.groupId = i;
+        g.x = w / 2;
+        g.y = h / 2;
+
+        // makes the clusters drawing
+        g.x = Math.cos(i / c * 2 * Math.PI) * 250 + w / 2 + Math.random();
+        g.y = Math.sin(i / c * 2 * Math.PI) * 250 + h / 2 + Math.random();
+
+        // hexagon shape
+        var shapeOfVisualisedCluster = 6;
+        //var howManyGood = e.length;
+        //var howManyDummy = shapeOfVisualisedCluster-howManyGood;
+
+        for (j = 0; j < shapeOfVisualisedCluster; j++) {
+            var alpha = (2 * Math.PI * j / shapeOfVisualisedCluster); 50
+            var dummy = { x: g.x + 10 * Math.sin(alpha), y: g.y + 10 * Math.cos(alpha) };
+            g.push(dummy);
+        }
+
+        groups[i] = g;
+            
+    });
+    
+    return groups;
+}    
+    
+</script>
+
+</body>
+</html>
