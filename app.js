@@ -33,11 +33,12 @@ app.get('/s', function(req,res) {
 	//console.log(M.referenceModel);
 	var serializedModel = jsmfjson.stringify(M);
 	
+/*
 	fs.writeFile("./serial.txt", serializedModel, function(err) {
         if(err) { console.log('err'); throw(err) }
         else { console.log('Saved') }
     });
-
+*/
 	res.render('index2.html',{serializedModel: serializedModel });
 });
 
