@@ -257,7 +257,6 @@ function drawGraph(graph,groups) {
               "stroke":"black"})
        .text(function(d){
            var result =" ";
-          // console.log(d.name);
            if(d.name==undefined) {
                 for(i in d.__jsmf__.attributes) {
                     if(d.__jsmf__.attributes[i]!=undefined) { 
@@ -296,7 +295,8 @@ function drawGraph(graph,groups) {
     var nodeFill = function (n) {
             return n.groupId != null ? fill(n.groupId) : "black";
     };
-    /*
+
+/*
     var edgelabels = svg.selectAll(".edgelabel")
         .data(graph.edges)
         .enter()
@@ -444,15 +444,15 @@ function displayMetaClassFilter(M) {
                                 modelView = new Model('ViewFiltered');
                                 modelView.add(filteredElements);
 								var elemOne = [];
-	/*
+	
 								for(i in filteredElements) {
 									var validME = jsmf.crawl({depth:1,searchMethod:jsmf.BFS_All},filteredElements[i]);
 									elemOne = _.concat(elemOne,validME);
 								}
 									//console.log(elemOne);
-								_.uniq(elemOne,function(e){ console.log(e.__jsmf__.uuid); return e.__jsmf__.uuid;});
+								_.uniqBy(elemOne,function(e){ console.log(uuid.unparse(e.__jsmf__.uuid)); return uuid.unparse(e.__jsmf__.uuid);});
 								modelView.add(elemOne);
-*/       
+      
                                 graph = {"nodes":modelView.elements(), "edges":createLinks(modelView)};
                                 var groups = groupInit(Mgroup,M);  
                                 document.querySelector('.page-content svg g').innerHTML='';
@@ -463,7 +463,7 @@ function displayMetaClassFilter(M) {
 }   
  
     
-function filteredModelView(etamodel) {
+function filteredModelView(Metamodel) {
     var transformation = new jsmf.Transformation();
     
     var view ={
