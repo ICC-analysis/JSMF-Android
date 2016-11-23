@@ -28,7 +28,7 @@ margin-top: 0px;
    <span class="mdl-layout-title" id="titleProperties">Node Properties</span>
 	<div id ="board">
 	</div>
-	<table class="mdl-data-table mdl-js-data-table">
+<table class="mdl-data-table mdl-js-data-table">
   <thead>
     <tr>
       <th class="mdl-data-table__cell--non-numeric">Properties</th>
@@ -191,6 +191,7 @@ function drawGraph(graph,groups) {
         .linkDistance([linkDistance])
         .charge([-1000])
         .theta(0.5)
+		//.alpha(0.1)
         .gravity(0.05)
         .start();
  
@@ -342,7 +343,51 @@ function drawGraph(graph,groups) {
             .attr('fill', '#ccc')
             .attr('stroke','#ccc');
      
-    
+	force.on('end', function() {
+	
+	console.log('end');
+
+	var nodelabels = svg.selectAll(".nodelabel") 
+       .data(graph.nodes)
+       .enter()
+       .append("text")
+       .attr({"x":function(d){return d.x;},
+              "y":function(d){return d.y;},
+              "class":"nodelabel",
+              "stroke":"black"})
+       .text(function(d){
+           var result =" ";
+           if(d.name==undefined) {
+                for(i in d.__jsmf__.attributes) {
+                    if(d.__jsmf__.attributes[i]!=undefined) { 
+                        return d.__jsmf__.attributes[i];
+                    }
+                }
+           } else {
+                return d.name;
+           }
+       });
+
+	 var edgelabels = svg.selectAll(".edgelabel")
+        .data(graph.edges)
+        .enter()
+        .append('text')
+        .style("pointer-events", "none")
+        .attr({'class':'edgelabel',
+               'id':function(d,i){return 'edgelabel'+i},
+               'dx':80,
+               'dy':0,
+               'font-size':10,
+               'fill':'#aaa'});
+
+	 edgelabels.append('textPath')
+        .attr('xlink:href',function(d,i) {return '#edgepath'+i})
+        .style("pointer-events", "none")
+        .text(function(d,i){return d.name});
+
+
+	});    
+
     force.on("tick", function(){
 
         edges.attr({"x1": function(d){return d.source.x;},
@@ -402,6 +447,9 @@ function displayAttributes(messageNode) {
 	var table = d3.select('#cellsProperties');
 	table.html("");
 	for(x in messageNode.__jsmf__.attributes) {
+	var attType = messageNode.conformsTo().attributes[x].type;
+	var value = jsmf.isJSMFEnum(attType)? attType.getName(messageNode[x]) : messageNode[x]; 
+	//console.log('msg',messageNode[x],x, jsmf.isJSMFEnum(messageNode.conformsTo().attributes[x].type)); //messageNode.conformsTo().attributes[x]
 		var tRow = table.append("tr");
 		tRow.append("td").attr("class","mdl-data-table__cell--non-numeric").text(x);
 			tRow.append("td").
@@ -409,7 +457,7 @@ function displayAttributes(messageNode) {
 							append("input"). 
 							attr("class","mdl-textfield__input").
 							attr("type","text").
-							attr("value",messageNode[x]).
+							attr("value",value).
 							on("change", function(e) { //Adding event handler on change "value"
 								d3.event.stopPropagation();
 								console.log(this.value);
@@ -450,7 +498,8 @@ function displayMetaClassFilter(M) {
 									elemOne = _.concat(elemOne,validME);
 								}
 									//console.log(elemOne);
-								_.uniqBy(elemOne,function(e){ console.log(uuid.unparse(e.__jsmf__.uuid)); return uuid.unparse(e.__jsmf__.uuid);});
+								_.uniqBy(elemOne,function(e){ //console.log(uuid.unparse(e.__jsmf__.uuid)); 
+																return uuid.unparse(e.__jsmf__.uuid);});
 								modelView.add(elemOne);
       
                                 graph = {"nodes":modelView.elements(), "edges":createLinks(modelView)};
@@ -504,7 +553,7 @@ function createLinks(M) {
 function groupInit(groups, megaM) {
             
     //To be initialized with a megamodel
-    console.log(megaM);
+   // console.log(megaM);
     
     var clustersMap={};
      _.each(megaM.nodes, function(e){

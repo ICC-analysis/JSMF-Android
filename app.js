@@ -26,6 +26,14 @@ app.listen(3000, function () {
   console.log('Example app listening on port 3000!');
 });
 
+app.get('/sun', function (req, res) {
+  var M = protoBufModels.model;
+	//console.log(M.referenceModel);
+  var serializedModel = jsmfjson.stringify(M);
+
+ res.render('sunburst.html',{serializedModel: serializedModel });
+});
+
 
 app.get('/s', function(req,res) {
 	//var M = buildModel();
@@ -42,6 +50,7 @@ app.get('/s', function(req,res) {
 	res.render('index2.html',{serializedModel: serializedModel });
 });
 
+//Helper model to test functionalities - should be improved with larger model
 function  buildModel() {
 	
  var MM = new Model('MetaVisu');
