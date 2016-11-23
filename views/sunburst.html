@@ -18,6 +18,10 @@
 margin-top: 0px;
 }
 
+.full-size {
+	width: 100%
+}
+
 </style>
 </head>
 <body> 
@@ -27,13 +31,13 @@ margin-top: 0px;
 		<div class="mdl-cell mdl-cell--12-col" id="sequence"></div>
       	<div class="mdl-cell mdl-cell--6-col" id="chart">
 		</div>
-        <div class="mdl-cell mdl-cell--6-col" id="explanation" style="visibility: hidden;">
+        <div class="mdl-cell mdl-cell--6-col" id="explanation" style="visibility:hidden;">
 			<span class="mdl-layout-title" id="titleProperties">Node Properties</span>
 			<table class="mdl-data-table mdl-js-data-table">
   				<thead>
    				 <tr>
       				<th class="mdl-data-table__cell--non-numeric">Properties</th>
-      				<th class="mdl-data-table__cell--non-numeric">Value</th>
+      				<th class="mdl-data-table__cell--non-numeric full-size">Value</th>
     			</tr>
   				</thead>
   			<tbody id="cellsProperties">
@@ -51,39 +55,43 @@ margin-top: 0px;
 	</div>
     </main>
 <script>
-// Dimensions of sunburst.
-var width = 550;
-var height = 550;
-var radius = Math.min(width, height) / 2;
+var width = 550,
+    height = 550,
+    radius = (Math.min(width, height) / 2) ;
+
+var formatNumber = d3.format(",d");
+
+var x = d3.scale.linear()
+    .range([0, 2 * Math.PI]);
+
+var y = d3.scale.sqrt()
+    .range([0, radius]);
 
 // Breadcrumb dimensions: width, height, spacing, width of tip/tail.
 var b = {
     w: 75, h: 30, s: 3, t: 10
 };
 
+
 // make `colors` an ordinal scale
 var colors = d3.scale.category20();
 
-// Total size of all segments; we set this later, after loading the data.
-var totalSize = 0; 
-
-var vis = d3.select("#chart").append("svg:svg")
-    .attr("width", width)
-    .attr("height", height)
-    .append("svg:g")
-    .attr("id", "container")
-    .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
-
 var partition = d3.layout.partition()
-    .size([2 * Math.PI, 100])
     .value(function(d) { return d.size; });
 
 var arc = d3.svg.arc()
-    .startAngle(function(d) { return d.x; })
-    .endAngle(function(d) { return d.x + d.dx; })
-    .innerRadius(function(d) { return radius * Math.sqrt(d.y) / 10; })
-    .outerRadius(function(d) { return radius * Math.sqrt(d.y + d.dy) / 10; });
+    .startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x))); })
+    .endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x + d.dx))); })
+    .innerRadius(function(d) { return Math.max(0, y(d.y)); })
+    .outerRadius(function(d) { return Math.max(0, y(d.y + d.dy)); });
 
+var svg = d3.select("#chart").append("svg:svg")
+    .attr("width", width)
+    .attr("height", height)
+    .append("g")
+    .attr("transform", "translate(" + width / 2 + "," + (height / 2) + ")");
+
+//Getting model from server
 var s_M = <%- serializedModel %>;
 
 s_M = JSON.stringify(s_M);
@@ -92,13 +100,115 @@ var M = jsmf.parse(s_M);
 
 var root = _.first(M.elements());
 var visuJSMF= buildModel(root);
-//console.log('visu',visuJSMF);
+buildVisualization(visuJSMF);
 
-var json = getData();
-createVisualization(visuJSMF);
+function buildVisualization(visuJSMF) {
+
+	 // Basic setup of page elements.
+    initializeBreadcrumbTrail();
+
+	var nodes = partition.nodes(visuJSMF).filter(function(d) {
+            return (d.dx > 0.005); // 0.005 radians = 0.29 degrees
+        });
+
+	var uniqueNames = (function(a) {
+        var output = [];
+        a.forEach(function(d) {
+            if (output.indexOf(d.name) === -1) {
+                output.push(d.name);
+            }
+        });
+        return output;
+    })(nodes);
+    
+	// set domain of colors scale based on data
+	colors.domain(uniqueNames);
+
+	//createVisualization(visuJSMF);
+  svg.selectAll("path")
+      	.data(partition.nodes(visuJSMF))
+    	.enter().append("path")
+      	.attr("d", arc)
+      	.style("fill", function(d) {  return colors(d.name); })
+      	.on("click", click)
+	   	.on("mouseover", mouseover)
+    	.append("title")
+      	.text(function(d) { return d.name + "\n" + formatNumber(d.value); });
+
+	// make sure this is done after setting the domain
+    drawLegend();
+
+  
+
+d3.select(self.frameElement).style("height", height + "px");
+
+}
+
+function click(d) {
+  svg.transition()
+      .duration(750)
+      .tween("scale", function() {
+        var xd = d3.interpolate(x.domain(), [d.x, d.x + d.dx]),
+            yd = d3.interpolate(y.domain(), [d.y, 1]),
+            yr = d3.interpolate(y.range(), [d.y ? 20 : 0, radius]);
+        return function(t) { x.domain(xd(t)); y.domain(yd(t)).range(yr(t)); };
+      })
+    .selectAll("path")
+      .attrTween("d", function(d) { return function() { return arc(d); }; });
+
+}
+
+function mouseover(d) {
+
+	d3.select("#explanation")
+      .style("visibility", "");
+
+	var tTitle = 'Class '+d.name;
+	var M2title = d3.select("#titleProperties").text(tTitle)
+	var table = d3.select('#cellsProperties');
+	table.html("");
+	var jsmfData = d.data;
+	for(index in jsmfData.__jsmf__.attributes) {
+		var attType = jsmfData.conformsTo().attributes[index].type;
+		var value = jsmf.isJSMFEnum(attType)? attType.getName(jsmfData[index]) : jsmfData[index]; 
+		//console.log('msg',messageNode[x],x, jsmf.isJSMFEnum(messageNode.conformsTo().attributes[x].type)); //messageNode.conformsTo().attributes[x]
+		var tRow = table.append("tr");
+		tRow.append("td").attr("class","mdl-data-table__cell--non-numeric").text(index);
+			tRow.append("td").
+							attr("class","mdl-data-table__cell--non-numeric").
+							append("input"). 
+							attr("class","mdl-textfield--full-width mdl-textfield__input").
+							attr("type","text").
+							attr("value",value).
+							on("change", function(e) { //Adding event handler on change "value"
+								d3.event.stopPropagation();
+								//console.log(this.value);
+								//update Class + model (or add "flexible attribute")
+ 							});
+  }
 
 
+	var sequenceArray = getAncestors(d);
+  	updateBreadcrumbs(sequenceArray, d.name);
 
+	d3.selectAll("path")
+      .style("opacity", 0.7);
+
+  	// Then highlight only those that are an ancestor of the current segment.
+  	svg.selectAll("path")
+      .filter(function(node) {
+                return (sequenceArray.indexOf(node) >= 0);
+              })
+      .style("opacity", 1.5);
+
+
+}
+
+/*************************************************************
+Old functions 
+
+*/
+/*
 // Main function to draw and set up the visualization, once we have the data.
 function createVisualization(json) {
 
@@ -144,7 +254,8 @@ function createVisualization(json) {
         .attr("fill-rule", "evenodd")
         .style("fill", function(d) { return colors(d.name); })
         .style("opacity", 1)
-        .on("mouseover", mouseover);
+       // .on("mouseover", mouseover)
+		.on("click", click);
 
     // Add the mouseleave handler to the bounding circle.
     d3.select("#container").on("mouseleave", mouseleave);
@@ -152,12 +263,9 @@ function createVisualization(json) {
     // Get total size of the tree = value of root node from partition.
     totalSize = path.node().__data__.value;
 };
-
+*/
 // Fade all but the current sequence, and show it in the breadcrumb trail.
-function mouseover(d) {
-
-	console.log(d);
-
+function mouseover2(d) {
 
   d3.select("#explanation")
       .style("visibility", "");
@@ -176,12 +284,13 @@ function mouseover(d) {
 			tRow.append("td").
 							attr("class","mdl-data-table__cell--non-numeric").
 							append("input"). 
-							attr("class","mdl-textfield__input").
-							attr("type","text").
+							attr("class","mdl-textfield--full-width mdl-textfield__input").
+							attr("type","textarea").
+							attr("row","2").
 							attr("value",value).
 							on("change", function(e) { //Adding event handler on change "value"
 								d3.event.stopPropagation();
-								console.log(this.value);
+								//console.log(this.value);
 								//update Class + model (or add "flexible attribute")
  							});
   }
@@ -194,7 +303,7 @@ function mouseover(d) {
       .style("opacity", 0.3);
 
   // Then highlight only those that are an ancestor of the current segment.
-  vis.selectAll("path")
+  svg.selectAll("path")
       .filter(function(node) {
                 return (sequenceArray.indexOf(node) >= 0);
               })
@@ -218,13 +327,15 @@ function mouseleave(d) {
       .style("opacity", 1)
       .each("end", function() {
               d3.select(this).on("mouseover", mouseover);
-            });
+       });
 
   d3.select("#explanation")
       .transition()
       .duration(1000)
       .style("visibility", "hidden");
+
 }
+
 
 // Given a node in a partition layout, return an array of all of its ancestor
 // nodes, highest first, but excluding the root.
@@ -358,16 +469,6 @@ function buildModel(root) {
 
 	result.data = root;
 
-	/*
-	_.each(root.__jsmf__.attributes, function(e,n){
-		//renaming the used attributes for D3.
-			if(n=='name') {
-				result['__name']=e;
-			} else {
-				n=='size' ? result['__size']=e : result[n]=e;
-			}
-	});
-	*/
 	_.each(root.__jsmf__.references, function(e,n){
 			_.each(e, function(elem){
 				if(result.children==undefined) {
@@ -376,84 +477,9 @@ function buildModel(root) {
 				result.children.push(buildModel(elem));
 			});
 	});
-	console.log(result.data);
 	return result;
 }
 
-
-
-function getData() {
-    return {
- "name": "ref",
- "children": [
-  {
-   "name": "june11"
-  ,
-   "children": [
-    {
-     "name": "atts",
-         "children": [
-          {"name": "early", "size": 11},
-          {"name": "jcp", "size": 40},
-          {"name": "jcpaft", "size": 50},
-          {"name": "stillon", "size": 195},
-          {"name": "jo",
-
-             "children": [
-              {"name": "early",  "size": 100},
-              {"name": "jcp", "size": 67},
-              {"name": "jcpaft", "size": 110},
-                 {"name": "stillon", "size": 154},
-
-               {"name": "sus1",      
-                "children": [
-                  {"name": "early",  "size": 11},
-                    {"name": "jcp", "size": 118},
-                  {"name": "jcpaft", "size": 39},
-                      {"name": "stillon", "size": 2779}
-                  ]
-                },
-
-               {"name": "sus5",
-                 "children": [
-                  {"name": "early",  "size": 0},
-                  {"name": "jcp", "size": 64},
-                  {"name": "jcpaft", "size": 410},
-                     {"name": "stillon", "size": 82}
-                  ]
-                },
-
-               {"name": "sus9",
-                 "children": [
-                  {"name": "early",  "size": 1018},
-                  {"name": "jcp", "size": 3458},
-                  {"name": "jcpaft", "size": 106},
-                     {"name": "stillon", "size": 243}
-                  ]
-                },
-
-               {"name": "sus13",
-                 "children": [
-                  {"name": "early",  "size": 110},
-                  {"name": "jcp", "size": 190},
-                  {"name": "jcpaft", "size": 80},
-                     {"name": "stillon", "size": 9190},
-                     {"name": "allsus", "size": 3970}
-                     ]
-                    }
-
-                 ]
-              }
-         ]
-        },
-
-      {"name": "noatt", "size": 30}
-    ]
-    }
-
- ]
-};
-};
 
 </script>
 
