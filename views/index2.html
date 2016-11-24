@@ -483,6 +483,8 @@ function displayMetaClassFilter(M) {
         colorTab[M2Item.__name]=i;
         var M2List = document.querySelector('#M2List');
         var aList = document.createElement('a');
+        aList.style.backgroundColor=colors(i);
+        aList.style.color="black";
         aList.classList.add('mdl-navigation__link')
         aList.innerHTML = MKey[i];
         M2List.appendChild(aList);
