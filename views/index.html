@@ -134,7 +134,11 @@ margin-top: 0px;
 	var cfile = document.querySelector("#file");
 	cfile.onchange= function(e){
 		var fileToSend = e.target.files[0];
-		document.querySelector("#uploadaction").append("<p>to<p>");
+		var p = document.createElement("label");
+		p.classList.add('mdl-color-text--light-blue-900');
+		var ptext = document.createTextNode(e.target.files[0].name);
+		p.appendChild(ptext);
+		document.querySelector("#uploadaction").appendChild(p);
 	//	var xhr = new XMLHttpRequest();
 	//	xhr.open("post", "/upload", true);
 	//	xhr.send(fileToSend);
