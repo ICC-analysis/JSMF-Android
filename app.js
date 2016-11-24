@@ -29,7 +29,6 @@ app.engine('.html', require('ejs').renderFile);
 //configure the static content (bower components).
 app.use(express.static(__dirname + '/views'));
 app.use('/bower_components',  express.static(__dirname + '/bower_components'));
-app.use('/jsmf-browser', express.static(__dirname + '/var/lib/jsmf-browser'));
 
 
 app.get('/static', function (req, res) {

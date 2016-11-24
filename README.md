@@ -1,21 +1,31 @@
 
-## INSTALL
+# Install
 
-### Node Packages
-Use node package manager:
-`npm install express.js`
+## On your computer
 
-`npm install jsmf-core --save`
+Dependencies are managed with the Node Package Manager (server side packages)
+and Bower (client side packages).
 
-### Bower componnent
-Use the bower package manager.
-first Install Bower : see https://www.npmjs.com/package/bower.
+```bash
+$ npm install
+$ bower install
+$ node app.js
+Listening on port 3000
+```
 
-Then type:
-`bower install`
+Bower will install *material-design-lite*, *d3* (v3.15), *lodash*, *node-uuid*
+and *jsmf-browser*.
 
-(it will install material-design-lite, d3 v3.15, etc...)
 
-JSMF in the browser is not currently available as a bower package.
-Download it here: https://git.list.lu/jsmf/jsmf-browser
-(and ideally put it into the bower_component directory)
+## Deploy on Heroku
+
+```bash
+$ git clone https://git.list.lu/jsmf/jsmf-interact.git
+$ cd jsmf-interact/
+$ heroku create
+$ git push heroku master
+$ heroku open
+```
+
+An instance is available
+[here](https://jsmf-android-visualization.herokuapp.com/).
