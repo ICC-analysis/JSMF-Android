@@ -1,5 +1,5 @@
 
-## Install
+# Install
 
 ## On your computer
 
