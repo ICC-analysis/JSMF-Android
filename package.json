@@ -4,7 +4,9 @@
   "description": "JavaScript Modelling Framework Interaction/Visualisation Library",
   "main": "index.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "postinstall": "bower install",
+    "start": "node app.js"
   },
   "keywords": [
     "Visualisation",
@@ -12,13 +14,17 @@
     "interactive",
     "modelling"
   ],
-  "author": "Jean-Sebastien Sottet <jean-sebastien.sottet@list.lu> (http://www.list.lu)",
+  "author": "Jean-Sebastien Sottet <jean-sebastien.sottet@list.lu>² (http://www.list.lu)",
   "license": "MIT",
   "dependencies": {
+    "bower": "^1.8.0",
+    "builder": "file:var/lib/protobuffToJSMF",
     "ejs": "^2.5.2",
     "express": "^4.14.0",
     "jsmf": "^0.10.0",
-    "jsmf-core": "^0.10.1",
-	"builder" : "file:../jsmf-parser"
+    "jsmf-core": "^0.10.1"
+  },
+  "engines": {
+    "node": "4.2.6"
   }
 }

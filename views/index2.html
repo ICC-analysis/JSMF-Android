@@ -6,7 +6,7 @@
 <script src="./bower_components/d3/d3.min.js"></script>
 <link rel="stylesheet" href="./bower_components/material-design-lite/material.min.css"/>
 <script src="./bower_components/material-design-lite/material.min.js"></script>
-<script type="text/javascript" src="./bower_components/jsmf-browser/dist/jsmf-browser.js"></script>
+<script type="text/javascript" src="./jsmf-browser/dist/jsmf-browser.js"></script>
 <script type="text/javascript" src="./bower_components/lodash/dist/lodash.min.js"></script>
 <script src="./bower_components/node-uuid/uuid.js"></script>
 <style type="text/css">
@@ -38,7 +38,7 @@ margin-top: 0px;
   <tbody id="cellsProperties">
 	<tr>
 		<td class="mdl-data-table__cell--non-numeric">Editable</td>
-		<td class="mdl-data-table__cell">			
+		<td class="mdl-data-table__cell">
 			<input class="mdl-textfield__input" type="text" id="sample1" />
 		</td>
 	</tr>
@@ -49,7 +49,7 @@ margin-top: 0px;
 <button id="add" class="mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-js-ripple-effect mdl-button--colored" data-upgraded=",MaterialButton,MaterialRipple">
   <i class="material-icons">+</i>
 <span class="mdl-button__ripple-container"><span class="mdl-ripple"></span></span></button>
-  
+
 <div class="mdl-card__supporting-text">
     <h5>Filter by node property</h5>
     <div class="mdl-textfield mdl-js-textfield">
@@ -60,17 +60,17 @@ margin-top: 0px;
    Search Depth: <input class="mdl-slider mdl-js-slider" type="range"
            min="0" max="10" value="2" tabindex="0" oninput="showMessage(this.value)" onchange="showMessage(this.value)" id="depthSlider">
     <div id="depthValue"></div>
-    
-  </div>       
-     
-<div class="mdl-card__supporting-text">     
+
+  </div>
+
+<div class="mdl-card__supporting-text">
     <h5>Meta-Class Filter</h5>
      <nav class="mdl-navigation" id="M2List">
         <a class="mdl-navigation__link" id="nav_redraw">Redraw</a>
     </nav>
-</div> 
+</div>
 
-     
+
 </div> <!-- end panel-->
 
 
@@ -94,27 +94,27 @@ var colors = d3.scale.category10();
 var selected_node = null;
 
 var graph;
-    
+
 var Mgroup = [];
 
 var Model = jsmf.Model;
-var Class = jsmf.Class;    
-    
+var Class = jsmf.Class;
+
 var s_M = <%- serializedModel %>;
 
 s_M = JSON.stringify(s_M);
 
 var M = jsmf.parse(s_M);
- 
+
 //Set the behavior of the D3 graph display zone (add zoom and pane)
 var svg = d3.select('.page-content').append("svg").attr({"width":w,"height":h}).call(d3.behavior.zoom().on("zoom", function () {
     svg.attr("transform", "translate(" + d3.event.translate + ")" + " scale(" + d3.event.scale + ")")
-  })).on("dblclick.zoom", null).append('g');   
-  
-//Add behaviour of the add button (under construction)    
+  })).on("dblclick.zoom", null).append('g');
+
+//Add behaviour of the add button (under construction)
 d3.select("#add").on('click', function() {
 	addRow();
-});    
+});
 
 //initial model should not be changed by the view...
 document.querySelector('#nav_redraw').addEventListener("click", function(e) {
@@ -122,9 +122,9 @@ document.querySelector('#nav_redraw').addEventListener("click", function(e) {
         var groups = groupInit(Mgroup,M);
         drawGraph({nodes:M.elements(),edges:createLinks(M)}, groups);
 });
-    
 
-//Set the behavior of the filter by node property 
+
+//Set the behavior of the filter by node property
 document.querySelector('#elementName').addEventListener("change", function(e) {
 		var valAttribute= this.value;
         var validEntryPoints = [];
@@ -132,8 +132,8 @@ document.querySelector('#elementName').addEventListener("change", function(e) {
             _.each(x.__jsmf__.attributes,
                 function(curr){
                     console.log(curr);
-                    if(curr==valAttribute){                  
-                        validEntryPoints.push(x); 
+                    if(curr==valAttribute){
+                        validEntryPoints.push(x);
                     }
             });
             return validEntryPoints},
@@ -143,47 +143,47 @@ document.querySelector('#elementName').addEventListener("change", function(e) {
         var validME = jsmf.crawl({depth:depthV,searchMethod:jsmf.BFS_All},validEntryPoints[0]);
         var modelView = new Model('View');
         modelView.add(validME);
-        
+
         graph ={"nodes":modelView.elements(), "edges":createLinks(modelView)};
-        var groups = groupInit(Mgroup,M);    
+        var groups = groupInit(Mgroup,M);
         document.querySelector('.page-content svg g').innerHTML='';
 		drawGraph(graph,groups);
     });
-  
-    
+
+
 function showMessage(value){
          document.getElementById("depthValue").innerHTML = value;
-}	  
-    
-    
+}
 
-var colorTab = {}    
+
+
+var colorTab = {}
 
 //Create the button in the nav bar that allows to filter the graph against the meta-classes
 displayMetaClassFilter(M);
 
-//   
+//
 var nodesM = M.elements();
-    
-// create links from JSMF references that are targetting nodes presents in Model M. (i.e., removing links pointing outisdes the model M)
-var links=createLinks(M); 
 
-    
-    
+// create links from JSMF references that are targetting nodes presents in Model M. (i.e., removing links pointing outisdes the model M)
+var links=createLinks(M);
+
+
+
 //Set the graph
 var graph = {"nodes":nodesM, "edges":links};
-    
-//    
-var groups = groupInit(Mgroup,graph);    
 
-//Launch the display of the graph    
+//
+var groups = groupInit(Mgroup,graph);
+
+//Launch the display of the graph
 drawGraph(graph,groups);
 
 /*
 */
 function drawGraph(graph,groups) {
-       
-    
+
+
     var force = d3.layout.force()
         .nodes(graph.nodes)
         .links(graph.edges)
@@ -194,7 +194,7 @@ function drawGraph(graph,groups) {
 		//.alpha(0.1)
         .gravity(0.05)
         .start();
- 
+
     var edges = svg.selectAll("line")
       .data(graph.edges);
       edges.enter()
@@ -203,10 +203,10 @@ function drawGraph(graph,groups) {
       .attr('marker-end','url(#arrowhead)')
       .style("stroke","#ccc")
       .style("pointer-events", "none");
-    
+
      edges.exit().remove();
-    
-   
+
+
     var nodes = svg.selectAll("circle")
       .data(graph.nodes);
       nodes.enter()
@@ -227,28 +227,28 @@ function drawGraph(graph,groups) {
 		displayAttributes(selected_node);
       	selected_link = null;
 		mousedown_node = null;
-	}) 
+	})
     .on('dblclick', function(d) {
         //console.log(uuid.unparse(d.__jsmf__.uuid))
-        //add behavior on double click: filter against the current node up to a depth of 2  
-        var validEntryPoint = jsmf.filterModelElements(function(x){ 
+        //add behavior on double click: filter against the current node up to a depth of 2
+        var validEntryPoint = jsmf.filterModelElements(function(x){
             return uuid.unparse(x.__jsmf__.uuid) ==uuid.unparse(d.__jsmf__.uuid)
         },
-        M);  
+        M);
         var validME = jsmf.crawl({depth:2,searchMethod:jsmf.BFS_All},validEntryPoint[0]);
         var modelView = new Model('View');
         modelView.add(validME);
-        
+
         graph ={"nodes":modelView.elements(), "edges":createLinks(modelView)};
-        var groups = groupInit(Mgroup,M);  
+        var groups = groupInit(Mgroup,M);
         document.querySelector('.page-content svg g').innerHTML='';
 		drawGraph(graph, groups);
-      
+
       });
-    
+
     nodes.exit().remove();
 /*
-    var nodelabels = svg.selectAll(".nodelabel") 
+    var nodelabels = svg.selectAll(".nodelabel")
        .data(graph.nodes)
        .enter()
        .append("text")
@@ -260,7 +260,7 @@ function drawGraph(graph,groups) {
            var result =" ";
            if(d.name==undefined) {
                 for(i in d.__jsmf__.attributes) {
-                    if(d.__jsmf__.attributes[i]!=undefined) { 
+                    if(d.__jsmf__.attributes[i]!=undefined) {
                         return d.__jsmf__.attributes[i];
                     }
                 }
@@ -281,7 +281,7 @@ function drawGraph(graph,groups) {
                'stroke':'red',
                'id':function(d,i) {return 'edgepath'+i}})
         .style("pointer-events", "none");
-   
+
     // Draws the shape for model group
 /*
      var groupPath = function (d) {
@@ -291,7 +291,7 @@ function drawGraph(graph,groups) {
                     .join("L")
                 + "Z";
      };
- */   
+ */
     //
     var nodeFill = function (n) {
             return n.groupId != null ? fill(n.groupId) : "black";
@@ -321,13 +321,13 @@ function drawGraph(graph,groups) {
             .style("stroke-width", 40)
             .style("stroke-linejoin", "round")
             .style("opacity", .2)
-  */  
+  */
 /*
     edgelabels.append('textPath')
         .attr('xlink:href',function(d,i) {return '#edgepath'+i})
         .style("pointer-events", "none")
         .text(function(d,i){return d.name});
-  */  
+  */
     svg.append('defs').append('marker')
         .attr({'id':'arrowhead',
                'viewBox':'-0 -5 10 10',
@@ -342,12 +342,12 @@ function drawGraph(graph,groups) {
             .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
             .attr('fill', '#ccc')
             .attr('stroke','#ccc');
-     
+
 	force.on('end', function() {
-	
+
 	console.log('end');
 
-	var nodelabels = svg.selectAll(".nodelabel") 
+	var nodelabels = svg.selectAll(".nodelabel")
        .data(graph.nodes)
        .enter()
        .append("text")
@@ -359,7 +359,7 @@ function drawGraph(graph,groups) {
            var result =" ";
            if(d.name==undefined) {
                 for(i in d.__jsmf__.attributes) {
-                    if(d.__jsmf__.attributes[i]!=undefined) { 
+                    if(d.__jsmf__.attributes[i]!=undefined) {
                         return d.__jsmf__.attributes[i];
                     }
                 }
@@ -386,7 +386,7 @@ function drawGraph(graph,groups) {
         .text(function(d,i){return d.name});
 
 
-	});    
+	});
 
     force.on("tick", function(){
 
@@ -399,14 +399,14 @@ function drawGraph(graph,groups) {
         nodes.attr({"cx":function(d){return d.x;},
                     "cy":function(d){return d.y;}
         });
-        
+
         //group.attr("d", groupPath);
-        
-       // nodelabels.attr("x", function(d) { return d.x; }) 
+
+       // nodelabels.attr("x", function(d) { return d.x; })
         //          .attr("y", function(d) { return d.y; });
 
         edgepaths.attr('d', function(d) { var path='M '+d.source.x+' '+d.source.y+' L '+ d.target.x +' '+d.target.y;
-                                           return path});       
+                                           return path});
 
 /*
         edgelabels.attr('transform',function(d,i){
@@ -438,8 +438,8 @@ function addRow() {
 	d3.event.stopPropagation();
 	//console.log(this.value);
 });
-}    
-    
+}
+
 function displayAttributes(messageNode) {
 	//if messageNode .isJSMFElement
 	var tTitle = 'Class '+messageNode.conformsTo().__name;
@@ -448,13 +448,13 @@ function displayAttributes(messageNode) {
 	table.html("");
 	for(x in messageNode.__jsmf__.attributes) {
 	var attType = messageNode.conformsTo().attributes[x].type;
-	var value = jsmf.isJSMFEnum(attType)? attType.getName(messageNode[x]) : messageNode[x]; 
+	var value = jsmf.isJSMFEnum(attType)? attType.getName(messageNode[x]) : messageNode[x];
 	//console.log('msg',messageNode[x],x, jsmf.isJSMFEnum(messageNode.conformsTo().attributes[x].type)); //messageNode.conformsTo().attributes[x]
 		var tRow = table.append("tr");
 		tRow.append("td").attr("class","mdl-data-table__cell--non-numeric").text(x);
 			tRow.append("td").
 							attr("class","mdl-data-table__cell--non-numeric").
-							append("input"). 
+							append("input").
 							attr("class","mdl-textfield__input").
 							attr("type","text").
 							attr("value",value).
@@ -469,11 +469,11 @@ function displayAttributes(messageNode) {
 
 /**
     @param M {Model} a model
-    builds the list (in navigation bar that allows to filter the graph against 
+    builds the list (in navigation bar that allows to filter the graph against
     the type of model elements, i.e., the meta classes)
-*/   
+*/
 function displayMetaClassFilter(M) {
-    
+
 	var list = d3.select('#M2List');
     var MKey = Object.keys(M.modellingElements);
 
@@ -492,43 +492,43 @@ function displayMetaClassFilter(M) {
                                 modelView = new Model('ViewFiltered');
                                 modelView.add(filteredElements);
 								var elemOne = [];
-	
+
 								for(i in filteredElements) {
 									var validME = jsmf.crawl({depth:1,searchMethod:jsmf.BFS_All},filteredElements[i]);
 									elemOne = _.concat(elemOne,validME);
 								}
 									//console.log(elemOne);
-								_.uniqBy(elemOne,function(e){ //console.log(uuid.unparse(e.__jsmf__.uuid)); 
+								_.uniqBy(elemOne,function(e){ //console.log(uuid.unparse(e.__jsmf__.uuid));
 																return uuid.unparse(e.__jsmf__.uuid);});
 								modelView.add(elemOne);
-      
+
                                 graph = {"nodes":modelView.elements(), "edges":createLinks(modelView)};
-                                var groups = groupInit(Mgroup,M);  
+                                var groups = groupInit(Mgroup,M);
                                 document.querySelector('.page-content svg g').innerHTML='';
                                 drawGraph(graph,groups);
                         });
     }
 
-}   
- 
-    
+}
+
+
 function filteredModelView(Metamodel) {
     var transformation = new jsmf.Transformation();
-    
+
     var view ={
         in : function(i){},
         out : function (o) {
-            
+
         }
      }
-    
+
     transformation.addRule(view);
    // transformation.addRule();
      //rule exec + copy existing transformation
 }
-    
-    
-    
+
+
+
 /**
     @param M {JSMF.Model} a model
     @return Link return a collection of links in the scope of the model M (i.e., targetted nodes are in M).
@@ -540,40 +540,40 @@ function createLinks(M) {
         for(j in cNode[i].__jsmf__.references) {
             for(z in cNode[i][j]) {
                 if(_.includes(cNode,cNode[i][j][z])) { //patch for filtering elements in models
-                    var link = {'name':j, 'source':cNode[i], 'target':cNode[i][j][z]}; 
+                    var link = {'name':j, 'source':cNode[i], 'target':cNode[i][j][z]};
                     links.push(link);
                 }
-            }			
+            }
         }
-    }   
- return links;       
+    }
+ return links;
 }
-    
- 
+
+
 function groupInit(groups, megaM) {
-            
+
     //To be initialized with a megamodel
    // console.log(megaM);
-    
+
     var clustersMap={};
      _.each(megaM.nodes, function(e){
             if(clustersMap['Model']!==undefined) {
                 clustersMap['Model'].push(e)
             } else {
-               clustersMap['Model'] = [e];  
+               clustersMap['Model'] = [e];
             }
         }); //or megaM.elements
-        
+
         /*d3.nest()
         .key(function(d) {console.log(d); return d.name;})
         .sortKeys(d3.ascending)
         .entries(megaM);*/
     //clustersMap['Test']=[1,2,3];
-    
+
     var c = clustersMap.length;
-    
+
     //console.log('c',clustersMap['Model'],clustersMap);
-    
+
     groups.a = Math.min(w, h);
     groups.r = groups.a * 0.20;
 
@@ -601,12 +601,12 @@ function groupInit(groups, megaM) {
         }
 
         groups[i] = g;
-            
+
     });
-    
+
     return groups;
-}    
-    
+}
+
 </script>
 
 </body>

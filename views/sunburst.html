@@ -6,7 +6,7 @@
 <script src="./bower_components/d3/d3.min.js"></script>
 <link rel="stylesheet" href="./bower_components/material-design-lite/material.min.css"/>
 <script src="./bower_components/material-design-lite/material.min.js"></script>
-<script type="text/javascript" src="./bower_components/jsmf-browser/dist/jsmf-browser.js"></script>
+<script type="text/javascript" src="./jsmf-browser/dist/jsmf-browser.js"></script>
 <script type="text/javascript" src="./bower_components/lodash/dist/lodash.min.js"></script>
 <script src="./bower_components/node-uuid/uuid.js"></script>
 <style type="text/css">
@@ -24,9 +24,9 @@ margin-top: 0px;
 
 </style>
 </head>
-<body> 
+<body>
  	<main  class="mdl-layout__content">
-	
+
 	<div class="mdl-grid">
 		<div class="mdl-cell mdl-cell--12-col" id="sequence"></div>
       	<div class="mdl-cell mdl-cell--6-col" id="chart">
@@ -43,13 +43,13 @@ margin-top: 0px;
   			<tbody id="cellsProperties">
 				<tr>
 					<td class="mdl-data-table__cell--non-numeric">Editable</td>
-					<td class="mdl-data-table__cell">			
+					<td class="mdl-data-table__cell">
 					<input class="mdl-textfield__input" type="text" id="sample1" />
 					</td>
 				</tr>
 		<!-- will be filled by Node Infromation -->
   		</tbody>
-		</table>      
+		</table>
         </div>
       </div>
 	</div>
@@ -120,7 +120,7 @@ function buildVisualization(visuJSMF) {
         });
         return output;
     })(nodes);
-    
+
 	// set domain of colors scale based on data
 	colors.domain(uniqueNames);
 
@@ -138,7 +138,7 @@ function buildVisualization(visuJSMF) {
 	// make sure this is done after setting the domain
     drawLegend();
 
-  
+
 
 d3.select(self.frameElement).style("height", height + "px");
 
@@ -170,13 +170,13 @@ function mouseover(d) {
 	var jsmfData = d.data;
 	for(index in jsmfData.__jsmf__.attributes) {
 		var attType = jsmfData.conformsTo().attributes[index].type;
-		var value = jsmf.isJSMFEnum(attType)? attType.getName(jsmfData[index]) : jsmfData[index]; 
+		var value = jsmf.isJSMFEnum(attType)? attType.getName(jsmfData[index]) : jsmfData[index];
 		//console.log('msg',messageNode[x],x, jsmf.isJSMFEnum(messageNode.conformsTo().attributes[x].type)); //messageNode.conformsTo().attributes[x]
 		var tRow = table.append("tr");
 		tRow.append("td").attr("class","mdl-data-table__cell--non-numeric").text(index);
 			tRow.append("td").
 							attr("class","mdl-data-table__cell--non-numeric").
-							append("input"). 
+							append("input").
 							attr("class","mdl-textfield--full-width mdl-textfield__input").
 							attr("type","text").
 							attr("value",value).
@@ -205,7 +205,7 @@ function mouseover(d) {
 }
 
 /*************************************************************
-Old functions 
+Old functions
 
 */
 /*
@@ -214,7 +214,7 @@ function createVisualization(json) {
 
     // Basic setup of page elements.
     initializeBreadcrumbTrail();
-  
+
     d3.select("#togglelegend").on("click", toggleLegend);
 
     // Bounding circle underneath the sunburst, to make it easier to detect
@@ -228,7 +228,7 @@ function createVisualization(json) {
         .filter(function(d) {
             return (d.dx > 0.005); // 0.005 radians = 0.29 degrees
         });
-    
+
     var uniqueNames = (function(a) {
         var output = [];
         a.forEach(function(d) {
@@ -238,13 +238,13 @@ function createVisualization(json) {
         });
         return output;
     })(nodes);
-    
+
     // set domain of colors scale based on data
     colors.domain(uniqueNames);
-  
+
     // make sure this is done after setting the domain
     drawLegend();
-        
+
     var path = vis.data([json]).selectAll("path")
         .data(nodes)
        .enter()
@@ -277,13 +277,13 @@ function mouseover2(d) {
 	var jsmfData = d.data;
 	for(x in jsmfData.__jsmf__.attributes) {
 		var attType = jsmfData.conformsTo().attributes[x].type;
-		var value = jsmf.isJSMFEnum(attType)? attType.getName(jsmfData[x]) : jsmfData[x]; 
+		var value = jsmf.isJSMFEnum(attType)? attType.getName(jsmfData[x]) : jsmfData[x];
 		//console.log('msg',messageNode[x],x, jsmf.isJSMFEnum(messageNode.conformsTo().attributes[x].type)); //messageNode.conformsTo().attributes[x]
 		var tRow = table.append("tr");
 		tRow.append("td").attr("class","mdl-data-table__cell--non-numeric").text(x);
 			tRow.append("td").
 							attr("class","mdl-data-table__cell--non-numeric").
-							append("input"). 
+							append("input").
 							attr("class","mdl-textfield--full-width mdl-textfield__input").
 							attr("type","textarea").
 							attr("row","2").
@@ -472,7 +472,7 @@ function buildModel(root) {
 	_.each(root.__jsmf__.references, function(e,n){
 			_.each(e, function(elem){
 				if(result.children==undefined) {
-					result.children=[]; 
+					result.children=[];
 				}
 				result.children.push(buildModel(elem));
 			});
