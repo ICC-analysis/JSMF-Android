@@ -20,7 +20,7 @@ and *jsmf-browser*.
 ## Deploy on Heroku
 
 ```bash
-$ git clone git@git.list.lu:jsmf/jsmf-interact.git
+$ git clone https://git.list.lu/jsmf/jsmf-interact.git
 $ cd jsmf-interact/
 $ heroku create
 $ git push heroku master
