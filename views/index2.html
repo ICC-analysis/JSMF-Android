@@ -487,7 +487,8 @@ function displayMetaClassFilter(M) {
         aList.innerHTML = MKey[i];
         M2List.appendChild(aList);
         aList.addEventListener('click', function(d){
-                                var filter = d.srcElement.innerHTML;
+								console.log(d);
+                                var filter = d.target.innerHTML;
                                 var filteredElements = M.modellingElements[filter];
                                 modelView = new Model('ViewFiltered');
                                 modelView.add(filteredElements);

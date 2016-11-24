@@ -61,6 +61,7 @@ margin-top: 0px;
             <nav class="android-navigation mdl-navigation">
               <a class="mdl-navigation__link mdl-typography--text-uppercase" href="/s">Graph View</a>
               <a class="mdl-navigation__link mdl-typography--text-uppercase" href="/sun">Sunburst</a>
+			  <a class="mdl-navigation__link mdl-typography--text-uppercase" href="">Models Behind the Scene</a>
             </nav>
           </div>
         </div>
@@ -79,10 +80,13 @@ margin-top: 0px;
 				<div class="mdl-card__supporting-text">
 					<p>First upload a retargeted APK analyzed with IC3 tool(.dat) then isplay the model as graph / sunburst.</p>
 				</div>
-				<div class="mdl-card__actions mdl-card--border">
-				<input type="file" id="file">
-    				<label for="file" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900">Upload</label>
-				</input>	
+				<div id="uploadaction" class="mdl-card__actions mdl-card--border">
+				<form action="upload" method="post" enctype="multipart/form-data">
+					<input type="file" id="file" name="file">
+    					<label for="file" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900">Upload</label>
+					</input>
+					<input type="submit" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900">	
+				</form>
 	  			</div>
 			</div>
 
@@ -126,8 +130,17 @@ margin-top: 0px;
 	</main>
 </div>
 <script>
-	document.querySelector("#file").onchange= function(e){
-		console.log("file upload",document.querySelector("#file").value);
+
+	var cfile = document.querySelector("#file");
+	cfile.onchange= function(e){
+		var fileToSend = e.target.files[0];
+		document.querySelector("#uploadaction").append("<p>to<p>");
+	//	var xhr = new XMLHttpRequest();
+	//	xhr.open("post", "/upload", true);
+	//	xhr.send(fileToSend);
+		
+		
+	//console.log("file upload",document.querySelector("#file").value);
 	};
 
 </script>

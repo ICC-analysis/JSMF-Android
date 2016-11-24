@@ -24,7 +24,8 @@
     "jsmf": "^0.10.0",
     "jsmf-core": "^0.10.1",
     "jsmf-json": "^0.9.0",
-    "lodash": "^4.17.2"
+    "lodash": "^4.17.2",
+    "multer": "^1.2.0"
   },
   "engines": {
     "node": "4.2.6"

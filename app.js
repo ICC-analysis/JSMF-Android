@@ -4,6 +4,8 @@ var jsmf = require('jsmf-core'),
 Class = jsmf.Class, Model = jsmf.Model;
 var jsmfjson = require('jsmf-json');
 var fs = require('fs');
+var multer  = require('multer')
+
 
 var listening_port = process.env.PORT || 3000;
 
@@ -26,9 +28,15 @@ var app = express();
 app.set('view engine', 'ejs');
 app.engine('.html', require('ejs').renderFile);
 
-//configure the static content (bower components).
+//configure the static content (bower components) and links to views.
 app.use(express.static(__dirname + '/views'));
 app.use('/bower_components',  express.static(__dirname + '/bower_components'));
+
+//configuration of the read file method
+var upload = multer({ dest: 'uploads/' });
+
+    
+
 
 
 app.get('/static', function (req, res) {
@@ -43,16 +51,13 @@ app.get('/sun', function (req, res) {
   var M = protoBufModels.model;
 	//console.log(M.referenceModel);
   var serializedModel = jsmfjson.stringify(M);
-  console.log(serializedModel);
+  //console.log(serializedModel);
 
  res.render('sunburst.html',{serializedModel: serializedModel });
 });
 
-
 app.get('/s', function(req,res) {
-	//var M = buildModel();
 	var M = protoBufModels.model;
-	//console.log(M.referenceModel);
 	var serializedModel = jsmfjson.stringify(M);
 
 /*
@@ -63,6 +68,22 @@ app.get('/s', function(req,res) {
 */
 	res.render('index2.html',{serializedModel: serializedModel });
 });
+
+app.post('/upload', upload.single('file'), function(req,res,next) {
+	//console.log('uploaded',req.file,req.file.path);
+	//if file is not correct => no action 
+
+	//else a correct .dat
+	BinaryAppProtoBuf=req.file.path;
+	console.log('path: ',BinaryAppProtoBuf);
+
+	//relaunch the protobufModel construction
+	protoBufModels.build(IC3Proto, IC3ProtoGrammar,
+                      IC3EntryPoint, BinaryAppProtoBuf);
+	res.redirect("back");
+
+});
+
 
 //Helper model to test functionalities - should be improved with larger model
 function  buildModel() {
