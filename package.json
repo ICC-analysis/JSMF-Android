@@ -14,7 +14,7 @@
     "interactive",
     "modelling"
   ],
-  "author": "Jean-Sebastien Sottet <jean-sebastien.sottet@list.lu>² (http://www.list.lu)",
+  "author": "Jean-Sebastien Sottet <jean-sebastien.sottet@list.lu> (http://www.list.lu)",
   "license": "MIT",
   "dependencies": {
     "bower": "^1.8.0",
