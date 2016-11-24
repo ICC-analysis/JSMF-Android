@@ -24,7 +24,8 @@
     "d3": "3.5.17",
     "lodash": "~4.16.0",
     "material-design-lite": "~1.2.1",
-    "node-uuid": "~1.4.7"
+    "node-uuid": "~1.4.7",
+    "jsmf-browser": "./var/lib/jsmf-browser"
   },
   "resolutions": {
     "d3": "3.5.17"
