@@ -22,6 +22,23 @@ margin-top: 0px;
 	width: 100%
 }
 
+.mdl-card__media > img {
+	max-width: 60%;
+}
+.mdl-card__actions {
+	display: flex;
+	box-sizing:border-box;
+	align-items: center;
+}
+.mdl-card__actions > .mdl-button--icon {
+	margin-right: 3px;
+	margin-left: 3px;
+}
+
+#file { 
+	display: none 
+}
+
 </style>
 </head>
 <body>  
@@ -32,43 +49,83 @@ margin-top: 0px;
 
           <span class="mdl-layout-title">
 			<img class="android-logo-image" src="images/android-logo.png">
-			    JSMFvisualization Demonstration        
+			    JSMF Visualization Demonstration        
           </span>
           <!-- Add spacer, to align navigation to the right in desktop -->
           <div class="mdl-layout-spacer"></div>
           <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable mdl-textfield--floating-label mdl-textfield--align-right mdl-textfield--full-width">
-            <label class="mdl-button mdl-js-button mdl-button--icon" for="search-field">
-              <i class="material-icons">search</i>
-            </label>
-            <div class="mdl-textfield__expandable-holder">
-              <input class="mdl-textfield__input" type="text" id="search-field">
-            </div>
+           
           </div>
           <!-- Navigation -->
           <div class="android-navigation-container">
             <nav class="android-navigation mdl-navigation">
-              <a class="mdl-navigation__link mdl-typography--text-uppercase" href="">Reverse</a>
-              <a class="mdl-navigation__link mdl-typography--text-uppercase" href="">Tablets</a>
+              <a class="mdl-navigation__link mdl-typography--text-uppercase" href="/s">Graph View</a>
+              <a class="mdl-navigation__link mdl-typography--text-uppercase" href="/sun">Sunburst</a>
             </nav>
           </div>
-          <ul class="mdl-menu mdl-js-menu mdl-menu--bottom-right mdl-js-ripple-effect" for="more-button">
-            <li class="mdl-menu__item">5.0 Lollipop</li>
-            <li class="mdl-menu__item">4.4 KitKat</li>
-            <li disabled class="mdl-menu__item">4.3 Jelly Bean</li>
-            <li class="mdl-menu__item">Android History</li>
-          </ul>
         </div>
       </div>
 
-	<div class="android-content mdl-layout__content">
-        <a name="top"></a>
-        <div class="android-be-together-section mdl-typography--text-center">
-          <div class="logo-font android-slogan">be together. not the same.</div>
-          <div class="logo-font android-sub-slogan">welcome to android... be yourself. do your thing. see what's going on.</div>
-          <div class="logo-font android-create-character">
-            <a href=""><img src="images/modelmanagement.png"> create your android character</a>
-    </div>
+<div class="mdl-layout mdl-js-layout mdl-color--grey-100">
+	<main class="mdl-layout__content">
+		<div class="mdl-grid">
+			<div class="mdl-card mdl-cell mdl-cell--4-col mdl-cell--6-col-tablet mdl-shadow--16dp">
+				<div class="mdl-card__media">
+					<img src="images/discovery.jpg" alt="" />
+				</div>
+				<div class="mdl-card__title">
+					<h1 class="mdl-card__title-text mdl-color-text--light-blue-900">Uploading IC3 Models</h1>
+				</div>
+				<div class="mdl-card__supporting-text">
+					<p>First upload a retargeted APK analyzed with IC3 tool(.dat) then isplay the model as graph / sunburst.</p>
+				</div>
+				<div class="mdl-card__actions mdl-card--border">
+				<input type="file" id="file">
+    				<label for="file" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900">Upload</label>
+				</input>	
+	  			</div>
+			</div>
 
+			<div id="cardVis" class="mdl-card mdl-cell mdl-cell--4-col mdl-cell--6-col-tablet mdl-shadow--16dp">
+				<div class="mdl-card__media">
+					<img src="images/sunburst.png" alt="" />
+				</div>
+				<div class="mdl-card__title">
+					<h1 class="mdl-card__title-text mdl-color-text--light-blue-900">Visualizing Android Models: Graph or SunBurst</h1>
+				</div>
+				<div class="mdl-card__supporting-text">
+					<p>Then display the model as graph / sunburst.</p>
+				</div>
+				<div class="mdl-card__actions mdl-card--border">
+					<a href="" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900">
+	  			</div>
+			</div>
+
+			<div class="mdl-card mdl-cell mdl-cell--4-col mdl-cell--6-col-tablet mdl-shadow--16dp">
+				<div class="mdl-card__media">
+					<img src="images/discovery.jpg" alt="" />
+				</div>
+				<div class="mdl-card__title">
+					<h1 class="mdl-card__title-text mdl-color-text--light-blue-900">To be Continued</h1>
+				</div>
+				<div class="mdl-card__supporting-text">
+					<p>Upload other models, connect information, compute differences, etc....</p>
+				</div>
+				<div class="mdl-card__actions mdl-card--border">
+				<input type="file" id="file">
+    				<label for="file" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900">Upload</label>
+				</input>	
+	  			</div>
+			</div>
+
+	</main>
+</div>
+<script>
+	document.querySelector("#file").onchange= function(e){
+		console.log("file upload",document.querySelector("#file").value());
+	};
+
+</script>
 
 </body>
 </head>
