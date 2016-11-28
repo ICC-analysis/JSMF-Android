@@ -7,6 +7,8 @@ Dependencies are managed with the Node Package Manager (server side packages)
 and Bower (client side packages).
 
 ```bash
+$ git clone --recursive https://git.list.lu/jsmf/jsmf-interact.git
+$ cd jsmf-interact/
 $ npm install
 $ bower install
 $ node app.js
