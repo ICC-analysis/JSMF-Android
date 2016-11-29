@@ -1,0 +1,3 @@
+[submodule "var/lib/protobuffToJSMF"]
+	path = var/lib/protobuffToJSMF
+	url = https://github.com/jssottet/protobuffToJSMF.git
