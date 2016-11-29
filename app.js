@@ -69,13 +69,17 @@ app.get('/s', function(req,res) {
 	res.render('index2.html',{serializedModel: serializedModel });
 });
 
+app.get('/models', function(req,res){
+   res.render('modelsbehind.html' ); 
+});
+
 app.post('/upload', upload.single('file'), function(req,res,next) {
 	//console.log('uploaded',req.file,req.file.path);
 	//if file is not correct => no action 
-
+    
 	//else a correct .dat
 	BinaryAppProtoBuf=req.file.path;
-	console.log('path: ',BinaryAppProtoBuf);
+	//console.log('path: ',BinaryAppProtoBuf);
 
 	//relaunch the protobufModel construction
 	protoBufModels.build(IC3Proto, IC3ProtoGrammar,
@@ -128,7 +132,6 @@ function  buildModel() {
     smallA.next=xA;
     xA.next=xxA;
 
-
     var smallx = ClassB.newInstance({name:'NordVerif', quality:'medium'});
     smallx.wheelQuality=[xA,xxA];
 
@@ -143,6 +146,5 @@ function  buildModel() {
     M.add([smallA,smallB,bigA,cein,xA,xxA,smallx]);
 
     return M;
-
 
 }

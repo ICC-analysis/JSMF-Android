@@ -25,7 +25,8 @@
     "lodash": "~4.16.0",
     "material-design-lite": "~1.2.1",
     "node-uuid": "~1.4.7",
-    "jsmf-browser": "./var/lib/jsmf-browser"
+    "jsmf-browser": "./var/lib/jsmf-browser",
+    "dialog-polyfill": "^0.4.5"
   },
   "resolutions": {
     "d3": "3.5.17"

@@ -53,15 +53,16 @@ margin-top: 0px;
           </span>
           <!-- Add spacer, to align navigation to the right in desktop -->
           <div class="mdl-layout-spacer"></div>
-          <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable mdl-textfield--floating-label mdl-textfield--align-right mdl-textfield--full-width">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable mdl-textfield--floating-label mdl-textfield--align-right mdl-textfield--full-width">
            
           </div>
           <!-- Navigation -->
           <div class="android-navigation-container">
             <nav class="android-navigation mdl-navigation">
-              <a class="mdl-navigation__link mdl-typography--text-uppercase" href="/s">Graph View</a>
+              <a class="mdl-navigation__link mdl-typography--text-uppercase" href="/s">Graph</a>
               <a class="mdl-navigation__link mdl-typography--text-uppercase" href="/sun">Sunburst</a>
-			  <a class="mdl-navigation__link mdl-typography--text-uppercase" href="">Models Behind the Scene</a>
+			  <a class="mdl-navigation__link mdl-typography--text-uppercase" href="/models">The Models Behind the Scene</a>
+              <a class="mdl-navigation__link mdl-typography--text-uppercase" href="">Home</a> 
             </nav>
           </div>
         </div>
@@ -78,7 +79,8 @@ margin-top: 0px;
 					<h1 class="mdl-card__title-text mdl-color-text--light-blue-900">Uploading IC3 Models</h1>
 				</div>
 				<div class="mdl-card__supporting-text">
-					<p>First upload a retargeted APK analyzed with IC3 tool(.dat) then isplay the model as graph / sunburst.</p>
+					<p>First upload a retargeted APK analyzed with IC3 tool(.dat) then isplay the model as graph / sunburst.
+                        (An existing APK has already been imported).</p>
 				</div>
 				<div id="uploadaction" class="mdl-card__actions mdl-card--border">
 				<form action="upload" method="post" enctype="multipart/form-data">
@@ -136,7 +138,7 @@ margin-top: 0px;
 		var fileToSend = e.target.files[0];
 		var p = document.createElement("label");
 		p.classList.add('mdl-color-text--light-blue-900');
-		var ptext = document.createTextNode(e.target.files[0].name);
+		var ptext = document.createTextNode(fileToSend.name);
 		p.appendChild(ptext);
 		document.querySelector("#uploadaction").appendChild(p);
 	//	var xhr = new XMLHttpRequest();

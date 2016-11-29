@@ -18,70 +18,70 @@
 margin-top: 0px;
 }
 
+#propertiesView {
+    max-width: 35%;
+}    
+    
 </style>
 </head>
 <body>
 
-<div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer
+<div  class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer
             mdl-layout--overlay-drawer-button">
- <div class="mdl-layout__drawer">
-   <span class="mdl-layout-title" id="titleProperties">Node Properties</span>
-	<div id ="board">
-	</div>
-<table class="mdl-data-table mdl-js-data-table">
-  <thead>
-    <tr>
-      <th class="mdl-data-table__cell--non-numeric">Properties</th>
-      <th class="mdl-data-table__cell--non-numeric">Value</th>
-    </tr>
-  </thead>
-  <tbody id="cellsProperties">
-	<tr>
-		<td class="mdl-data-table__cell--non-numeric">Editable</td>
-		<td class="mdl-data-table__cell">
-			<input class="mdl-textfield__input" type="text" id="sample1" />
-		</td>
-	</tr>
-		<!-- will be filled by Node Infromation -->
-  </tbody>
-</table>
+ <div  id="propertiesView" class="mdl-layout__drawer">
+       <span class="mdl-layout-title" id="titleProperties">Node Properties</span>
+        <div id ="board">
+        </div>
+    <table class="mdl-data-table mdl-js-data-table">
+      <thead>
+        <tr>
+          <th class="mdl-data-table__cell--non-numeric">Properties</th>
+          <th class="mdl-data-table__cell--non-numeric">Value</th>
+        </tr>
+      </thead>
+      <tbody id="cellsProperties">
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">Editable</td>
+            <td class="mdl-data-table__cell">
+                <input class="mdl-textfield__input" type="text" id="sample1" />
+            </td>
+        </tr>
+            <!-- will be filled by Node Infromation -->
+      </tbody>
+    </table>
 
-<button id="add" class="mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-js-ripple-effect mdl-button--colored" data-upgraded=",MaterialButton,MaterialRipple">
-  <i class="material-icons">+</i>
-<span class="mdl-button__ripple-container"><span class="mdl-ripple"></span></span></button>
+    <button id="add" class="mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-js-ripple-effect mdl-button--colored" data-upgraded=",MaterialButton,MaterialRipple">
+      <i class="material-icons">+</i>
+    <span class="mdl-button__ripple-container"><span class="mdl-ripple"></span></span></button>
 
-<div class="mdl-card__supporting-text">
-    <h5>Filter by node property</h5>
-    <div class="mdl-textfield mdl-js-textfield">
-    <input class="mdl-textfield__input" type="text" id="elementName">
-    <label class="mdl-textfield__label" for="sample1">Element name...</label>
-  </div>
-    <!-- Slider with Starting Value -->
-   Search Depth: <input class="mdl-slider mdl-js-slider" type="range"
-           min="0" max="10" value="2" tabindex="0" oninput="showMessage(this.value)" onchange="showMessage(this.value)" id="depthSlider">
-    <div id="depthValue"></div>
+    <div class="mdl-card__supporting-text">
+        <h5>Filter by node property</h5>
+        <div class="mdl-textfield mdl-js-textfield">
+        <input class="mdl-textfield__input" type="text" id="elementName">
+        <label class="mdl-textfield__label" for="sample1">Element name...</label>
+      </div>
+        <!-- Slider with Starting Value -->
+       Search Depth: <input class="mdl-slider mdl-js-slider" type="range"
+               min="0" max="10" value="2" tabindex="0" oninput="showMessage(this.value)" onchange="showMessage(this.value)" id="depthSlider">
+        <div id="depthValue"></div>
 
-  </div>
+      </div>
+    <div class="mdl-card__supporting-text">
+        <h5>Meta-Class Filter</h5>
+         <nav class="mdl-navigation" id="M2List">
+            <a class="mdl-navigation__link" id="nav_redraw">Redraw</a>
+        </nav>
+    </div>
 
-<div class="mdl-card__supporting-text">
-    <h5>Meta-Class Filter</h5>
-     <nav class="mdl-navigation" id="M2List">
-        <a class="mdl-navigation__link" id="nav_redraw">Redraw</a>
-    </nav>
+
+    </div> <!-- end panel-->
 </div>
 
 
-</div> <!-- end panel-->
-
-
  <main  class="mdl-layout__content">
-	<div>
     <div id="d3svg" class="page-content" style="height:auto">
 	</div>
-	</div>
 </main>
-
-
 
 <script type="text/javascript">
 
