@@ -48,8 +48,10 @@ margin-top: 0px;
         <div class="mdl-layout__header-row">
 
           <span class="mdl-layout-title">
-			<img class="android-logo-image" src="images/android-logo.png">
-			    JSMF Visualization Demonstration
+						<a class="mdl-navigation__link" href="/">
+						<img class="android-logo-image" src="images/android-logo.png" />
+			    		JSMF Visualization Demonstration
+						</a>
           </span>
           <!-- Add spacer, to align navigation to the right in desktop -->
           <div class="mdl-layout-spacer"></div>
@@ -61,15 +63,27 @@ margin-top: 0px;
             <nav class="android-navigation mdl-navigation">
               <a class="mdl-navigation__link mdl-typography--text-uppercase" href="/s">Graph</a>
               <a class="mdl-navigation__link mdl-typography--text-uppercase" href="/sun">Sunburst</a>
-			  <a class="mdl-navigation__link mdl-typography--text-uppercase" href="/models">The Models Behind the Scene</a>
-              <a class="mdl-navigation__link mdl-typography--text-uppercase" href="">Home</a>
+			  			<a class="mdl-navigation__link mdl-typography--text-uppercase" href="/models">The Models Behind the Scene</a>
             </nav>
           </div>
         </div>
       </div>
 
+			<div id="demo-snackbar-example" class="mdl-js-snackbar mdl-snackbar">
+			  <div class="mdl-snackbar__text"></div>
+			  <button class="mdl-snackbar__action" type="button"></button>
+			</div>
+
+
+
+
 <div class="mdl-layout mdl-js-layout mdl-color--grey-100">
 	<main class="mdl-layout__content">
+
+	<div class="mdl-grid">
+			<%- messages() %>
+	</div>
+
 		<div class="mdl-grid">
 			<div class="mdl-card mdl-cell mdl-cell--5-col mdl-cell--6-col-tablet mdl-shadow--16dp">
 				<div class="mdl-card__media">
@@ -79,15 +93,14 @@ margin-top: 0px;
 					<h1 class="mdl-card__title-text mdl-color-text--light-blue-900">Uploading IC3 Models</h1>
 				</div>
 				<div class="mdl-card__supporting-text">
-					<p>First upload a retargeted APK analyzed with IC3 tool(.dat) then display the model as graph / sunburst.
-                        (An existing APK has already been imported).</p>
+					<p>First upload the output of <a href="http://siis.cse.psu.edu/ic3/">IC3</a>
+						(output to a binary protocol buffer format) then display the model as graph / sunburst.</p>
 				</div>
 				<div id="uploadaction" class="mdl-card__actions mdl-card--border">
 				<form action="upload" method="post" enctype="multipart/form-data">
-					<input type="file" id="file" name="file">
+					<input type="file" id="file" name="file" />
     					<label for="file" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900">Upload</label>
-					</input>
-					<input type="submit" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900">
+					<input type="submit" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900"  accept="application/octet-stream, zz-application/zz-winassoc-dat">
 				</form>
 	  			</div>
 			</div>
@@ -104,12 +117,13 @@ margin-top: 0px;
 					<h1 class="mdl-card__title-text mdl-color-text--light-blue-900">Visualizing Android Models: Graph or SunBurst</h1>
 				</div>
 				<div class="mdl-card__supporting-text">
-					<p>Then display the model as graph / sunburst.</p>
+					<p>Then display the model as graph / sunburst.<br />
+					An existing APK has already been imported and will be used by default in case you didn't submit one in the first step.</p>
 				</div>
 				<div class="mdl-card__actions mdl-card--border">
 					<a href="/sun" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900">Sunburst view</a>
 					<a href="/s" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900">Graph view</a>
-	  			</div>
+	  		</div>
 			</div>
 
 			<!-- div class="mdl-card mdl-cell mdl-cell--4-col mdl-cell--6-col-tablet mdl-shadow--16dp">
@@ -126,16 +140,32 @@ margin-top: 0px;
 				<input type="file" id="file">
     				<label for="file" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900">Upload</label>
 				</input>
-	  			</div-->
+			</div> -->
 			</div>
 
 	</main>
 </div>
 <script>
+	var snackbarContainer = document.querySelector('#demo-snackbar-example');
+	var showSnackbarButton = document.querySelector('#demo-show-snackbar');
+	var handler = function(event) {
+		showSnackbarButton.style.backgroundColor = '';
+	};
 
 	var cfile = document.querySelector("#file");
 	cfile.onchange= function(e){
 		var fileToSend = e.target.files[0];
+		if (fileToSend.name.split('.').pop() != "dat") {
+
+			var data = {
+      message: 'You must submit a .dat file.',
+      timeout: 2000,
+      actionHandler: handler,
+      actionText: 'Ok'
+    };
+			snackbarContainer.MaterialSnackbar.showSnackbar(data);
+			return;
+		}
 		var p = document.createElement("label");
 		p.classList.add('mdl-color-text--light-blue-900');
 		var ptext = document.createTextNode(fileToSend.name);

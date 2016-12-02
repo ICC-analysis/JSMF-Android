@@ -1,14 +1,14 @@
 'use strict'
 var express = require('express');
+var flash = require('connect-flash');
+var session = require('express-session');
+var cookieParser = require('cookie-parser')
+var messages = require('express-messages');
 var jsmf = require('jsmf-core'),
 Class = jsmf.Class, Model = jsmf.Model;
 var jsmfjson = require('jsmf-json');
 var fs = require('fs');
 var multer  = require('multer')
-
-
-var listening_port = process.env.PORT || 3000;
-
 
 var protoBufModels =  require('builder');
 
@@ -19,32 +19,44 @@ var IC3Proto = './var/ic3/ic3data.proto',
 
 protoBufModels.build(IC3Proto, IC3ProtoGrammar,
                       IC3EntryPoint, BinaryAppProtoBuf);
-//console.log(protoBufModels.model);
-//console.log(protoBufModels.metamodel);
 
+var listening_port = process.env.PORT || 3000;
 
 var app = express();
+
+app.use(session({
+  secret: 'sessio0-Id',
+  saveUninitialized: true,
+  resave: true
+}));
+app.use(require('connect-flash')());
+app.use(function (req, res, next) {
+  res.locals.messages = require('express-messages')(req, res);
+  next();
+});
+
 //app.set('views', __dirname + '/views'); //default
 app.set('view engine', 'ejs');
 app.engine('.html', require('ejs').renderFile);
 
 //configure the static content (bower components) and links to views.
-app.use(express.static(__dirname + '/views'));
+//app.use(express.static(__dirname + '/views'));
+app.use('/images',  express.static(__dirname + '/static/images'));
 app.use('/bower_components',  express.static(__dirname + '/bower_components'));
 
 //configuration of the read file method
 var upload = multer({ dest: 'uploads/' });
 
-    
 
-
-
-app.get('/static', function (req, res) {
- res.render('index.html');
-});
 
 app.listen(listening_port, function () {
   console.log('Listening on port ' + listening_port);
+});
+
+app.get('/', function (req, res) {
+  var errorMessage = JSON.stringify('');
+
+  res.render('index.html', {errorMessage: errorMessage });
 });
 
 app.get('/sun', function (req, res) {
@@ -59,33 +71,30 @@ app.get('/sun', function (req, res) {
 app.get('/s', function(req,res) {
 	var M = protoBufModels.model;
 	var serializedModel = jsmfjson.stringify(M);
-
-/*
-	fs.writeFile("./serial.txt", serializedModel, function(err) {
-        if(err) { console.log('err'); throw(err) }
-        else { console.log('Saved') }
-    });
-*/
+  /*
+  	fs.writeFile("./serial.txt", serializedModel, function(err) {
+          if(err) { console.log('err'); throw(err) }
+          else { console.log('Saved') }
+      });
+  */
 	res.render('index2.html',{serializedModel: serializedModel });
 });
 
 app.get('/models', function(req,res){
-   res.render('modelsbehind.html' ); 
+   res.render('modelsbehind.html' );
 });
 
 app.post('/upload', upload.single('file'), function(req,res,next) {
-	//console.log('uploaded',req.file,req.file.path);
-	//if file is not correct => no action 
-    
-	//else a correct .dat
-	BinaryAppProtoBuf=req.file.path;
-	//console.log('path: ',BinaryAppProtoBuf);
-
-	//relaunch the protobufModel construction
-	protoBufModels.build(IC3Proto, IC3ProtoGrammar,
-                      IC3EntryPoint, BinaryAppProtoBuf);
-	res.redirect("back");
-
+  if ((req.file && req.file.originalname.split('.').pop() != "dat") || !(req.file)) {
+    req.flash("error", "You must submit a *.dat file.");
+  }
+  else {
+  	BinaryAppProtoBuf = req.file.path;
+  	//relaunch the protobufModel construction
+  	protoBufModels.build(IC3Proto, IC3ProtoGrammar,
+                        IC3EntryPoint, BinaryAppProtoBuf);
+  }
+  res.redirect("/");
 });
 
 
