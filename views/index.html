@@ -97,12 +97,12 @@ margin-top: 0px;
 						(output to a binary protocol buffer format) then display the model as graph / sunburst.</p>
 				</div>
 				<div id="uploadaction" class="mdl-card__actions mdl-card--border">
-				<form action="upload" method="post" enctype="multipart/form-data">
-					<input type="file" id="file" name="file" />
-    					<label for="file" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900">Upload</label>
-					<input type="submit" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900"  accept="application/octet-stream, zz-application/zz-winassoc-dat">
-				</form>
-	  			</div>
+					<form action="upload" method="post" enctype="multipart/form-data">
+						<input id="file" type="file" name="file" />
+							<label for="file" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900">Upload</label>
+						<input id="submitbutton" type="submit" value="Submit" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-grey-300"  accept="application/octet-stream, zz-application/zz-winassoc-dat" disabled />
+					</form>
+	  		</div>
 			</div>
 
 			<div class=" mdl-cell mdl-cell--2-col mdl-cell--1-col-tablet mdl-shadow--16dp">
@@ -152,34 +152,53 @@ margin-top: 0px;
 		showSnackbarButton.style.backgroundColor = '';
 	};
 
+
 	var cfile = document.querySelector("#file");
+	var submitbutton = document.querySelector("#submitbutton");
 	cfile.onchange= function(e){
 		var fileToSend = e.target.files[0];
 		if (fileToSend.name.split('.').pop() != "dat") {
 
+			submitbutton.setAttribute('disabled', true);
+			submitbutton.removeAttribute('class');
+			submitbutton.setAttribute('class', 'mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-grey-300')
+
+			labelFileToUpload =  document.querySelector("#labelFileToUpload");
+			if (labelFileToUpload) labelFileToUpload.remove();
+
 			var data = {
-      message: 'You must submit a .dat file.',
-      timeout: 2000,
-      actionHandler: handler,
-      actionText: 'Ok'
-    };
+	      message: 'You must submit a .dat file.',
+	      timeout: 2000,
+	      actionHandler: handler,
+	      actionText: 'Ok'
+    	};
 			snackbarContainer.MaterialSnackbar.showSnackbar(data);
-			return;
 		}
-		var p = document.createElement("label");
-		p.classList.add('mdl-color-text--light-blue-900');
-		var ptext = document.createTextNode(fileToSend.name);
-		p.appendChild(ptext);
-		document.querySelector("#uploadaction").appendChild(p);
-	//	var xhr = new XMLHttpRequest();
-	//	xhr.open("post", "/upload", true);
-	//	xhr.send(fileToSend);
+		else {
+			submitbutton.removeAttribute('disabled');
+			submitbutton.removeAttribute('class');
+			submitbutton.setAttribute('class', 'mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900')
+
+			var p = document.createElement("label");
+			p.setAttribute('id', 'labelFileToUpload')
+			p.classList.add('mdl-color-text--light-blue-400');
+			var ptext = document.createTextNode(fileToSend.name);
+			p.appendChild(ptext);
+			document.querySelector("#uploadaction").appendChild(p);
+
+			var data = {
+	      message: 'You can submit the file and select a view.',
+	      timeout: 2000,
+	      actionHandler: handler,
+	      actionText: 'Ok'
+    	};
+			snackbarContainer.MaterialSnackbar.showSnackbar(data);
+	}
 
 
 	//console.log("file upload",document.querySelector("#file").value);
 	};
 
 </script>
-
 </body>
 </head>
