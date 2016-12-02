@@ -77,7 +77,7 @@ app.get('/s', function(req,res) {
           else { console.log('Saved') }
       });
   */
-	res.render('index2.html',{serializedModel: serializedModel });
+	res.render('graph.html',{serializedModel: serializedModel });
 });
 
 app.get('/models', function(req,res){

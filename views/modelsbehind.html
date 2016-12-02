@@ -1,54 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<title>JSMF View</title>
-<script src="./bower_components/d3/d3.min.js"></script>
-<link rel="stylesheet" href="./bower_components/material-design-lite/material.min.css"/>
-<script src="./bower_components/material-design-lite/material.min.js"></script>
-<script type="text/javascript" src="./bower_components/jsmf-browser/dist/jsmf-browser.min.js"></script>
-<script type="text/javascript" src="./bower_components/lodash/dist/lodash.min.js"></script>
-<script src="./bower_components/node-uuid/uuid.js"></script>
-<script src="./bower_components/dialog-polyfill/dialog-polyfill.js"></script>
-<link rel="stylesheet" type="text/css" href="./bower_components/dialog-polyfill/dialog-polyfill.css" />
-<style type="text/css">
-.mdl-textfield__input {
-	font-size:12px;
-}
-
-.mdl-button {
-margin-top: 0px;
-}
-
-.full-size {
-	width: 100%
-}
-
-.mdl-card__media > img {
-	max-width: 60%;
-}
-.mdl-card__actions {
-	display: flex;
-	box-sizing:border-box;
-	align-items: center;
-}
-.mdl-card__actions > .mdl-button--icon {
-	margin-right: 3px;
-	margin-left: 3px;
-}
-
-#file { 
-	display: none 
-}
-
-.selected {
-    fill: rgb(114,207,121)
-}    
-    
-</style>
+	<% include ./partials/head %>
 </head>
 <body>
 <div class="mdl-layout mdl-js-layout mdl-color--grey-100">
+
+	<header>
+		<% include ./partials/header %>
+	</header>
+
 	<main class="mdl-layout__content">
         <svg version="1.2" width="210mm" height="297mm" viewBox="0 0 21000 29700" preserveAspectRatio="xMidYMid" fill-rule="evenodd" stroke-width="28.222" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" xmlns:ooo="http://xml.openoffice.org/svg/export" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:presentation="http://sun.com/xmlns/staroffice/presentation" xmlns:smil="http://www.w3.org/2001/SMIL20/" xmlns:anim="urn:oasis:names:tc:opendocument:xmlns:animation:1.0" xml:space="preserve">
          <defs class="ClipPathGroup">
@@ -304,52 +265,50 @@ margin-top: 0px;
          </g>
         </svg>
     <button type="animate" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900">Animate</button>
-</div>
-     
 </main>
-       
+</div>
 <script>
- 
-document.addEventListener('DOMContentLoaded', function() {    
-   
-    
+
+document.addEventListener('DOMContentLoaded', function() {
+
+
     var elements = Array.from(document.querySelectorAll('path'));
-    
+
     elements.forEach(function(el) {
         el.addEventListener("click", start);
     });
-    
-    
+
+
     // event listener functions
-  
-    
+
+
 });
-    
+
 function start(e){
     //console.log(e);
     var g = e.target.parentNode;
-    
+
     var elements = Array.from(document.querySelectorAll('path'));
-    
+
     elements.forEach(function(el) {
         el.setAttribute("class", "none");
     });
-    
+
     e.target.setAttribute("class","selected");
     console.log(g.id);
     var id=g.id;
     switch(id) {
-        case "id3": console.log('toto'); break;  
+        case "id3": console.log('toto'); break;
         case "id4": //
         case "id5":
         case "id9":
         case "id14":
         case "id13":
         case "id19":
-        default : break;    
+        default : break;
     }
 };
-  
-    
-</script>    
+
+
+</script>
 </body>

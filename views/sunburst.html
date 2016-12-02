@@ -1,64 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<title>JSMF View</title>
-<script src="./bower_components/d3/d3.min.js"></script>
-<link rel="stylesheet" href="./bower_components/material-design-lite/material.min.css"/>
-<script src="./bower_components/material-design-lite/material.min.js"></script>
-<script type="text/javascript" src="./bower_components/jsmf-browser/dist/jsmf-browser.min.js"></script>
-<script type="text/javascript" src="./bower_components/lodash/dist/lodash.min.js"></script>
-<script src="./bower_components/node-uuid/uuid.js"></script>
-<style type="text/css">
-.mdl-textfield__input {
-	font-size:12px;
-}
-
-.mdl-button {
-margin-top: 0px;
-}
-
-.full-size {
-	width: 100%
-}
-
-th {
-    background-color: dodgerblue;
-    
-}    
-    
-</style>
+	<% include ./partials/head %>
 </head>
 <body>
- 	<main  class="mdl-layout__content">
 
-	<div class="mdl-grid">
-		<div class="mdl-cell mdl-cell--12-col" id="sequence"></div>
-      	<div class="mdl-cell mdl-cell--6-col" id="chart">
+		<header>
+			<% include ./partials/header %>
+		</header>
+
+	 	<main  class="mdl-layout__content">
+
+		<div class="mdl-grid">
+			<div class="mdl-cell mdl-cell--12-col" id="sequence"></div>
+	      	<div class="mdl-cell mdl-cell--6-col" id="chart">
+			</div>
+	        <div class="mdl-cell mdl-cell--6-col" id="explanation" style="visibility:hidden;">
+				<span class="mdl-layout-title" id="titleProperties">Node Properties</span>
+				<table class="mdl-data-table mdl-js-data-table">
+	  				<thead>
+	   				 <tr>
+	      				<th class="mdl-data-table__cell--non-numeric">Properties</th>
+	      				<th class="mdl-data-table__cell--non-numeric full-size">Value</th>
+	    			</tr>
+	  				</thead>
+	  			<tbody id="cellsProperties">
+					<tr>
+						<td class="mdl-data-table__cell--non-numeric">Editable</td>
+						<td class="mdl-data-table__cell">
+						<input class="mdl-textfield__input" type="text" id="sample1" />
+						</td>
+					</tr>
+			<!-- will be filled by Node Infromation -->
+	  		</tbody>
+			</table>
+	        </div>
+	      </div>
 		</div>
-        <div class="mdl-cell mdl-cell--6-col" id="explanation" style="visibility:hidden;">
-			<span class="mdl-layout-title" id="titleProperties">Node Properties</span>
-			<table class="mdl-data-table mdl-js-data-table">
-  				<thead>
-   				 <tr>
-      				<th class="mdl-data-table__cell--non-numeric">Properties</th>
-      				<th class="mdl-data-table__cell--non-numeric full-size">Value</th>
-    			</tr>
-  				</thead>
-  			<tbody id="cellsProperties">
-				<tr>
-					<td class="mdl-data-table__cell--non-numeric">Editable</td>
-					<td class="mdl-data-table__cell">
-					<input class="mdl-textfield__input" type="text" id="sample1" />
-					</td>
-				</tr>
-		<!-- will be filled by Node Infromation -->
-  		</tbody>
-		</table>
-        </div>
-      </div>
 	</div>
-    </main>
+</main>
 <script>
 var width = 550,
     height = 550,
