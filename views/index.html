@@ -4,14 +4,11 @@
 	<% include ./partials/head %>
 </head>
 <body>
-	<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
-
 		<header>
 			<% include ./partials/header %>
 		</header>
 
 		<main class="mdl-layout__content">
-			<div class="mdl-layout mdl-js-layout mdl-color--grey-100">
 
 				<div class="mdl-grid">
 						<%- messages() %>
@@ -72,9 +69,16 @@
 		    				<label for="file" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900">Upload</label>
 						</input>
 					</div> -->
-					</div>
-			</div>
+				</div>
+
+
+			<footer>
+				<% include ./partials/footer %>
+			</footer>
+
 		</main>
+
+
 <script>
 	var snackbarContainer = document.querySelector('#demo-snackbar-example');
 	var showSnackbarButton = document.querySelector('#demo-show-snackbar');
@@ -130,4 +134,4 @@
 	};
 </script>
 </body>
-</head>
+</html>

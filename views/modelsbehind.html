@@ -4,14 +4,12 @@
 	<% include ./partials/head %>
 </head>
 <body>
-<div class="mdl-layout mdl-js-layout mdl-color--grey-100">
-
 	<header>
 		<% include ./partials/header %>
 	</header>
 
 	<main class="mdl-layout__content">
-        <svg version="1.2" width="210mm" height="297mm" viewBox="0 0 21000 29700" preserveAspectRatio="xMidYMid" fill-rule="evenodd" stroke-width="28.222" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" xmlns:ooo="http://xml.openoffice.org/svg/export" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:presentation="http://sun.com/xmlns/staroffice/presentation" xmlns:smil="http://www.w3.org/2001/SMIL20/" xmlns:anim="urn:oasis:names:tc:opendocument:xmlns:animation:1.0" xml:space="preserve">
+    <svg version="1.2" width="210mm" height="297mm" viewBox="0 0 21000 29700" preserveAspectRatio="xMidYMid" fill-rule="evenodd" stroke-width="28.222" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" xmlns:ooo="http://xml.openoffice.org/svg/export" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:presentation="http://sun.com/xmlns/staroffice/presentation" xmlns:smil="http://www.w3.org/2001/SMIL20/" xmlns:anim="urn:oasis:names:tc:opendocument:xmlns:animation:1.0" xml:space="preserve">
          <defs class="ClipPathGroup">
           <clipPath id="presentation_clip_path" clipPathUnits="userSpaceOnUse">
            <rect x="0" y="0" width="21000" height="29700"/>
@@ -263,10 +261,13 @@
            </g>
           </g>
          </g>
-        </svg>
+    </svg>
     <button type="animate" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900">Animate</button>
-</main>
-</div>
+
+		<footer>
+        <% include ./partials/footer %>
+    </footer>
+	</main>
 <script>
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -312,3 +313,4 @@ function start(e){
 
 </script>
 </body>
+</html>

@@ -4,41 +4,47 @@
 	<% include ./partials/head %>
 </head>
 <body>
-
 		<header>
 			<% include ./partials/header %>
 		</header>
 
-	 	<main  class="mdl-layout__content">
+	 	<main class="mdl-layout__content">
 
-		<div class="mdl-grid">
-			<div class="mdl-cell mdl-cell--12-col" id="sequence"></div>
-	      	<div class="mdl-cell mdl-cell--6-col" id="chart">
-			</div>
+				<div class="mdl-grid">
+					<div class="mdl-cell mdl-cell--12-col" id="sequence"></div>
+			    <div class="mdl-cell mdl-cell--6-col" id="chart"></div>
 	        <div class="mdl-cell mdl-cell--6-col" id="explanation" style="visibility:hidden;">
-				<span class="mdl-layout-title" id="titleProperties">Node Properties</span>
-				<table class="mdl-data-table mdl-js-data-table">
-	  				<thead>
-	   				 <tr>
-	      				<th class="mdl-data-table__cell--non-numeric">Properties</th>
-	      				<th class="mdl-data-table__cell--non-numeric full-size">Value</th>
-	    			</tr>
-	  				</thead>
-	  			<tbody id="cellsProperties">
-					<tr>
-						<td class="mdl-data-table__cell--non-numeric">Editable</td>
-						<td class="mdl-data-table__cell">
-						<input class="mdl-textfield__input" type="text" id="sample1" />
-						</td>
-					</tr>
-			<!-- will be filled by Node Infromation -->
-	  		</tbody>
-			</table>
-	        </div>
-	      </div>
-		</div>
-	</div>
-</main>
+						<span class="mdl-layout-title" id="titleProperties">Node Properties</span>
+						<table class="mdl-data-table mdl-js-data-table">
+		  				<thead>
+		   				 <tr>
+		      				<th class="mdl-data-table__cell--non-numeric">Properties</th>
+		      				<th class="mdl-data-table__cell--non-numeric full-size">Value</th>
+		    			</tr>
+		  				</thead>
+	  					<tbody id="cellsProperties">
+								<tr>
+									<td class="mdl-data-table__cell--non-numeric">Editable</td>
+									<td class="mdl-data-table__cell">
+									<input class="mdl-textfield__input" type="text" id="sample1" />
+									</td>
+								</tr>
+	  					</tbody>
+						</table>
+					</div>
+				</div>
+
+
+			<footer  class="mdl-mini-footer">
+	        <% include ./partials/footer %>
+	    </footer>
+
+
+		</main>
+
+
+
+
 <script>
 var width = 550,
     height = 550,
