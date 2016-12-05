@@ -8,45 +8,47 @@
 		<% include ./partials/header %>
 	</header>
 
-	<div  class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer
-	mdl-layout--overlay-drawer-button">
-	<div  id="propertiesView" class="mdl-layout__drawer">
-		<span class="mdl-layout-title" id="titleProperties">Node Properties</span>
-		<div id ="board">
-		</div>
-		<table class="mdl-data-table mdl-js-data-table">
-			<thead>
-				<tr>
-					<th class="mdl-data-table__cell--non-numeric">Properties</th>
-					<th class="mdl-data-table__cell--non-numeric">Value</th>
-				</tr>
-			</thead>
-			<tbody id="cellsProperties">
-				<tr>
-					<td class="mdl-data-table__cell--non-numeric">Editable</td>
-					<td class="mdl-data-table__cell">
-						<input class="mdl-textfield__input" type="text" id="sample1" />
-					</td>
-				</tr>
-				<!-- will be filled by Node Infromation -->
-			</tbody>
-		</table>
+	<div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--overlay-drawer-button">
+		<div  id="propertiesView" class="mdl-layout__drawer">
+			<span class="mdl-layout-title" id="titleProperties">Node Properties</span>
+			<div id ="board">
+			</div>
+			<table class="mdl-data-table mdl-js-data-table">
+				<thead>
+					<tr>
+						<th class="mdl-data-table__cell--non-numeric">Properties</th>
+						<th class="mdl-data-table__cell--non-numeric">Value</th>
+					</tr>
+				</thead>
+				<tbody id="cellsProperties">
+					<tr>
+						<td class="mdl-data-table__cell--non-numeric">Editable</td>
+						<td class="mdl-data-table__cell">
+							<input class="mdl-textfield__input" type="text" id="sample1" />
+						</td>
+					</tr>
+					<!-- will be filled by Node Infromation -->
+				</tbody>
+			</table>
 
-		<button id="add" class="mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-js-ripple-effect mdl-button--colored" data-upgraded=",MaterialButton,MaterialRipple">
-			<i class="material-icons">+</i>
-			<span class="mdl-button__ripple-container"><span class="mdl-ripple"></span></span></button>
+			<button id="add" class="mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-js-ripple-effect mdl-button--colored" data-upgraded=",MaterialButton,MaterialRipple">
+				<i class="material-icons">+</i>
+				<span class="mdl-button__ripple-container"><span class="mdl-ripple"></span></span>
+			</button>
 
 			<div class="mdl-card__supporting-text">
 				<h5>Filter by node property</h5>
 				<div class="mdl-textfield mdl-js-textfield">
-					<input class="mdl-textfield__input" type="text" id="elementName">
+					<input class="mdl-textfield__input" type="text" id="elementName" />
 					<label class="mdl-textfield__label" for="sample1">Element name...</label>
 				</div>
 				<!-- Slider with Starting Value -->
-				Search Depth: <input class="mdl-slider mdl-js-slider" type="range"
-				min="0" max="10" value="2" tabindex="0" oninput="showMessage(this.value)" onchange="showMessage(this.value)" id="depthSlider">
+				Search Depth:
+				<input class="mdl-slider mdl-js-slider" type="range"
+						min="0" max="10" value="2" tabindex="0"
+						oninput="showMessage(this.value)"
+						onchange="showMessage(this.value)" id="depthSlider" />
 				<div id="depthValue"></div>
-
 			</div>
 			<div class="mdl-card__supporting-text">
 				<h5>Meta-Class Filter</h5>
@@ -54,8 +56,6 @@
 					<a class="mdl-navigation__link" id="nav_redraw">Redraw</a>
 				</nav>
 			</div>
-
-
 		</div> <!-- end panel-->
 	</div>
 
@@ -65,9 +65,15 @@
 
 	<script type="text/javascript">
 
-	var w = 1200;
-	var h = 800;
-	var linkDistance=150;
+	var size = {
+	  width: window.innerWidth || document.body.clientWidth,
+	  height: window.innerHeight || document.body.clientHeight
+	}
+	var w = size.width - 20;
+	var h = size.height - 65;
+	var linkDistance = 150;
+
+	var svg_document = document.getElementById("d3svg");
 
 	var colors = d3.scale.category10();
 
@@ -136,18 +142,15 @@
 			}
 
 
-
 			var colorTab = {}
 
 			//Create the button in the nav bar that allows to filter the graph against the meta-classes
 			displayMetaClassFilter(M);
 
-			//
 			var nodesM = M.elements();
 
 			// create links from JSMF references that are targetting nodes presents in Model M. (i.e., removing links pointing outisdes the model M)
 			var links=createLinks(M);
-
 
 
 			//Set the graph
@@ -589,8 +592,6 @@ function displayMetaClassFilter(M) {
 
 		return groups;
 	}
-
 	</script>
-
 </body>
 </html>
