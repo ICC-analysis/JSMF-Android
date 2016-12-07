@@ -1,75 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<title>JSMF View</title>
-<script src="./bower_components/d3/d3.min.js"></script>
-<link rel="stylesheet" href="./bower_components/material-design-lite/material.min.css"/>
-<script src="./bower_components/material-design-lite/material.min.js"></script>
-<script type="text/javascript" src="./bower_components/jsmf-browser/dist/jsmf-browser.min.js"></script>
-<script type="text/javascript" src="./bower_components/lodash/dist/lodash.min.js"></script>
-<script src="./bower_components/node-uuid/uuid.js"></script>
-<style type="text/css">
-.mdl-textfield__input {
-	font-size:12px;
-}
-
-.mdl-button {
-margin-top: 0px;
-}
-
-.full-size {
-	width: 100%
-}
-
-.mdl-card__media > img {
-	max-width: 60%;
-}
-.mdl-card__actions {
-	display: flex;
-	box-sizing:border-box;
-	align-items: center;
-}
-.mdl-card__actions > .mdl-button--icon {
-	margin-right: 3px;
-	margin-left: 3px;
-}
-
-#file { 
-	display: none 
-}
-
-</style>
+	<% include ./partials/head %>
 </head>
 <body>
-<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+	<header>
+		<% include ./partials/header %>
+	</header>
 
-      <div class="android-header mdl-layout__header mdl-layout__header--waterfall">
-        <div class="mdl-layout__header-row">
-
-          <span class="mdl-layout-title">
-			<img class="android-logo-image" src="images/android-logo.png">
-			    JSMF Visualization Demonstration        
-          </span>
-          <!-- Add spacer, to align navigation to the right in desktop -->
-          <div class="mdl-layout-spacer"></div>
-            <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable mdl-textfield--floating-label mdl-textfield--align-right mdl-textfield--full-width">
-           
-          </div>
-          <!-- Navigation -->
-          <div class="android-navigation-container">
-            <nav class="android-navigation mdl-navigation">
-              <a class="mdl-navigation__link mdl-typography--text-uppercase" href="/s">Graph</a>
-              <a class="mdl-navigation__link mdl-typography--text-uppercase" href="/sun">Sunburst</a>
-			  <a class="mdl-navigation__link mdl-typography--text-uppercase" href="/models">The Models Behind the Scene</a>
-              <a class="mdl-navigation__link mdl-typography--text-uppercase" href="">Home</a> 
-            </nav>
-          </div>
-        </div>
-      </div>
-
-<div class="mdl-layout mdl-js-layout mdl-color--grey-100">
 	<main class="mdl-layout__content">
+
+		<div class="mdl-grid">
+			<%- messages() %>
+		</div>
+
 		<div class="mdl-grid">
 			<div class="mdl-card mdl-cell mdl-cell--5-col mdl-cell--6-col-tablet mdl-shadow--16dp">
 				<div class="mdl-card__media">
@@ -79,77 +23,109 @@ margin-top: 0px;
 					<h1 class="mdl-card__title-text mdl-color-text--light-blue-900">Uploading IC3 Models</h1>
 				</div>
 				<div class="mdl-card__supporting-text">
-					<p>First upload a retargeted APK analyzed with IC3 tool(.dat) then isplay the model as graph / sunburst.
-                        (An existing APK has already been imported).</p>
+					<p>First upload the output of <a href="http://siis.cse.psu.edu/ic3/">IC3</a>
+						(output to a binary protocol buffer format) then display the model as graph / sunburst.
+						You can use this <a href="https://git.list.lu/visual/APK-analyzer/blob/master/apk2icc.sh">script</a>.</p>
+					</div>
+					<div id="uploadaction" class="mdl-card__actions mdl-card--border">
+						<form action="upload" method="post" enctype="multipart/form-data">
+							<input id="file" type="file" name="file" />
+							<label for="file" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900">Upload</label>
+							<input id="submitbutton" type="submit" value="Submit" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-grey-300"  accept="application/octet-stream, zz-application/zz-winassoc-dat" disabled />
+						</form>
+					</div>
 				</div>
-				<div id="uploadaction" class="mdl-card__actions mdl-card--border">
-				<form action="upload" method="post" enctype="multipart/form-data">
-					<input type="file" id="file" name="file">
-    					<label for="file" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900">Upload</label>
-					</input>
-					<input type="submit" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900">	
-				</form>
-	  			</div>
-			</div>
 
-			<div class=" mdl-cell mdl-cell--2-col mdl-cell--1-col-tablet mdl-shadow--16dp">
-					
-			</div>
+				<div class="mdl-cell mdl-cell--2-col mdl-cell--1-col-tablet mdl-shadow--16dp"></div>
 
-			<div id="cardVis" class="mdl-card mdl-cell mdl-cell--5-col mdl-cell--5-col-tablet mdl-shadow--16dp">
-				<div class="mdl-card__media">
-					<img src="images/sunburst.png" alt="" />
-				</div>
-				<div class="mdl-card__title">
-					<h1 class="mdl-card__title-text mdl-color-text--light-blue-900">Visualizing Android Models: Graph or SunBurst</h1>
-				</div>
-				<div class="mdl-card__supporting-text">
-					<p>Then display the model as graph / sunburst.</p>
-				</div>
-				<div class="mdl-card__actions mdl-card--border">
-					<a href="/sun" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900">Sunburst view</a>
-					<a href="/s" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900">Graph view</a>
-	  			</div>
-			</div>
+				<div id="cardVis" class="mdl-card mdl-cell mdl-cell--5-col mdl-cell--5-col-tablet mdl-shadow--16dp">
+					<div class="mdl-card__media">
+						<img src="images/sunburst.png" alt="" />
+					</div>
+					<div class="mdl-card__title">
+						<h1 class="mdl-card__title-text mdl-color-text--light-blue-900">Visualizing Android Models: Graph or SunBurst</h1>
+					</div>
+					<div class="mdl-card__supporting-text">
+						<p>Then display the model as graph / sunburst.<br />
+							An existing APK has already been imported and will be used by default in case you didn't submit one in the first step.</p>
+						</div>
+						<div class="mdl-card__actions mdl-card--border">
+							<a href="/sun" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900">Sunburst view</a>
+							<a href="/s" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900">Graph view</a>
+						</div>
+					</div>
 
-			<!-- div class="mdl-card mdl-cell mdl-cell--4-col mdl-cell--6-col-tablet mdl-shadow--16dp">
-				<div class="mdl-card__media">
+					<!-- div class="mdl-card mdl-cell mdl-cell--4-col mdl-cell--6-col-tablet mdl-shadow--16dp">
+					<div class="mdl-card__media">
 					<img src="images/discovery.jpg" alt="" />
 				</div>
 				<div class="mdl-card__title">
-					<h1 class="mdl-card__title-text mdl-color-text--light-blue-900">To be Continued</h1>
-				</div>
-				<div class="mdl-card__supporting-text">
-					<p>Upload other models, connect information, compute differences, etc....</p>
-				</div>
-				<div class="mdl-card__actions mdl-card--border">
-				<input type="file" id="file">
-    				<label for="file" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900">Upload</label>
-				</input>	
-	  			</div-->
+				<h1 class="mdl-card__title-text mdl-color-text--light-blue-900">To be Continued</h1>
 			</div>
-
-	</main>
+			<div class="mdl-card__supporting-text">
+			<p>Upload other models, connect information, compute differences, etc....</p>
+		</div>
+		<div class="mdl-card__actions mdl-card--border">
+		<input type="file" id="file">
+		<label for="file" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900">Upload</label>
+	</input>
+</div> -->
 </div>
-<script>
+</main>
 
-	var cfile = document.querySelector("#file");
-	cfile.onchange= function(e){
-		var fileToSend = e.target.files[0];
+<script>
+var snackbarContainer = document.querySelector('#demo-snackbar-example');
+var showSnackbarButton = document.querySelector('#demo-show-snackbar');
+var handler = function(event) {
+	showSnackbarButton.style.backgroundColor = '';
+};
+
+
+var cfile = document.querySelector("#file");
+var submitbutton = document.querySelector("#submitbutton");
+cfile.onchange= function(e){
+	var fileToSend = e.target.files[0];
+	if (fileToSend.name.split('.').pop() != "dat") {
+
+		submitbutton.setAttribute('disabled', true);
+		submitbutton.removeAttribute('class');
+		submitbutton.setAttribute('class', 'mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-grey-300')
+
+		labelFileToUpload =  document.querySelector("#labelFileToUpload");
+		if (labelFileToUpload) labelFileToUpload.remove();
+
+		var data = {
+			message: 'You must submit a .dat file.',
+			timeout: 2000,
+			actionHandler: handler,
+			actionText: 'Ok'
+		};
+		snackbarContainer.MaterialSnackbar.showSnackbar(data);
+	}
+	else {
+		submitbutton.removeAttribute('disabled');
+		submitbutton.removeAttribute('class');
+		submitbutton.setAttribute('class', 'mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900')
+
 		var p = document.createElement("label");
-		p.classList.add('mdl-color-text--light-blue-900');
+		p.setAttribute('id', 'labelFileToUpload')
+		p.classList.add('mdl-color-text--light-blue-400');
 		var ptext = document.createTextNode(fileToSend.name);
 		p.appendChild(ptext);
 		document.querySelector("#uploadaction").appendChild(p);
-	//	var xhr = new XMLHttpRequest();
-	//	xhr.open("post", "/upload", true);
-	//	xhr.send(fileToSend);
-		
-		
+
+		var data = {
+			message: 'You can submit the file and select a view.',
+			timeout: 2000,
+			actionHandler: handler,
+			actionText: 'Ok'
+		};
+		snackbarContainer.MaterialSnackbar.showSnackbar(data);
+	}
+
+
 	//console.log("file upload",document.querySelector("#file").value);
-	};
-
+};
 </script>
-
 </body>
-</head>
+</html>

@@ -19,8 +19,12 @@
   "dependencies": {
     "bower": "^1.8.0",
     "builder": "file:var/lib/protobuffToJSMF",
+    "connect-flash": "^0.1.1",
+    "cookie-parser": "^1.4.3",
     "ejs": "^2.5.2",
     "express": "^4.14.0",
+    "express-messages": "^1.0.1",
+    "express-session": "^1.14.2",
     "jsmf": "^0.10.0",
     "jsmf-core": "^0.10.1",
     "jsmf-json": "^0.9.0",
