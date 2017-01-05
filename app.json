@@ -1,0 +1,22 @@
+{
+  "name": "jsmf-android-visualization",
+  "description": "JSMF Android visualization",
+  "keywords": ["jsmf", "model", "android", "visualization"],
+  "website": "https://jsmf-android-visualization.herokuapp.com",
+  "repository": "https://git.list.lu/jsmf/jsmf-interact.git",
+  "scripts": {
+    "postdeploy": "./install.sh"
+  },
+  "env": {
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs",
+      "index": 1
+    },
+    {
+      "url": "heroku/java",
+      "index": 2
+    }
+  ]
+}
