@@ -25,6 +25,8 @@ and *jsmf-browser*.
 $ git clone https://git.list.lu/jsmf/jsmf-interact.git
 $ cd jsmf-interact/
 $ heroku create
+$ heroku buildpacks:add --index 1 heroku/nodejs
+$ heroku buildpacks:add --index 2 https://github.com/heroku/heroku-buildpack-java
 $ git push heroku master
 $ heroku open
 ```
