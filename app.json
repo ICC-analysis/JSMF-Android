@@ -5,7 +5,7 @@
   "website": "https://jsmf-android-visualization.herokuapp.com",
   "repository": "https://git.list.lu/jsmf/jsmf-interact.git",
   "scripts": {
-    "postdeploy": "git clone https://git.list.lu/visual/APK-analyzer.git; cd APK-analyzer/ ; ./install.sh"
+    "postdeploy": "git clone https://git.list.lu/visual/APK-analyzer.git; cd APK-analyzer/ ; sh ./install.sh"
   },
   "env": {
   },
