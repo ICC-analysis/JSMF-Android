@@ -8,7 +8,7 @@
 
 ROOT="bin/APK-analyzer/"
 
-APK_FILE=`realpath $1`
+APK_FILE=`readlink -f $1`
 mv $APK_FILE $APK_FILE.apk
 APK_FILE=$APK_FILE.apk
 APK_NAME=`basename ${APK_FILE%.apk}`
@@ -16,7 +16,7 @@ APK_NAME=`basename ${APK_FILE%.apk}`
 ORIGINAL_NAME=$2
 
 
-TEMP_DIRECTORY=`realpath $ROOT"tmp"`
+TEMP_DIRECTORY=`readlink -f $ROOT"tmp"`
 DARE_OUTPUT_DIRECTORY=$TEMP_DIRECTORY"/dare/"$APK_NAME
 IC3_OUTPUT_DIRECTORY=$ROOT"result"
 
@@ -24,7 +24,7 @@ IC3_OUTPUT_DIRECTORY=$ROOT"result"
 DARE_DIRECTORY=$ROOT"dare"
 IC3_DIRECTORY=$ROOT"ic3"
 
-ANDROID_JAR=`realpath $IC3_DIRECTORY/android.jar`
+ANDROID_JAR=`readlink -f $IC3_DIRECTORY/android.jar`
 
 
 # Generation of the retargeted APK
@@ -48,4 +48,4 @@ java -jar $IC3_DIRECTORY/ic3-0.2.0-full.jar \
     -binary
 rm -Rf $DARE_OUTPUT_DIRECTORY sootOutput $TEMP_DIRECTORY
 
-mv $IC3_OUTPUT_DIRECTORY/$APK_NAME/*.dat $IC3_OUTPUT_DIRECTORY/$APK_NAME/result.dat 
+mv $IC3_OUTPUT_DIRECTORY/$APK_NAME/*.dat $IC3_OUTPUT_DIRECTORY/$APK_NAME/result.dat
