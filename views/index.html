@@ -85,7 +85,7 @@ var cfile = document.querySelector("#file");
 var submitbutton = document.querySelector("#submitbutton");
 cfile.onchange= function(e){
 	var fileToSend = e.target.files[0];
-	if (fileToSend.name.split('.').pop() != "dat") {
+	if (fileToSend.name.split('.').pop() != "dat" && fileToSend.name.split('.').pop() != "apk") {
 
 		submitbutton.setAttribute('disabled', true);
 		submitbutton.removeAttribute('class');
@@ -95,7 +95,7 @@ cfile.onchange= function(e){
 		if (labelFileToUpload) labelFileToUpload.remove();
 
 		var data = {
-			message: 'You must submit a .dat file.',
+			message: 'You must submit a .dat or .apk file.',
 			timeout: 2000,
 			actionHandler: handler,
 			actionText: 'Ok'

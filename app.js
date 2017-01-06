@@ -85,14 +85,42 @@ app.get('/models', function(req,res){
 });
 
 app.post('/upload', upload.single('file'), function(req,res,next) {
-  if ((req.file && req.file.originalname.split('.').pop() != "dat") || !(req.file)) {
-    req.flash("error", "You must submit a *.dat file.");
-  }
-  else {
+  if (req.file && req.file.originalname.split('.').pop() == "dat") {
+    // A binary protobuf is directly submitted
   	BinaryAppProtoBuf = req.file.path;
   	//relaunch the protobufModel construction
   	protoBufModels.build(IC3Proto, IC3ProtoGrammar,
                         IC3EntryPoint, BinaryAppProtoBuf);
+  }
+
+  else if (req.file && req.file.originalname.split('.').pop() == "apk") {
+    // An APK is submitted
+    console.log('Launching a child process in order to retarget and generate a binary proto file from the submitted APK file.')
+  	const spawn = require('child_process').spawn;
+    const cmd = spawn('bin/APK-analyzer/apk2icc.sh', [req.file.path, req.file.originalname]);
+
+    cmd.stderr.on('data', (data) => {
+        console.log(`stderr: ${data}`);
+    });
+
+    cmd.stdout.on('data', (data) => {
+        //console.log(`stdout: ${data}`);
+    });
+
+    cmd.on('close', (code) => {
+        console.log(`child process exited with code ${code}`);
+        if (code ==0)
+        {
+            BinaryAppProtoBuf = 'bin/APK-analyzer/result/'+req.file.filename+'/result.dat'
+            console.log("File generated: " + BinaryAppProtoBuf);
+            console.log("Building model...")
+            protoBufModels.build(IC3Proto, IC3ProtoGrammar,
+                                IC3EntryPoint, BinaryAppProtoBuf);
+        }
+    });
+  }
+  else if (req.file) {
+    req.flash("error", "You must submit a *.dat file.");
   }
   res.redirect("/");
 });

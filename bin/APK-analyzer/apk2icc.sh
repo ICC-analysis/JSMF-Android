@@ -6,16 +6,23 @@
 #
 #  $ ./apk2icc.sh ~/sample-APK/application.apk
 
+ROOT="bin/APK-analyzer/"
+
 APK_FILE=`realpath $1`
+mv $APK_FILE $APK_FILE.apk
+APK_FILE=$APK_FILE.apk
 APK_NAME=`basename ${APK_FILE%.apk}`
 
-TEMP_DIRECTORY=`realpath "./tmp"`
+ORIGINAL_NAME=$2
+
+
+TEMP_DIRECTORY=`realpath $ROOT"tmp"`
 DARE_OUTPUT_DIRECTORY=$TEMP_DIRECTORY"/dare/"$APK_NAME
-IC3_OUTPUT_DIRECTORY="./result"
+IC3_OUTPUT_DIRECTORY=$ROOT"result"
 
 # Paths to dare and ic3 binaries
-DARE_DIRECTORY="./dare"
-IC3_DIRECTORY="./ic3"
+DARE_DIRECTORY=$ROOT"dare"
+IC3_DIRECTORY=$ROOT"ic3"
 
 ANDROID_JAR=`realpath $IC3_DIRECTORY/android.jar`
 
@@ -30,6 +37,7 @@ if [ ! -d "$IC3_OUTPUT_DIRECTORY" ]; then
 fi
 if [ ! -d $IC3_OUTPUT_DIRECTORY/$APK_NAME ]; then
   mkdir $IC3_OUTPUT_DIRECTORY/$APK_NAME
+  echo $IC3_OUTPUT_DIRECTORY/$APK_NAME
 fi
 
 java -jar $IC3_DIRECTORY/ic3-0.2.0-full.jar \
@@ -39,3 +47,5 @@ java -jar $IC3_DIRECTORY/ic3-0.2.0-full.jar \
     -protobuf $IC3_OUTPUT_DIRECTORY/$APK_NAME \
     -binary
 rm -Rf $DARE_OUTPUT_DIRECTORY sootOutput $TEMP_DIRECTORY
+
+mv $IC3_OUTPUT_DIRECTORY/$APK_NAME/*.dat $IC3_OUTPUT_DIRECTORY/$APK_NAME/result.dat 
