@@ -1,6 +1,3 @@
 [submodule "var/lib/protobuffToJSMF"]
 	path = var/lib/protobuffToJSMF
 	url = https://github.com/jssottet/protobuffToJSMF.git
-[submodule "bin/APK-analyzer"]
-	path = bin/APK-analyzer
-	url = https://github.com/cedricbonhomme/APK-analyzer.git
