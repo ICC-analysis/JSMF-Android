@@ -112,7 +112,7 @@ app.post('/upload', upload.single('file'), function(req,res,next) {
         console.log(`child process exited with code ${code}`);
         if (code ==0)
         {
-            BinaryAppProtoBuf = '/tmp/ic3/'+req.file.filename+'/result.dat'
+            BinaryAppProtoBuf = 'uploads/ic3/'+req.file.filename+'/result.dat'
             console.log("File generated: " + BinaryAppProtoBuf);
             console.log("Building JSMF model...")
             protoBufModels.build(IC3Proto, IC3ProtoGrammar,

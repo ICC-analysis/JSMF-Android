@@ -7,7 +7,7 @@
 #  $ ./apk2icc.sh ~/sample-APK/application.apk
 
 ROOT_APPLICATION="bin/APK-analyzer"
-ROOT_OUTPUT="/tmp"
+ROOT_OUTPUT="uploads"
 
 # Paths to dare and ic3 binaries
 DARE_DIRECTORY=$ROOT_APPLICATION"/dare"
@@ -23,11 +23,12 @@ APK_NAME=`basename ${APK_FILE%.apk}`
 ORIGINAL_NAME=$2
 
 # Outputs
-DARE_OUTPUT_DIRECTORY=$ROOT_OUTPUT"/dare/"$APK_NAME
-IC3_OUTPUT_DIRECTORY=$ROOT_OUTPUT"/ic3/"$APK_NAME
+DARE_OUTPUT_DIRECTORY=`readlink -f $ROOT_OUTPUT"/dare/"$APK_NAME`
+IC3_OUTPUT_DIRECTORY=`readlink -f $ROOT_OUTPUT"/ic3/"$APK_NAME`
 
 
 # Generation of the retargeted APK
+mkdir -p $DARE_OUTPUT_DIRECTORY
 $DARE_DIRECTORY/dare -d $DARE_OUTPUT_DIRECTORY $APK_FILE
 
 # Generation of the binary proto file
