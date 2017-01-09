@@ -23,16 +23,18 @@ APK_NAME=`basename ${APK_FILE%.apk}`
 ORIGINAL_NAME=$2
 
 # Outputs
-DARE_OUTPUT_DIRECTORY=`readlink -f $ROOT_OUTPUT"/dare/"$APK_NAME`
-IC3_OUTPUT_DIRECTORY=`readlink -f $ROOT_OUTPUT"/ic3/"$APK_NAME`
+DARE_OUTPUT_DIRECTORY=$ROOT_OUTPUT"/dare/"$APK_NAME
+IC3_OUTPUT_DIRECTORY=$ROOT_OUTPUT"/ic3/"$APK_NAME
+mkdir -p $DARE_OUTPUT_DIRECTORY
+mkdir -p $IC3_OUTPUT_DIRECTORY
+DARE_OUTPUT_DIRECTORY=`readlink -f $DARE_OUTPUT_DIRECTORY`
+IC3_OUTPUT_DIRECTORY=`readlink -f $IC3_OUTPUT_DIRECTORY`
 
 
 # Generation of the retargeted APK
-mkdir -p $DARE_OUTPUT_DIRECTORY
 $DARE_DIRECTORY/dare -d $DARE_OUTPUT_DIRECTORY $APK_FILE
 
 # Generation of the binary proto file
-mkdir -p $IC3_OUTPUT_DIRECTORY
 java -jar $IC3_DIRECTORY/ic3-0.2.0-full.jar \
     -apkormanifest $APK_FILE \
     -input $DARE_OUTPUT_DIRECTORY/retargeted/$APK_NAME \
