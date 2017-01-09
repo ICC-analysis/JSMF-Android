@@ -95,7 +95,8 @@ app.post('/upload', upload.single('file'), function(req,res,next) {
 
   else if (req.file && req.file.originalname.split('.').pop() == "apk") {
     // An APK is submitted
-    console.log('Launching a child process in order to retarget and generate a binary proto file from the submitted APK file.')
+    console.log('An APK file has been received: ' + req.file.originalname)
+    console.log('Launching a child process in order to retarget and generate a binary proto file.')
   	const spawn = require('child_process').spawn;
     const cmd = spawn('bin/APK-analyzer/apk2icc.sh', [req.file.path, req.file.originalname]);
 
@@ -111,17 +112,20 @@ app.post('/upload', upload.single('file'), function(req,res,next) {
         console.log(`child process exited with code ${code}`);
         if (code ==0)
         {
-            BinaryAppProtoBuf = 'bin/APK-analyzer/result/'+req.file.filename+'/result.dat'
+            BinaryAppProtoBuf = '/tmp/ic3/'+req.file.filename+'/result.dat'
             console.log("File generated: " + BinaryAppProtoBuf);
-            console.log("Building model...")
+            console.log("Building JSMF model...")
             protoBufModels.build(IC3Proto, IC3ProtoGrammar,
                                 IC3EntryPoint, BinaryAppProtoBuf);
+            console.log("JSMF model builed.")
         }
     });
   }
+
   else if (req.file) {
-    req.flash("error", "You must submit a *.dat file.");
+    req.flash("error", "You must submit a *.apk or *.dat file.");
   }
+
   res.redirect("/");
 });
 
