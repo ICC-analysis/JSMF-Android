@@ -116,7 +116,7 @@ app.post('/upload', upload.single('file'), function(req,res,next) {
         console.log(`child process exited with code ${code}`);
         if (code ==0)
         {
-            BinaryAppProtoBuf = 'uploads/ic3/'+req.file.filename+'/result.dat'
+            BinaryAppProtoBuf = 'outputs/ic3/'+req.file.filename+'/result.dat'
             console.log("File generated: " + BinaryAppProtoBuf);
             console.log("Building JSMF model...")
             protoBufModels.build(IC3Proto, IC3ProtoGrammar,
@@ -128,7 +128,9 @@ app.post('/upload', upload.single('file'), function(req,res,next) {
 
     console.log('Launching a child process in order to decompile the APK.');
     console.log(req.file.path)
-    const cmd_decompile = spawn('bin/dex2jar/d2j-dex2jar.sh', ['--output', 'result-dex2jar.jar', req.file.path]);
+    const cmd_decompile = spawn('bin/dex2jar/d2j-dex2jar.sh',
+                                ['--force','--output',
+                                './outputs/result-dex2jar.jar', req.file.path]);
 
     cmd_decompile.stderr.on('data', (data) => {
         console.log(`stderr: ${data}`);
@@ -139,7 +141,10 @@ app.post('/upload', upload.single('file'), function(req,res,next) {
         if (code ==0)
         {
             console.log('decompiling with jd-cmd...')
-            const cmd_decompile2 = spawn('java', ['-jar', 'bin/jd-cmd/jd-cli.jar', '--outputDir', 'result-jdcmd', 'result-dex2jar.jar']);
+            const cmd_decompile2 = spawn('java',
+                                        ['-jar', 'bin/jd-cmd/jd-cli.jar',
+                                        '--outputDir', './outputs/result-jdcmd',
+                                        './outputs/result-dex2jar.jar']);
         }
     });
 

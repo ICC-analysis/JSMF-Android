@@ -7,7 +7,7 @@
 #  $ ./apk2icc.sh ~/sample-APK/application.apk
 
 ROOT_APPLICATION="bin/APK-analyzer"
-ROOT_OUTPUT="uploads"
+ROOT_OUTPUT="outputs"
 
 # Paths to dare and ic3 binaries
 DARE_DIRECTORY=$ROOT_APPLICATION"/dare"
