@@ -100,6 +100,8 @@ app.post('/upload', upload.single('file'), function(req,res,next) {
     console.log('An APK file has been received: ' + req.file.originalname)
 
 
+    // Generation of the model of application's "Inter-Component Communication" representation.
+    //
     console.log('Launching a child process in order to retarget and generate a binary proto file.')
   	const spawn = require('child_process').spawn;
     const cmd = spawn('bin/APK-analyzer/apk2icc.sh', [req.file.path, req.file.originalname]);
@@ -126,25 +128,32 @@ app.post('/upload', upload.single('file'), function(req,res,next) {
     });
 
 
+    // Generation of the model of application's source code.
+    //
     console.log('Launching a child process in order to decompile the APK.');
     console.log(req.file.path)
-    const cmd_decompile = spawn('bin/dex2jar/d2j-dex2jar.sh',
+    const cmd_decompile_step1 = spawn('bin/dex2jar/d2j-dex2jar.sh',
                                 ['--force','--output',
                                 './outputs/result-dex2jar.jar', req.file.path]);
 
-    cmd_decompile.stderr.on('data', (data) => {
+    cmd_decompile_step1.stderr.on('data', (data) => {
         console.log(`stderr: ${data}`);
     });
 
-    cmd_decompile.on('close', (code) => {
+    cmd_decompile_step1.on('close', (code) => {
         console.log(`child process exited with code ${code}`);
         if (code ==0)
         {
             console.log('decompiling with jd-cmd...')
-            const cmd_decompile2 = spawn('java',
+            const cmd_decompile_step2 = spawn('java',
                                         ['-jar', 'bin/jd-cmd/jd-cli.jar',
                                         '--outputDir', './outputs/result-jdcmd',
                                         './outputs/result-dex2jar.jar']);
+
+            cmd_decompile_step2.on('close', (code) => {
+                console.log(`APK decompiled.`);
+            });
+
         }
     });
 
