@@ -85,6 +85,8 @@ app.get('/models', function(req,res){
 });
 
 app.post('/upload', upload.single('file'), function(req,res,next) {
+ console.log(req.file);
+
   if (req.file && req.file.originalname.split('.').pop() == "dat") {
     // A binary protobuf is directly submitted
   	BinaryAppProtoBuf = req.file.path;
@@ -96,6 +98,8 @@ app.post('/upload', upload.single('file'), function(req,res,next) {
   else if (req.file && req.file.originalname.split('.').pop() == "apk") {
     // An APK is submitted
     console.log('An APK file has been received: ' + req.file.originalname)
+
+
     console.log('Launching a child process in order to retarget and generate a binary proto file.')
   	const spawn = require('child_process').spawn;
     const cmd = spawn('bin/APK-analyzer/apk2icc.sh', [req.file.path, req.file.originalname]);
@@ -120,6 +124,26 @@ app.post('/upload', upload.single('file'), function(req,res,next) {
             console.log("JSMF model builed.")
         }
     });
+
+
+    console.log('Launching a child process in order to decompile the APK.');
+    console.log(req.file.path)
+    const cmd_decompile = spawn('bin/dex2jar/d2j-dex2jar.sh', ['--output', 'result-dex2jar.jar', req.file.path]);
+
+    cmd_decompile.stderr.on('data', (data) => {
+        console.log(`stderr: ${data}`);
+    });
+
+    cmd_decompile.on('close', (code) => {
+        console.log(`child process exited with code ${code}`);
+        if (code ==0)
+        {
+            console.log('decompiling with jd-cmd...')
+            const cmd_decompile2 = spawn('java', ['-jar', 'bin/jd-cmd/jd-cli.jar', '--outputDir', 'result-jdcmd', 'result-dex2jar.jar']);
+        }
+    });
+
+
   }
 
   else if (req.file) {

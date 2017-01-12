@@ -16,7 +16,7 @@ ANDROID_JAR=`readlink -f $IC3_DIRECTORY/android.jar`
 
 # APK file to analyze
 APK_FILE=`readlink -f $1`
-mv $APK_FILE $APK_FILE.apk
+cp $APK_FILE $APK_FILE.apk
 APK_FILE=$APK_FILE.apk
 APK_NAME=`basename ${APK_FILE%.apk}`
 
