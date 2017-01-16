@@ -23,37 +23,39 @@
 					<h1 class="mdl-card__title-text mdl-color-text--light-blue-900">Uploading IC3 Models</h1>
 				</div>
 				<div class="mdl-card__supporting-text">
-					<p>First upload the output of <a href="http://siis.cse.psu.edu/ic3/">IC3</a>
-						(output to a binary protocol buffer format) then display the model as graph / sunburst.
-						You can use this <a href="https://git.list.lu/visual/APK-analyzer/blob/master/apk2icc.sh">script</a>.</p>
-					</div>
-					<div id="uploadaction" class="mdl-card__actions mdl-card--border">
-						<form action="upload" method="post" enctype="multipart/form-data">
-							<input id="file" type="file" name="file" />
-							<label for="file" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900">Upload</label>
-							<input id="submitbutton" type="submit" value="Submit" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-grey-300"  accept="application/octet-stream, zz-application/zz-winassoc-dat" disabled />
-						</form>
-					</div>
+					<p>
+						First, upload an APK or the output of <a href="http://siis.cse.psu.edu/ic3/">IC3</a>
+						(output to a binary protocol buffer format).<br />
+						Then display the model as graph or sunburst.
+					</p>
 				</div>
+				<div id="uploadaction" class="mdl-card__actions mdl-card--border">
+					<form action="upload" method="post" enctype="multipart/form-data">
+						<input id="file" type="file" name="file" />
+						<label for="file" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900">Upload</label>
+						<input id="submitbutton" type="submit" value="Proceed analysis" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-grey-300"  accept="application/octet-stream, zz-application/zz-winassoc-dat" disabled />
+					</form>
+				</div>
+			</div>
 
-				<div class="mdl-cell mdl-cell--2-col mdl-cell--1-col-tablet mdl-shadow--16dp"></div>
+			<div class="mdl-cell mdl-cell--2-col mdl-cell--1-col-tablet mdl-shadow--16dp"></div>
 
-				<div id="cardVis" class="mdl-card mdl-cell mdl-cell--5-col mdl-cell--5-col-tablet mdl-shadow--16dp">
-					<div class="mdl-card__media">
-						<img src="images/sunburst.png" alt="" />
-					</div>
-					<div class="mdl-card__title">
-						<h1 class="mdl-card__title-text mdl-color-text--light-blue-900">Visualizing Android Models: Graph or SunBurst</h1>
-					</div>
-					<div class="mdl-card__supporting-text">
-						<p>Then display the model as graph / sunburst.<br />
-							An existing APK has already been imported and will be used by default in case you didn't submit one in the first step.</p>
-						</div>
-						<div class="mdl-card__actions mdl-card--border">
-							<a href="/sun" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900">Sunburst view</a>
-							<a href="/s" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900">Graph view</a>
-						</div>
-					</div>
+			<div id="cardVis" class="mdl-card mdl-cell mdl-cell--5-col mdl-cell--5-col-tablet mdl-shadow--16dp">
+				<div class="mdl-card__media">
+					<img src="images/sunburst.png" alt="" />
+				</div>
+				<div class="mdl-card__title">
+					<h1 class="mdl-card__title-text mdl-color-text--light-blue-900">Visualizing Android Models: Graph or SunBurst</h1>
+				</div>
+				<div class="mdl-card__supporting-text">
+					<p>Then display the model as graph / sunburst.<br />
+						An existing APK has already been imported and will be used by default in case you didn't submit one in the first step.</p>
+				</div>
+				<div class="mdl-card__actions mdl-card--border">
+					<a href="/sun" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900">Sunburst view</a>
+					<a href="/s" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900">Graph view</a>
+				</div>
+			</div>
 
 					<!-- div class="mdl-card mdl-cell mdl-cell--4-col mdl-cell--6-col-tablet mdl-shadow--16dp">
 					<div class="mdl-card__media">

@@ -85,24 +85,24 @@ app.get('/models', function(req,res){
 });
 
 app.post('/upload', upload.single('file'), function(req,res,next) {
- console.log(req.file);
 
   if (req.file && req.file.originalname.split('.').pop() == "dat") {
     // A binary protobuf is directly submitted
-  	BinaryAppProtoBuf = req.file.path;
   	//relaunch the protobufModel construction
+    console.log('A binary protobuf file has been received: ' +
+                    req.file.originalname)
   	protoBufModels.build(IC3Proto, IC3ProtoGrammar,
-                        IC3EntryPoint, BinaryAppProtoBuf);
+                        IC3EntryPoint, req.file.path);
   }
 
   else if (req.file && req.file.originalname.split('.').pop() == "apk") {
     // An APK is submitted
     console.log('An APK file has been received: ' + req.file.originalname)
 
-
     // Generation of the model of application's "Inter-Component Communication" representation.
     //
-    console.log('Launching a child process in order to retarget and generate a binary proto file.')
+    console.log('Launching a child process (CP-1) in order to retarget and ' +
+                    'generate a binary proto file.')
   	const spawn = require('child_process').spawn;
     const cmd = spawn('bin/APK-analyzer/apk2icc.sh', [req.file.path, req.file.originalname]);
 
@@ -115,45 +115,44 @@ app.post('/upload', upload.single('file'), function(req,res,next) {
     });
 
     cmd.on('close', (code) => {
-        console.log(`child process exited with code ${code}`);
         if (code ==0)
         {
             BinaryAppProtoBuf = 'outputs/ic3/'+req.file.filename+'/result.dat'
-            console.log("File generated: " + BinaryAppProtoBuf);
-            console.log("Building JSMF model...")
+            console.log("[CP-1] File generated: " + BinaryAppProtoBuf);
+            console.log("[CP-1] Building JSMF model...")
             protoBufModels.build(IC3Proto, IC3ProtoGrammar,
                                 IC3EntryPoint, BinaryAppProtoBuf);
-            console.log("JSMF model builed.")
+            console.log("[CP-1] JSMF model builed.")
         }
+        console.log(`[CP-1] child process exited with code ${code}`);
     });
 
 
     // Generation of the model of application's source code.
     //
-    console.log('Launching a child process in order to decompile the APK.');
-    console.log(req.file.path)
+    console.log('Launching a child process (CP-2) in order to decompile the APK.');
     const cmd_decompile_step1 = spawn('bin/dex2jar/d2j-dex2jar.sh',
                                 ['--force','--output',
-                                './outputs/result-dex2jar.jar', req.file.path]);
+                                './outputs/result-dex2jar.jar',
+                                req.file.path]);
 
     cmd_decompile_step1.stderr.on('data', (data) => {
         console.log(`stderr: ${data}`);
     });
 
     cmd_decompile_step1.on('close', (code) => {
-        console.log(`child process exited with code ${code}`);
         if (code ==0)
         {
-            console.log('decompiling with jd-cmd...')
+            console.log('[CP-2] decompiling with jd-cmd...')
             const cmd_decompile_step2 = spawn('java',
-                                        ['-jar', 'bin/jd-cmd/jd-cli.jar',
-                                        '--outputDir', './outputs/result-jdcmd',
-                                        './outputs/result-dex2jar.jar']);
+                                    ['-jar', 'bin/jd-cmd/jd-cli.jar',
+                                    '--outputDir', './outputs/result-jdcmd',
+                                    './outputs/result-dex2jar.jar']);
 
             cmd_decompile_step2.on('close', (code) => {
-                console.log(`APK decompiled.`);
-            });
-
+                console.log(`[CP-2] APK decompiled.`);
+                console.log(`[CP-2] child process exited with code ${code}`);
+            })
         }
     });
 
