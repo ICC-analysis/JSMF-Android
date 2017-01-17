@@ -23,6 +23,10 @@ protoBufModels.build(IC3Proto, IC3ProtoGrammar,
 var listening_port = process.env.PORT || 3000;
 
 var app = express();
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
+
+
 
 app.use(session({
   secret: 'sessio0-Id',
@@ -49,7 +53,7 @@ var upload = multer({ dest: 'uploads/' });
 
 
 
-app.listen(listening_port, function () {
+http.listen(listening_port, function () {
   console.log('Listening on port ' + listening_port);
 });
 
@@ -84,7 +88,8 @@ app.get('/models', function(req,res){
    res.render('modelsbehind.html' );
 });
 
-app.post('/upload', upload.single('file'), function(req,res,next) {
+app.post('/upload', upload.single('file'), function(req, res, next) {
+    var msg= '';
 
   if (req.file && req.file.originalname.split('.').pop() == "dat") {
     // A binary protobuf is directly submitted
@@ -97,12 +102,14 @@ app.post('/upload', upload.single('file'), function(req,res,next) {
 
   else if (req.file && req.file.originalname.split('.').pop() == "apk") {
     // An APK is submitted
-    console.log('An APK file has been received: ' + req.file.originalname)
+    logWebSocket('An APK file has been received: ' + req.file.originalname)
 
     // Generation of the model of application's "Inter-Component Communication" representation.
     //
-    console.log('Launching a child process (CP-1) in order to retarget and ' +
-                    'generate a binary proto file.')
+    msg = 'Launching a child process (CP-1) in order to retarget and ' +
+                    'generate a binary proto file.'
+    logWebSocket(msg);
+
   	const spawn = require('child_process').spawn;
     const cmd = spawn('bin/APK-analyzer/apk2icc.sh', [req.file.path, req.file.originalname]);
 
@@ -112,25 +119,26 @@ app.post('/upload', upload.single('file'), function(req,res,next) {
 
     cmd.stdout.on('data', (data) => {
         //console.log(`stdout: ${data}`);
+        //io.emit('news', data);
     });
 
     cmd.on('close', (code) => {
         if (code ==0)
         {
             BinaryAppProtoBuf = 'outputs/ic3/'+req.file.filename+'/result.dat'
-            console.log("[CP-1] File generated: " + BinaryAppProtoBuf);
-            console.log("[CP-1] Building JSMF model...")
+            logWebSocket("[CP-1] File generated: " + BinaryAppProtoBuf);
+            logWebSocket("[CP-1] Building JSMF model...")
             protoBufModels.build(IC3Proto, IC3ProtoGrammar,
                                 IC3EntryPoint, BinaryAppProtoBuf);
-            console.log("[CP-1] JSMF model builed.")
+            logWebSocket("[CP-1] JSMF model builed.")
         }
-        console.log(`[CP-1] child process exited with code ${code}`);
+        logWebSocket(`[CP-1] child process exited with code ${code}`);
     });
 
 
     // Generation of the model of application's source code.
     //
-    console.log('Launching a child process (CP-2) in order to decompile the APK.');
+    logWebSocket('Launching a child process (CP-2) in order to decompile the APK.');
     const cmd_decompile_step1 = spawn('bin/dex2jar/d2j-dex2jar.sh',
                                 ['--force','--output',
                                 './outputs/result-dex2jar.jar',
@@ -143,15 +151,15 @@ app.post('/upload', upload.single('file'), function(req,res,next) {
     cmd_decompile_step1.on('close', (code) => {
         if (code ==0)
         {
-            console.log('[CP-2] decompiling with jd-cmd...')
+            logWebSocket('[CP-2] decompiling with jd-cmd...')
             const cmd_decompile_step2 = spawn('java',
                                     ['-jar', 'bin/jd-cmd/jd-cli.jar',
                                     '--outputDir', './outputs/result-jdcmd',
                                     './outputs/result-dex2jar.jar']);
 
             cmd_decompile_step2.on('close', (code) => {
-                console.log(`[CP-2] APK decompiled.`);
-                console.log(`[CP-2] child process exited with code ${code}`);
+                logWebSocket(`[CP-2] APK decompiled.`);
+                logWebSocket(`[CP-2] child process exited with code ${code}`);
             })
         }
     });
@@ -165,6 +173,17 @@ app.post('/upload', upload.single('file'), function(req,res,next) {
 
   res.redirect("/");
 });
+
+
+function logWebSocket(msg) {
+    console.log(msg)
+    //var nsp = io.of('/news');
+    //nsp.emit('news', 'hello');
+    io.emit('news', msg);
+    // io.on('connection', function (socket) {
+    //     socket.emit('news', msg);
+    // });
+};
 
 
 //Helper model to test functionalities - should be improved with larger model

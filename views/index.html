@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 	<% include ./partials/head %>
+
 </head>
 <body>
 	<header>
@@ -15,7 +16,7 @@
 		</div>
 
 		<div class="mdl-grid">
-			<div class="mdl-card mdl-cell mdl-cell--5-col mdl-cell--6-col-tablet mdl-shadow--16dp">
+			<div class="mdl-card mdl-cell mdl-cell--6-col mdl-cell--6-col-tablet mdl-shadow--16dp">
 				<div class="mdl-card__media">
 					<img src="images/discovery.jpg" alt="" />
 				</div>
@@ -29,18 +30,22 @@
 						Then display the model as graph or sunburst.
 					</p>
 				</div>
-				<div id="uploadaction" class="mdl-card__actions mdl-card--border">
+				<div class="mdl-card__actions mdl-card--border" id="uploadaction">
 					<form action="upload" method="post" enctype="multipart/form-data">
 						<input id="file" type="file" name="file" />
 						<label for="file" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900">Upload</label>
 						<input id="submitbutton" type="submit" value="Proceed analysis" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-grey-300"  accept="application/octet-stream, zz-application/zz-winassoc-dat" disabled />
 					</form>
 				</div>
+
+				<div class="mdl-card__supporting-text" id="logs">
+					<div class="card-overflow">
+						<ul id="logs-list" class="demo-list-item mdl-list"></ul>
+					</div>
+				</div>
 			</div>
 
-			<div class="mdl-cell mdl-cell--2-col mdl-cell--1-col-tablet mdl-shadow--16dp"></div>
-
-			<div id="cardVis" class="mdl-card mdl-cell mdl-cell--5-col mdl-cell--5-col-tablet mdl-shadow--16dp">
+			<div class="mdl-card mdl-cell mdl-cell--6-col mdl-cell--6-col-tablet mdl-shadow--16dp" id="cardVis" >
 				<div class="mdl-card__media">
 					<img src="images/sunburst.png" alt="" />
 				</div>
@@ -72,10 +77,24 @@
 		<label for="file" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900">Upload</label>
 	</input>
 </div> -->
-</div>
+		</div>
+
+
 </main>
 
 <script>
+
+
+
+var socket = io.connect('http://' + document.domain + ':' + location.port);
+socket.on('news', function (data) {
+  console.log(data);
+
+  var div = document.getElementById('logs-list')
+  div.innerHTML = div.innerHTML + ' <li class="mdl-list__item">' + data + '</li>';
+});
+
+
 var snackbarContainer = document.querySelector('#demo-snackbar-example');
 var showSnackbarButton = document.querySelector('#demo-show-snackbar');
 var handler = function(event) {

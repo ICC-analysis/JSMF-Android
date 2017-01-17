@@ -7,6 +7,7 @@
 <script src="./bower_components/material-design-lite/material.min.js"></script>
 <script type="text/javascript" src="./bower_components/jsmf-browser/dist/jsmf-browser.min.js"></script>
 <script type="text/javascript" src="./bower_components/lodash/dist/lodash.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
 <script src="./bower_components/node-uuid/uuid.js"></script>
 <style type="text/css">
 .mdl-textfield__input {
@@ -32,6 +33,22 @@ margin-top: 0px;
 .mdl-card__actions > .mdl-button--icon {
 	margin-right: 3px;
 	margin-left: 3px;
+}
+
+.card-overflow {
+	position: relative;
+	max-height: 15em;
+	white-space: nowrap;
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+
+.mdl-list__item {
+  line-height: : 10%;
+}
+
+.mdl-list {
+  line-height: : 10%;
 }
 
 .mdl-card__media {
