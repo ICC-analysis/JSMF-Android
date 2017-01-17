@@ -16,6 +16,12 @@ $ node app.js
 Listening on port 3000
 ```
 
+If you want to access the application to the port 80:
+
+```bash
+$ sudo iptables -t nat -A PREROUTING -i ens160 -p tcp --dport 80 -j REDIRECT --to-port 3000
+```
+
 An instance is available
 [here](http://jsmf-android-visualization.list.lu:3000/).
 
