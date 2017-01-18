@@ -2,7 +2,8 @@
 Visualization of Inter-Component Communication (ICC) and source code for Android
 applications.
 
-This application uses [JSMF](https://github.com/JS-MF) for the modeling.
+[JSMF](https://github.com/JS-MF) is used for the modeling of the different
+facets of the applications.
 
 
 
@@ -45,6 +46,15 @@ $ heroku open
 
 An instance is available
 [here](https://jsmf-android-visualization.herokuapp.com).
+
+
+
+# Concepts
+
+![process](static/images/processM2.png)
+
+The views are generated from the JSMF models of the applications.
+More information [here](http://jsmf-android-visualization.list.lu/models).
 
 
 
