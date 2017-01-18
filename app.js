@@ -88,10 +88,6 @@ app.get('/models', function(req,res){
    res.render('modelsbehind.html' );
 });
 
-io.on('connection', function (socket) {
-  console.log("new client connected");
-});
-
 app.post('/upload', upload.single('file'), function(req, res, next) {
     var msg= '';
 
