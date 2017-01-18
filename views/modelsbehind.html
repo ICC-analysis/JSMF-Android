@@ -160,7 +160,7 @@
              <g class="com.sun.star.drawing.TextShape">
               <g id="id8">
                <rect class="BoundingBox" stroke="none" fill="none" x="5191" y="1255" width="4954" height="1905"/>
-               <text class="TextShape"><tspan class="TextParagraph" font-family="Liberation Sans, sans-serif" font-size="493px" font-weight="400"><tspan class="TextPosition" x="5441" y="1825"><tspan fill="rgb(0,0,0)" stroke="none">Jsmf metamodel </tspan></tspan><tspan class="TextPosition" x="5441" y="2376"><tspan fill="rgb(0,0,0)" stroke="none">generation </tspan></tspan></tspan></text>
+               <text class="TextShape"><tspan class="TextParagraph" font-family="Liberation Sans, sans-serif" font-size="493px" font-weight="400"><tspan class="TextPosition" x="5441" y="1825"><tspan fill="rgb(0,0,0)" stroke="none"><a xlink:href="https://github.com/JS-MF">JSMF</a> metamodel</tspan></tspan><tspan class="TextPosition" x="5441" y="2376"><tspan fill="rgb(0,0,0)" stroke="none">generation</tspan></tspan></tspan></text>
               </g>
              </g>
              <g class="com.sun.star.drawing.CustomShape">
@@ -269,7 +269,7 @@
           </g>
          </g>
     </svg>
-            
+
   </div>
         <div class="mdl-cell mdl-cell--6-col mdl-cell--6-col-tablet">
                 <div class=" mdl-card__media">
@@ -285,11 +285,11 @@
                     <button type="animate" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900">Animate</button>
                 </div>
             </div>
-    </div> 
-</div>   
+    </div>
+</div>
 </main>
-<!--/div--> 
-    
+<!--/div-->
+
 <script>
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -325,34 +325,34 @@ function start(e){
     }
     var textC = "wrong selection";
     var codePre = document.createElement("pre");
-    
+
     switch(id) {
         case "id3": textC= 'IC3 proto file describing (in a specific text format) the metamodel of IC3 files';
                     codePre.setAttribute("class","prettyprint lang-js");
                     codePre.setAttribute("id","codeExcerpt");
                     codePre.textContent=" \"syntax = \"\"proto2\"; \n package edu.psu.cse.siis.ic3; \n enum { AttributeKind  ACTION = 0; ... }\n \n message Attribute { \n optional AttributeKind kind = 1; \n repeated string value = 2; \n repeated int32 int_value = 3;} \n ...";
                     description.parentNode.appendChild(codePre);
-                    break;  
+                    break;
         case "id4": textC='Definition of a Grammar to parse Protobuf file helping in the generation of JSMF metamodel \n Inside the bloc {} definition the Javascript code allowing to build JSMF model elements: here the Enumeration';
                     codePre.setAttribute("class","prettyprint lang-js");
                     codePre.setAttribute("id","codeExcerpt");
                     codePre.textContent=" Enum = 'enum' ws id:Identifier ws '{' ws lit:Litteral* ws '}' ws \n { \n var e = new jsmf.Enum(id,lit); \n MMProto.add(e);\n }";
                     description.parentNode.appendChild(codePre);
             console.log('protobufGrammar'); break;
-        case "id5": textC='M2 IC3 expressed in JSMF obtained from protobuf grammar parsing';
+        case "id5": textC='M2 IC3 expressed in <a href="https://github.com/JS-MF">JSMF</a> obtained from protobuf grammar parsing';
             console.log('M2 IC3 Metamodel written in IC3'); break;
         case "id9": textC='Binary file provided by IC3 analysis for a given Android application';
             console.log('ic3App.dat = input file'); break;
         case "id14": textC='Using the Google API use for geeting a raw JavaScript Object';
             console.log('ApigoogleProtobuf to JS object'); break;
-        case "id13": textC='Application model expressed JSMF conforms to the protobuf extracted metamodel';
+        case "id13": textC='Application model expressed <a href="https://github.com/JS-MF">JSMF</a> conforms to the protobuf extracted metamodel';
             console.log('ic3App.jsmf'); break;
-        case "id19": textC='Transformation of JSMF model into D3 visualizable JS strucutre (embedding JSMF model elements into nodes)';
+        case "id19": textC='Transformation of <a href="https://github.com/JS-MF">JSMF</a> model into D3 visualizable JS strucutre (embedding JSMF model elements into nodes)';
             console.log('Visualisation Model = graph'); break;
-        default : break;    
+        default : break;
     }
-    
-    description.textContent=textC;
+
+    description.innerHTML=textC;
 };
 
 
