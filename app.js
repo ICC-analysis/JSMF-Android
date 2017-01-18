@@ -88,6 +88,10 @@ app.get('/models', function(req,res){
    res.render('modelsbehind.html' );
 });
 
+io.on('connection', function (socket) {
+  console.log("new client connected");
+});
+
 app.post('/upload', upload.single('file'), function(req, res, next) {
     var msg= '';
 
@@ -104,13 +108,15 @@ app.post('/upload', upload.single('file'), function(req, res, next) {
         // An APK is submitted
         logWebSocket('An APK file has been received: ' + req.file.originalname)
 
-        // Generation of the model of application's "Inter-Component Communication" representation.
+        // Generation of the model of application's
+        // "Inter-Component Communication" representation.
         //
         msg = 'Launching a child process (CP-1) in order to retarget and ' +
         'generate a binary proto file.'
         logWebSocket(msg);
 
         const spawn = require('child_process').spawn;
+        logWebSocket("[CP-1] analysis of the Inter-Component Communication with IC3...");
         const cmd = spawn('bin/APK-analyzer/apk2icc.sh', [req.file.path, req.file.originalname]);
 
         cmd.stderr.on('data', (data) => {
@@ -125,12 +131,13 @@ app.post('/upload', upload.single('file'), function(req, res, next) {
         cmd.on('close', (code) => {
             if (code ==0)
             {
-                BinaryAppProtoBuf = 'outputs/ic3/'+req.file.filename+'/result.dat'
-                logWebSocket("[CP-1] File generated: " + BinaryAppProtoBuf);
-                logWebSocket("[CP-1] Building JSMF model...")
+                BinaryAppProtoBuf = 'outputs/ic3/' +
+                                    req.file.filename + '/result.dat';
+                logWebSocket("[CP-1] Inter-Component Communication analysis done: " + BinaryAppProtoBuf);
+                logWebSocket("[CP-1] Building JSMF model from the Inter-Component Communication...");
                 protoBufModels.build(IC3Proto, IC3ProtoGrammar,
-                    IC3EntryPoint, BinaryAppProtoBuf);
-                    logWebSocket("[CP-1] JSMF model builed.")
+                                    IC3EntryPoint, BinaryAppProtoBuf);
+                logWebSocket("[CP-1] JSMF model builed.");
                 }
                 logWebSocket(`[CP-1] child process exited with code ${code}`);
         });
@@ -139,6 +146,7 @@ app.post('/upload', upload.single('file'), function(req, res, next) {
         // Generation of the model of application's source code.
         //
         logWebSocket('Launching a child process (CP-2) in order to decompile the APK.');
+        logWebSocket('[CP-2] convert .dex file to .class files (zipped as jar)...')
         const cmd_decompile_step1 = spawn('bin/dex2jar/d2j-dex2jar.sh',
                                             ['--force','--output',
                                             './outputs/result-dex2jar.jar',
@@ -151,7 +159,7 @@ app.post('/upload', upload.single('file'), function(req, res, next) {
         cmd_decompile_step1.on('close', (code) => {
             if (code ==0)
             {
-                logWebSocket('[CP-2] decompiling with jd-cmd...')
+                logWebSocket('[CP-2] decompiling .class files with jd-cmd...')
                 const cmd_decompile_step2 = spawn('java',
                                         ['-jar', 'bin/jd-cmd/jd-cli.jar',
                                         '--outputDir', './outputs/result-jdcmd',
@@ -165,7 +173,7 @@ app.post('/upload', upload.single('file'), function(req, res, next) {
         });
     }
 
-    else if (req.file) {
+    else {
         req.flash("error", "You must submit a *.apk or *.dat file.");
     }
 

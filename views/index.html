@@ -31,10 +31,9 @@
 					</p>
 				</div>
 				<div class="mdl-card__actions mdl-card--border" id="uploadaction">
-					<form action="upload" method="post" enctype="multipart/form-data">
-						<input id="file" type="file" name="file" />
-						<label for="file" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900">Upload</label>
-						<input id="submitbutton" type="submit" value="Proceed analysis" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-grey-300"  accept="application/octet-stream, zz-application/zz-winassoc-dat" disabled />
+					<form id="file-form" action="upload" method="post" enctype="multipart/form-data">
+						<input id="file-select" type="file" name="file" />
+						<input id="upload-button" type="submit" value="Proceed analysis" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-grey-300"  accept="application/octet-stream, zz-application/zz-winassoc-dat" disabled />
 					</form>
 				</div>
 
@@ -80,9 +79,12 @@
 
 
 </main>
-
 <script>
-
+var snackbarContainer = document.querySelector('#demo-snackbar-example');
+var showSnackbarButton = document.querySelector('#demo-show-snackbar');
+var handler = function(event) {
+	showSnackbarButton.style.backgroundColor = '';
+};
 
 
 var socket = io.connect('http://' + document.domain + ':' + location.port);
@@ -94,22 +96,18 @@ socket.on('news', function (data) {
 });
 
 
-var snackbarContainer = document.querySelector('#demo-snackbar-example');
-var showSnackbarButton = document.querySelector('#demo-show-snackbar');
-var handler = function(event) {
-	showSnackbarButton.style.backgroundColor = '';
-};
+var form = document.getElementById('file-form');
+var fileSelect = document.getElementById('file-select');
+var uploadButton = document.getElementById('upload-button');
 
 
-var cfile = document.querySelector("#file");
-var submitbutton = document.querySelector("#submitbutton");
-cfile.onchange= function(e){
+fileSelect.onchange= function(e){
 	var fileToSend = e.target.files[0];
 	if (fileToSend.name.split('.').pop() != "dat" && fileToSend.name.split('.').pop() != "apk") {
 
-		submitbutton.setAttribute('disabled', true);
-		submitbutton.removeAttribute('class');
-		submitbutton.setAttribute('class', 'mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-grey-300')
+		uploadButton.setAttribute('disabled', true);
+		uploadButton.removeAttribute('class');
+		uploadButton.setAttribute('class', 'mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-grey-300')
 
 		labelFileToUpload =  document.querySelector("#labelFileToUpload");
 		if (labelFileToUpload) labelFileToUpload.remove();
@@ -123,9 +121,9 @@ cfile.onchange= function(e){
 		snackbarContainer.MaterialSnackbar.showSnackbar(data);
 	}
 	else {
-		submitbutton.removeAttribute('disabled');
-		submitbutton.removeAttribute('class');
-		submitbutton.setAttribute('class', 'mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900')
+		uploadButton.removeAttribute('disabled');
+		uploadButton.removeAttribute('class');
+		uploadButton.setAttribute('class', 'mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900')
 
 		var p = document.createElement("label");
 		p.setAttribute('id', 'labelFileToUpload')
@@ -142,10 +140,39 @@ cfile.onchange= function(e){
 		};
 		snackbarContainer.MaterialSnackbar.showSnackbar(data);
 	}
-
-
-	//console.log("file upload",document.querySelector("#file").value);
 };
+
+
+form.onsubmit = function(event) {
+  	event.preventDefault();
+
+  	// Update button text.
+  	uploadButton.innerHTML = 'Uploading...';
+
+  	// Get the selected file from the input.
+	var file = fileSelect.files[0]
+
+	// Create a new FormData object.
+	var formData = new FormData();
+	formData.append('file', file, file.name);
+
+	// Set up the request.
+	var xhr = new XMLHttpRequest();
+	// Open the connection.
+	xhr.open('POST', '/upload', true);
+
+	// Set up a handler for when the request finishes.
+	xhr.onload = function () {
+	  if (xhr.status === 200) {
+	    // File(s) uploaded.
+	    uploadButton.innerHTML = 'File uploaded.';
+	  } else {
+	    alert('An error occurred!');
+	  }
+	};
+	// Send the Data.
+	xhr.send(formData);
+}
 </script>
 </body>
 </html>
