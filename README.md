@@ -1,17 +1,19 @@
 
+Visualization of Inter-Component Communication (ICC) and source code for Android
+applications.
+
+This application uses [JSMF](https://github.com/JS-MF) for the modeling.
+
+
+
 # Install
 
-## On your computer
-
-Dependencies are managed with the Node Package Manager (server side packages)
-and Bower (client side packages).
+## On your server
 
 ```bash
 $ git clone --recursive https://git.list.lu/jsmf/jsmf-interact.git
 $ cd jsmf-interact/
-$ npm install
-$ sudo apt-get install libc6-i386 lib32stdc++6 zlib1g:i386
-$ sudo apt-get install openjdk-8-jre openjdk-8-jdk
+$ ./install.sh
 $ node app.js
 Listening on port 3000
 ```
@@ -19,16 +21,17 @@ Listening on port 3000
 If you want to access the application to the port 80:
 
 ```bash
-$ sudo iptables -t nat -A PREROUTING -i ens160 -p tcp --dport 80 -j REDIRECT --to-port 3000
+$ sudo iptables -t nat -A PREROUTING -i [interface] -p tcp --dport 80 -j REDIRECT --to-port 3000
 ```
 
 An instance is available
-[here](http://jsmf-android-visualization.list.lu:3000/).
+[here](http://jsmf-android-visualization.list.lu).
 
 
 ## Deploy on Heroku
 
-You will have problems with dare (32 bit executable).
+Heroku only provides 64 bits based architectures (cedar-14, heroku-16).
+Consequently you will have problems with dare which is a 32 bit executable.
 
 ```bash
 $ git clone https://git.list.lu/jsmf/jsmf-interact.git
@@ -41,4 +44,10 @@ $ heroku open
 ```
 
 An instance is available
-[here](https://jsmf-android-visualization.herokuapp.com/).
+[here](https://jsmf-android-visualization.herokuapp.com).
+
+
+
+# Contact
+
+[Luxembourg Institute of Science and Technology](https://www.list.lu)
