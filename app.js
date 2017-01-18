@@ -90,6 +90,13 @@ app.get('/models', function(req,res){
 
 app.post('/upload', upload.single('file'), function(req, res, next) {
     var msg= '';
+    var bin_outputs = 'outputs/';
+
+    // clean the folder where outputs of subprocess are stored
+    const spawn_sync = require('child_process').spawnSync;
+    const spawn = require('child_process').spawn;
+    const rm = spawn_sync('rm', ['-Rf', bin_outputs]);
+
 
     if (req.file && req.file.originalname.split('.').pop() == "dat") {
         // A binary protobuf is directly submitted
@@ -111,7 +118,6 @@ app.post('/upload', upload.single('file'), function(req, res, next) {
         'generate a binary proto file.'
         logWebSocket(msg);
 
-        const spawn = require('child_process').spawn;
         logWebSocket("[CP-1] analysis of the Inter-Component Communication with IC3...");
         const cmd = spawn('bin/APK-analyzer/apk2icc.sh', [req.file.path, req.file.originalname]);
 
@@ -127,7 +133,7 @@ app.post('/upload', upload.single('file'), function(req, res, next) {
         cmd.on('close', (code) => {
             if (code ==0)
             {
-                BinaryAppProtoBuf = 'outputs/ic3/' +
+                BinaryAppProtoBuf = bin_outputs + 'ic3/' +
                                     req.file.filename + '/result.dat';
                 logWebSocket("[CP-1] Inter-Component Communication analysis done: " + BinaryAppProtoBuf);
                 logWebSocket("[CP-1] Building JSMF model from the Inter-Component Communication...");
@@ -145,7 +151,7 @@ app.post('/upload', upload.single('file'), function(req, res, next) {
         logWebSocket('[CP-2] convert .dex file to .class files (zipped as jar)...')
         const cmd_decompile_step1 = spawn('bin/dex2jar/d2j-dex2jar.sh',
                                             ['--force','--output',
-                                            './outputs/result-dex2jar.jar',
+                                            bin_outputs+'/result-dex2jar.jar',
                                             req.file.path]);
 
         cmd_decompile_step1.stderr.on('data', (data) => {
@@ -158,8 +164,8 @@ app.post('/upload', upload.single('file'), function(req, res, next) {
                 logWebSocket('[CP-2] decompiling .class files with jd-cmd...')
                 const cmd_decompile_step2 = spawn('java',
                                         ['-jar', 'bin/jd-cmd/jd-cli.jar',
-                                        '--outputDir', './outputs/result-jdcmd',
-                                        './outputs/result-dex2jar.jar']);
+                                        '--outputDir', bin_outputs+'/result-jdcmd',
+                                        bin_outputs+'/result-dex2jar.jar']);
 
                 cmd_decompile_step2.on('close', (code) => {
                         logWebSocket(`[CP-2] APK decompiled.`);
