@@ -8,31 +8,38 @@
 		<% include ./partials/header %>
 	</header>
 
-	<main class="mdl-layout__content">
-		<div class="mdl-grid">
-			<div class="mdl-cell mdl-cell--12-col" id="sequence"></div>
-			<div class="mdl-cell mdl-cell--6-col" id="chart"></div>
-			<div class="mdl-cell mdl-cell--6-col" id="explanation" style="visibility:hidden;">
-				<span class="mdl-layout-title" id="titleProperties">Node Properties</span>
-				<table class="mdl-data-table mdl-js-data-table">
-					<thead>
-						<tr>
-							<th class="mdl-data-table__cell--non-numeric">Properties</th>
-							<th class="mdl-data-table__cell--non-numeric full-size">Value</th>
-						</tr>
-					</thead>
-					<tbody id="cellsProperties">
-						<tr>
-							<td class="mdl-data-table__cell--non-numeric">Editable</td>
-							<td class="mdl-data-table__cell">
-								<input class="mdl-textfield__input" type="text" id="sample1" />
-							</td>
-						</tr>
-					</tbody>
-				</table>
+	<div class="mdl-layout">
+		<main class="mdl-layout__content">
+			<div class="mdl-grid">
+				<div class="mdl-cell mdl-cell--12-col" id="sequence"></div>
 			</div>
-		</div>
-	</main>
+			<div class="mdl-grid">
+				<div class="mdl-cell mdl-cell--5-col" id="chart"></div>
+				<div class="mdl-cell mdl-cell--3-col" id="explanation" style="visibility:hidden;">
+					<span class="mdl-layout-title" id="titleProperties">Node Properties</span>
+					<table class="mdl-data-table mdl-js-data-table">
+						<thead>
+							<tr>
+								<th class="mdl-data-table__cell--non-numeric">Properties</th>
+								<th class="mdl-data-table__cell--non-numeric full-size">Value</th>
+							</tr>
+						</thead>
+						<tbody id="cellsProperties">
+							<tr>
+								<td class="mdl-data-table__cell--non-numeric">Editable</td>
+								<td class="mdl-data-table__cell">
+									<input class="mdl-textfield__input" type="text" id="sample1" />
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="mdl-cell mdl-cell--4-col">
+					<pre><code id="source_code" class="java"></code></pre>
+				</div>
+			</div>
+		</main>
+	</div>
 
 	<script>
 	var width = 550,
@@ -73,6 +80,7 @@
 
 	//Getting model from server
 	var s_M = <%- serializedModel %>;
+	var source_code = <%- sourceCode %>;
 
 	s_M = JSON.stringify(s_M);
 
@@ -142,6 +150,21 @@
 
 		d3.select("#explanation")
 		.style("visibility", "");
+
+		if (d.name == "Component") {
+			var component_name = d.data.__jsmf__.attributes["name"];
+			if (component_name) {
+				document.getElementById('source_code').innerText = unescape(source_code[component_name]);
+				hljs.initHighlighting.called = false;
+				hljs.initHighlighting();
+			}
+			else {
+				document.getElementById('source_code').innerText = '';
+			}
+		}
+		else {
+			document.getElementById('source_code').innerText = '';
+		}
 
 		var tTitle = 'Class '+d.name;
 		var M2title = d3.select("#titleProperties").text(tTitle)

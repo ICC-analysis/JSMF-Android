@@ -64,12 +64,27 @@ app.get('/', function (req, res) {
 });
 
 app.get('/sun', function (req, res) {
-  var M = protoBufModels.model;
-	//console.log(M.referenceModel);
-  var serializedModel = jsmfjson.stringify(M);
-  //console.log(serializedModel);
+    var bin_outputs = 'outputs/';
 
- res.render('sunburst.html',{serializedModel: serializedModel });
+    var M = protoBufModels.model;
+	//console.log(M.referenceModel);
+    var serializedModel = jsmfjson.stringify(M);
+    //console.log(serializedModel);
+    //console.log(M.modellingElements['Component'].length);
+
+    var source_code =  {};
+    M.modellingElements['Component'].map(function(component) {
+        var file = bin_outputs + 'result-jdcmd/' +
+                    component.name.replace(/\./g, '/') + '.java';
+        source_code[component.name] = escape(fs.readFileSync(file, 'utf-8'));
+    });
+
+    source_code = JSON.stringify(source_code);
+
+    res.render('sunburst.html',{
+                                serializedModel: serializedModel,
+                                sourceCode: source_code
+                            });
 });
 
 app.get('/s', function(req,res) {
@@ -89,7 +104,7 @@ app.get('/models', function(req,res){
 });
 
 app.post('/upload', upload.single('file'), function(req, res, next) {
-    var msg= '';
+    var msg = '';
     var bin_outputs = 'outputs/';
 
     // clean the folder where outputs of subprocess are stored
