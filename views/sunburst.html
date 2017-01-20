@@ -133,6 +133,22 @@
 	}
 
 	function click(d) {
+
+		if (d.name == "Component") {
+			var component_name = d.data.__jsmf__.attributes["name"];
+			if (component_name) {
+				document.getElementById('source_code').innerText = unescape(source_code[component_name]);
+				hljs.initHighlighting.called = false;
+				hljs.initHighlighting();
+			}
+			else {
+				document.getElementById('source_code').innerText = '';
+			}
+		}
+		else {
+			document.getElementById('source_code').innerText = '';
+		}
+
 		svg.transition()
 		.duration(750)
 		.tween("scale", function() {
@@ -150,21 +166,6 @@
 
 		d3.select("#explanation")
 		.style("visibility", "");
-
-		if (d.name == "Component") {
-			var component_name = d.data.__jsmf__.attributes["name"];
-			if (component_name) {
-				document.getElementById('source_code').innerText = unescape(source_code[component_name]);
-				hljs.initHighlighting.called = false;
-				hljs.initHighlighting();
-			}
-			else {
-				document.getElementById('source_code').innerText = '';
-			}
-		}
-		else {
-			document.getElementById('source_code').innerText = '';
-		}
 
 		var tTitle = 'Class '+d.name;
 		var M2title = d3.select("#titleProperties").text(tTitle)
