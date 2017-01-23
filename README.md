@@ -5,7 +5,7 @@ applications.
 [JSMF](https://github.com/JS-MF) is used for the modeling of the different
 facets of the applications.
 
-[Demonstration site](jsmf-android-visualization.list.lu).
+[Demonstration site](http://jsmf-android-visualization.list.lu).
 
 # Install
 
