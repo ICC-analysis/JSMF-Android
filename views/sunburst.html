@@ -14,8 +14,8 @@
 				<div class="mdl-cell mdl-cell--12-col" id="sequence"></div>
 			</div>
 			<div class="mdl-grid">
-				<div class="mdl-cell mdl-cell--5-col" id="chart"></div>
-				<div class="mdl-cell mdl-cell--3-col" id="explanation" style="visibility:hidden;">
+				<div class="mdl-cell mdl-cell--6-col" id="chart"></div>
+				<div class="mdl-cell mdl-cell--6-col" id="explanation" style="visibility:hidden;">
 					<span class="mdl-layout-title" id="titleProperties">Node Properties</span>
 					<table class="mdl-data-table mdl-js-data-table">
 						<thead>
@@ -34,7 +34,10 @@
 						</tbody>
 					</table>
 				</div>
-				<div class="mdl-cell mdl-cell--4-col">
+			</div>
+			<div class="mdl-grid">
+				<div class="mdl-cell mdl-cell--12-col">
+					<h4 id="source-qualified-name"></h4>
 					<pre><code id="source_code" class="java"></code></pre>
 				</div>
 			</div>
@@ -137,15 +140,19 @@
 		if (d.name == "Component") {
 			var component_name = d.data.__jsmf__.attributes["name"];
 			if (component_name) {
+				document.getElementById('source-qualified-name').innerHTML = component_name;
+
 				document.getElementById('source_code').innerText = unescape(source_code[component_name]);
 				hljs.initHighlighting.called = false;
 				hljs.initHighlighting();
 			}
 			else {
+				document.getElementById('source-qualified-name').innerHTML = '';
 				document.getElementById('source_code').innerText = '';
 			}
 		}
 		else {
+			document.getElementById('source-qualified-name').innerHTML = '';
 			document.getElementById('source_code').innerText = '';
 		}
 
