@@ -25,6 +25,7 @@
     "express": "^4.14.0",
     "express-messages": "^1.0.1",
     "express-session": "^1.14.2",
+    "java-parser": "0.0.2",
     "jsmf": "^0.10.0",
     "jsmf-core": "^0.10.1",
     "jsmf-json": "^0.9.0",

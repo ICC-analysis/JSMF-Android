@@ -9,6 +9,7 @@ Class = jsmf.Class, Model = jsmf.Model;
 var jsmfjson = require('jsmf-json');
 var fs = require('fs');
 var multer  = require('multer')
+var japa = require("java-parser");
 
 var protoBufModels =  require('builder');
 
@@ -76,7 +77,17 @@ app.get('/sun', function (req, res) {
     M.modellingElements['Component'].map(function(component) {
         var file = bin_outputs + 'result-jdcmd/' +
                     component.name.replace(/\./g, '/') + '.java';
-        source_code[component.name] = escape(fs.readFileSync(file, 'utf-8'));
+        var content = fs.readFileSync(file, 'utf-8')
+        source_code[component.name] = escape(content);
+
+        try {
+            japa.parse(content);
+        }
+        catch (err) {
+            //console.log(err);
+            console.log("Unable to create AST for: " + component.name);
+        }
+
     });
 
     source_code = JSON.stringify(source_code);
