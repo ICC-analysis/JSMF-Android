@@ -14,6 +14,7 @@ var http = require('./bootstrap.js').http;
 var io = require('./bootstrap.js').io;
 var log_web_socket = require('./bootstrap.js').log_web_socket;
 
+var conf = require('./conf.js');
 var IC3Proto = require('./conf.js').IC3Proto,
   IC3ProtoGrammar = require('./conf.js').IC3ProtoGrammar,
   IC3EntryPoint = require('./conf.js').IC3EntryPoint,
@@ -63,8 +64,6 @@ app.get('/', function (req, res) {
 });
 
 app.get('/sun', function (req, res) {
-    var bin_outputs = 'outputs/';
-
     var M = protoBufModels.model;
 	//console.log(M.referenceModel);
     var serializedModel = jsmfjson.stringify(M);
@@ -73,7 +72,7 @@ app.get('/sun', function (req, res) {
 
     var source_code =  {};
     M.modellingElements['Component'].map(function(component) {
-        var file = bin_outputs + 'result-jdcmd/' +
+        var file = conf.bin_outputs + 'result-jdcmd/' +
                     component.name.replace(/\./g, '/') + '.java';
         var content;
         try {
@@ -107,20 +106,11 @@ app.post('/upload', upload.single('file'), function(req, res, next) {
 
     var M = protoBufModels.model;
 
-    var msg = '';
-    var bin_outputs = 'outputs/';
-
-    // clean the folder where outputs of subprocess are stored
-    const spawn_sync = require('child_process').spawnSync;
-    const spawn = require('child_process').spawn;
-    const rm = spawn_sync('rm', ['-Rf', bin_outputs]);
-
-
     if (req.file && req.file.originalname.split('.').pop() == "dat") {
         // A binary protobuf is directly submitted
         //relaunch the protobufModel construction
         console.log('A binary protobuf file has been received: ' +
-        req.file.originalname)
+                                                        req.file.originalname)
         protoBufModels.build(IC3Proto, IC3ProtoGrammar,
             IC3EntryPoint, req.file.path);
     }
@@ -140,7 +130,6 @@ app.post('/upload', upload.single('file'), function(req, res, next) {
 
     res.redirect("/");
 });
-
 
 
 
@@ -202,5 +191,4 @@ function  buildModel() {
     M.add([smallA,smallB,bigA,cein,xA,xxA,smallx]);
 
     return M;
-
 }

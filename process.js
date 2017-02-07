@@ -6,8 +6,7 @@ var protoBufModels =  require('builder');
 var io = require('./bootstrap.js').io;
 var log_web_socket = require('./bootstrap.js').log_web_socket;
 
-var bin_outputs = 'outputs/';
-
+var conf = require('./conf.js');
 var IC3Proto = require('./conf.js').IC3Proto,
   IC3ProtoGrammar = require('./conf.js').IC3ProtoGrammar,
   IC3EntryPoint = require('./conf.js').IC3EntryPoint,
@@ -17,6 +16,10 @@ function start_process(req) {
     // return new Promise(function (fullfill, reject) {
     //     B();
     // }).then(A())
+
+    // clean the folder where outputs of subprocess are stored
+    const spawn_sync = require('child_process').spawnSync;
+    const rm = spawn_sync('rm', ['-Rf', conf.bin_outputs]);
 
     var promises = [generate_ICC_model, generate_source_code_model]
                     .map(function(name) {
@@ -62,7 +65,7 @@ function generate_ICC_model(req) {
     cmd.on('close', (code) => {
         if (code ==0)
         {
-            BinaryAppProtoBuf = bin_outputs + 'ic3/' +
+            BinaryAppProtoBuf = conf.bin_outputs + 'ic3/' +
                                 req.file.filename + '/result.dat';
             log_web_socket(io, "[CP-1] Inter-Component Communication analysis done: " + BinaryAppProtoBuf);
             log_web_socket(io, "[CP-1] Building JSMF model from the Inter-Component Communication...");
@@ -84,7 +87,7 @@ function generate_source_code_model(req) {
     log_web_socket(io, '[CP-2] convert .dex file to .class files (zipped as jar)...')
     const cmd_decompile_step1 = spawn('bin/dex2jar/d2j-dex2jar.sh',
                                         ['--force','--output',
-                                        bin_outputs+'/result-dex2jar.jar',
+                                        conf.bin_outputs+'/result-dex2jar.jar',
                                         req.file.path]);
 
     cmd_decompile_step1.stderr.on('data', (data) => {
@@ -97,8 +100,8 @@ function generate_source_code_model(req) {
             log_web_socket(io, '[CP-2] decompiling .class files with jd-cmd...')
             const cmd_decompile_step2 = spawn('java',
                                     ['-jar', 'bin/jd-cmd/jd-cli.jar',
-                                    '--outputDir', bin_outputs+'/result-jdcmd',
-                                    bin_outputs+'/result-dex2jar.jar']);
+                                    '--outputDir', conf.bin_outputs+'/result-jdcmd',
+                                    conf.bin_outputs+'/result-dex2jar.jar']);
 
             cmd_decompile_step2.on('close', (code) => {
                     log_web_socket(io, `[CP-2] APK decompiled.`);
