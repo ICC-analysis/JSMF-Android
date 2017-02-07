@@ -86,12 +86,21 @@ var handler = function(event) {
 };
 
 // auto bottom scroll the div for the logs
+var scrolled = false;
 function updateScroll() {
-    var element = document.getElementById("log-auto-scroll");
-    element.scrollTop = element.scrollHeight;
+	if(!scrolled){
+    	var element = document.getElementById("log-auto-scroll");
+    	element.scrollTop = element.scrollHeight;
+	}
 }
 //once a second
 setInterval(updateScroll, 1000);
+// only if the user didn't move
+document.getElementById("log-auto-scroll").addEventListener("scroll", function(){
+    scrolled=true;
+});
+
+
 
 
 var socket = io.connect('http://' + document.domain + ':' + location.port);
@@ -101,6 +110,8 @@ socket.on('news', function (data) {
   var color = 'black';
   if (data.indexOf('[CP-1]') >= 0) { color = 'blue'; }
   else if (data.indexOf('[CP-2]') >= 0) { color = 'green'; }
+
+  if (data.indexOf('stderr') >= 0) { color = 'red'; }
 
   var div = document.getElementById('logs-list')
   div.innerHTML = div.innerHTML + ' <li class="mdl-list__item mdl-color-text--'

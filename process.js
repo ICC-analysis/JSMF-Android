@@ -93,7 +93,9 @@ function generate_source_code_model(req) {
                                         req.file.path]);
 
     cmd_decompile_step1.stderr.on('data', (data) => {
-        console.log(`stderr: ${data}`);
+        if (data) {
+            log_web_socket(io, `[CP-2] stderr: ${data}`);
+        }
     });
 
     cmd_decompile_step1.on('close', (code) => {
