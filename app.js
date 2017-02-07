@@ -1,5 +1,4 @@
 'use strict'
-var express = require('express');
 var flash = require('connect-flash');
 var session = require('express-session');
 var cookieParser = require('cookie-parser')
@@ -10,24 +9,28 @@ var jsmfjson = require('jsmf-json');
 var fs = require('fs');
 var multer  = require('multer')
 var japa = require("java-parser");
+var serialize = require('node-serialize');
+
+var express = require('./bootstrap.js').express;
+var app = require('./bootstrap.js').app;
+var http = require('./bootstrap.js').http;
+var io = require('./bootstrap.js').io;
+var log_web_socket = require('./bootstrap.js').log_web_socket;
 
 var protoBufModels =  require('builder');
 
-var IC3Proto = './var/ic3/ic3data.proto',
-  IC3ProtoGrammar = './var/ic3/grammar.pegjs',
-  IC3EntryPoint = 'edu.psu.cse.siis.ic3.Application',
-  BinaryAppProtoBuf ='./var/apps/krep.itmtd.ywtjexf_3.dat'  //'./var/apps/a2dp.Vol_107.dat'
+var IC3Proto = require('./conf.js').IC3Proto,
+  IC3ProtoGrammar = require('./conf.js').IC3ProtoGrammar,
+  IC3EntryPoint = require('./conf.js').IC3EntryPoint,
+  BinaryAppProtoBuf = require('./conf.js').BinaryAppProtoBuf
 
 protoBufModels.build(IC3Proto, IC3ProtoGrammar,
                       IC3EntryPoint, BinaryAppProtoBuf);
 
 var listening_port = process.env.PORT || 3000;
 
-var app = express();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
 
-
+var process_async = require('./process');
 
 app.use(session({
   secret: 'sessio0-Id',
@@ -77,17 +80,14 @@ app.get('/sun', function (req, res) {
     M.modellingElements['Component'].map(function(component) {
         var file = bin_outputs + 'result-jdcmd/' +
                     component.name.replace(/\./g, '/') + '.java';
-        var content = fs.readFileSync(file, 'utf-8')
-        source_code[component.name] = escape(content);
-
+        var content;
         try {
-            japa.parse(content);
+              content = fs.readFileSync(file, 'utf-8')
+        } catch (err) {
+              //console.log(err);
+              console.log("Error when reading: " + file);
         }
-        catch (err) {
-            //console.log(err);
-            console.log("Unable to create AST for: " + component.name);
-        }
-
+        source_code[component.name] = escape(content);
     });
 
     source_code = JSON.stringify(source_code);
@@ -101,12 +101,6 @@ app.get('/sun', function (req, res) {
 app.get('/s', function(req,res) {
 	var M = protoBufModels.model;
 	var serializedModel = jsmfjson.stringify(M);
-  /*
-  	fs.writeFile("./serial.txt", serializedModel, function(err) {
-          if(err) { console.log('err'); throw(err) }
-          else { console.log('Saved') }
-      });
-  */
 	res.render('graph.html',{serializedModel: serializedModel });
 });
 
@@ -115,6 +109,9 @@ app.get('/models', function(req,res){
 });
 
 app.post('/upload', upload.single('file'), function(req, res, next) {
+
+    var M = protoBufModels.model;
+
     var msg = '';
     var bin_outputs = 'outputs/';
 
@@ -135,70 +132,11 @@ app.post('/upload', upload.single('file'), function(req, res, next) {
 
     else if (req.file && req.file.originalname.split('.').pop() == "apk") {
         // An APK is submitted
-        logWebSocket('An APK file has been received: ' + req.file.originalname)
+        //log_web.logWebSocket(io, 'An APK file has been received: ' + req.file.originalname)
+        log_web_socket(io, 'An APK file has been received: ' + req.file.originalname)
 
-        // Generation of the model of application's
-        // "Inter-Component Communication" representation.
-        //
-        msg = 'Launching a child process (CP-1) in order to retarget and ' +
-        'generate a binary proto file.'
-        logWebSocket(msg);
+        process_async.start_process(req);
 
-        logWebSocket("[CP-1] analysis of the Inter-Component Communication with IC3...");
-        const cmd = spawn('bin/APK-analyzer/apk2icc.sh', [req.file.path, req.file.originalname]);
-
-        cmd.stderr.on('data', (data) => {
-            console.log(`stderr: ${data}`);
-        });
-
-        cmd.stdout.on('data', (data) => {
-            //console.log(`stdout: ${data}`);
-            //io.emit('news', data);
-        });
-
-        cmd.on('close', (code) => {
-            if (code ==0)
-            {
-                BinaryAppProtoBuf = bin_outputs + 'ic3/' +
-                                    req.file.filename + '/result.dat';
-                logWebSocket("[CP-1] Inter-Component Communication analysis done: " + BinaryAppProtoBuf);
-                logWebSocket("[CP-1] Building JSMF model from the Inter-Component Communication...");
-                protoBufModels.build(IC3Proto, IC3ProtoGrammar,
-                                    IC3EntryPoint, BinaryAppProtoBuf);
-                logWebSocket("[CP-1] JSMF model builed.");
-                }
-                logWebSocket(`[CP-1] child process exited with code ${code}`);
-        });
-
-
-        // Generation of the model of application's source code.
-        //
-        logWebSocket('Launching a child process (CP-2) in order to decompile the APK.');
-        logWebSocket('[CP-2] convert .dex file to .class files (zipped as jar)...')
-        const cmd_decompile_step1 = spawn('bin/dex2jar/d2j-dex2jar.sh',
-                                            ['--force','--output',
-                                            bin_outputs+'/result-dex2jar.jar',
-                                            req.file.path]);
-
-        cmd_decompile_step1.stderr.on('data', (data) => {
-            console.log(`stderr: ${data}`);
-        });
-
-        cmd_decompile_step1.on('close', (code) => {
-            if (code ==0)
-            {
-                logWebSocket('[CP-2] decompiling .class files with jd-cmd...')
-                const cmd_decompile_step2 = spawn('java',
-                                        ['-jar', 'bin/jd-cmd/jd-cli.jar',
-                                        '--outputDir', bin_outputs+'/result-jdcmd',
-                                        bin_outputs+'/result-dex2jar.jar']);
-
-                cmd_decompile_step2.on('close', (code) => {
-                        logWebSocket(`[CP-2] APK decompiled.`);
-                        logWebSocket(`[CP-2] child process exited with code ${code}`);
-                    })
-            }
-        });
     }
 
     else {
@@ -209,15 +147,7 @@ app.post('/upload', upload.single('file'), function(req, res, next) {
 });
 
 
-function logWebSocket(msg) {
-    console.log(msg)
-    //var nsp = io.of('/news');
-    //nsp.emit('news', 'hello');
-    io.emit('news', msg);
-    // io.on('connection', function (socket) {
-    //     socket.emit('news', msg);
-    // });
-};
+
 
 
 //Helper model to test functionalities - should be improved with larger model
