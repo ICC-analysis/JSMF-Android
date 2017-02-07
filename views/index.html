@@ -38,7 +38,7 @@
 				</div>
 
 				<div class="mdl-card__supporting-text" id="logs">
-					<div class="card-overflow">
+					<div class="card-overflow" id="log-auto-scroll">
 						<ul id="logs-list" class="demo-list-item mdl-list"></ul>
 					</div>
 				</div>
@@ -85,6 +85,13 @@ var showSnackbarButton = document.querySelector('#demo-show-snackbar');
 var handler = function(event) {
 	showSnackbarButton.style.backgroundColor = '';
 };
+
+function updateScroll(){
+    var element = document.getElementById("log-auto-scroll");
+    element.scrollTop = element.scrollHeight;
+}
+//once a second
+setInterval(updateScroll, 1000);
 
 
 var socket = io.connect('http://' + document.domain + ':' + location.port);
@@ -145,6 +152,8 @@ fileSelect.onchange= function(e){
 
 form.onsubmit = function(event) {
   	event.preventDefault();
+
+	document.getElementById('logs-list').innerHTML = "";
 
   	// Update button text.
   	uploadButton.innerHTML = 'Uploading...';
