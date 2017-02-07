@@ -2,14 +2,11 @@
 var flash = require('connect-flash');
 var session = require('express-session');
 var cookieParser = require('cookie-parser')
-var messages = require('express-messages');
 var jsmf = require('jsmf-core'),
 Class = jsmf.Class, Model = jsmf.Model;
 var jsmfjson = require('jsmf-json');
 var fs = require('fs');
 var multer  = require('multer')
-var japa = require("java-parser");
-var serialize = require('node-serialize');
 
 var express = require('./bootstrap.js').express;
 var app = require('./bootstrap.js').app;
@@ -17,18 +14,16 @@ var http = require('./bootstrap.js').http;
 var io = require('./bootstrap.js').io;
 var log_web_socket = require('./bootstrap.js').log_web_socket;
 
-var protoBufModels =  require('builder');
-
 var IC3Proto = require('./conf.js').IC3Proto,
   IC3ProtoGrammar = require('./conf.js').IC3ProtoGrammar,
   IC3EntryPoint = require('./conf.js').IC3EntryPoint,
   BinaryAppProtoBuf = require('./conf.js').BinaryAppProtoBuf
 
+var protoBufModels =  require('builder');
 protoBufModels.build(IC3Proto, IC3ProtoGrammar,
                       IC3EntryPoint, BinaryAppProtoBuf);
 
 var listening_port = process.env.PORT || 3000;
-
 
 var process_async = require('./process');
 

@@ -1,5 +1,6 @@
 var Promise = require('promise');
 const spawn = require('child_process').spawn;
+var japa = require("java-parser");
 var protoBufModels =  require('builder');
 
 var io = require('./bootstrap.js').io;
