@@ -6,5 +6,6 @@ module.exports = {
     IC3EntryPoint: 'edu.psu.cse.siis.ic3.Application',
     BinaryAppProtoBuf: './var/apps/krep.itmtd.ywtjexf_3.dat',
 
-    bin_outputs: 'outputs/'
+    bin_outputs: 'outputs/',
+    uploads_folder: 'uploads/'
 };

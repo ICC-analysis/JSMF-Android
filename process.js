@@ -19,7 +19,7 @@ function start_process(req) {
 
     // clean the folder where outputs of subprocess are stored
     const spawn_sync = require('child_process').spawnSync;
-    const rm = spawn_sync('rm', ['-Rf', conf.bin_outputs]);
+    spawn_sync('rm', ['-Rf', conf.bin_outputs]);
 
     var promises = [generate_ICC_model, generate_source_code_model]
                     .map(function(name) {
@@ -30,7 +30,9 @@ function start_process(req) {
                     })
 
     Promise.all(promises)
-    .then(function () {})
+    .then(function() {
+        //spawn_sync('rm', ['-Rf', conf.uploads_folder]);
+    })
     .catch(console.error);
 }
 
