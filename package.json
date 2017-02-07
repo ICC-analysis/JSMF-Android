@@ -31,7 +31,6 @@
     "jsmf-json": "^0.9.0",
     "lodash": "^4.17.2",
     "multer": "^1.2.0",
-    "node-serialize": "0.0.4",
     "promise": "^7.1.1",
     "socket.io": "^1.7.2"
   },
