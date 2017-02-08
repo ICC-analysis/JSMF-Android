@@ -1,9 +1,7 @@
 'use strict'
 var flash = require('connect-flash');
 var session = require('express-session');
-var cookieParser = require('cookie-parser')
-var jsmf = require('jsmf-core'),
-Class = jsmf.Class, Model = jsmf.Model;
+var cookieParser = require('cookie-parser');
 var jsmfjson = require('jsmf-json');
 var fs = require('fs');
 var multer  = require('multer')
@@ -13,6 +11,7 @@ var app = require('./bootstrap.js').app;
 var http = require('./bootstrap.js').http;
 var io = require('./bootstrap.js').io;
 var log_web_socket = require('./bootstrap.js').log_web_socket;
+var buildModel = require('./helper.js').buildModel;
 
 var conf = require('./conf.js');
 var IC3Proto = require('./conf.js').IC3Proto,
@@ -130,65 +129,3 @@ app.post('/upload', upload.single('file'), function(req, res, next) {
 
     res.redirect("/");
 });
-
-
-
-
-//Helper model to test functionalities - should be improved with larger model
-function  buildModel() {
-
- var MM = new Model('MetaVisu');
-
-    var ClassA = Class.newInstance("A");
-    ClassA.addAttribute('wheels', Number);
-    ClassA.setReference('next',ClassA,1)
-
-    var ClassB = Class.newInstance("B");
-    ClassB.setAttribute('name',String)
-    ClassB.addAttribute('quality', String);
-    ClassB.setReference('wheelQuality',ClassA,-1);
-
-    ClassA.setReference('xf',ClassB,1);
-
-    var ClassC = Class.newInstance("C");
-    ClassC.addAttribute('name', String);
-
-    ClassA.setReference('reminder',ClassC,-1);
-
-    MM.add([ClassA,ClassB,ClassC])
-
-    var smallA = ClassA.newInstance();
-    smallA.wheels = 4;
-
-
-    var bigA = ClassA.newInstance();
-    bigA.wheels = 6;
-    bigA.next=smallA
-
-    var smallB = ClassB.newInstance();
-    smallB.name='TUV'
-    smallB.quality = 'good';
-    smallB.wheelQuality=[smallA,bigA];
-
-    var xA  = ClassA.newInstance({wheels:2});
-
-    var xxA = ClassA.newInstance({wheels:1});
-
-    smallA.next=xA;
-    xA.next=xxA;
-
-    var smallx = ClassB.newInstance({name:'NordVerif', quality:'medium'});
-    smallx.wheelQuality=[xA,xxA];
-
-    var cein = ClassC.newInstance({name:'Change'});
-    smallA.reminder=cein;
-    xxA.reminder=cein;
-
-    var M = new Model('Testvisu')
-
-    M.setReferenceModel(MM);
-
-    M.add([smallA,smallB,bigA,cein,xA,xxA,smallx]);
-
-    return M;
-}

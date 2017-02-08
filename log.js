@@ -1,7 +1,5 @@
 'use strict'
 
-
-
 function logWebSocket(io, msg) {
     console.log(msg)
     //var nsp = io.of('/news');
