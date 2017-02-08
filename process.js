@@ -37,26 +37,20 @@ function start_process(req) {
 }
 
 
-
-function log_web_socket(io, msg) {
-    console.log(msg);
-}
-
-
 function generate_ICC_model(req) {
     // Generation of the model of application's
     // "Inter-Component Communication" representation.
     //
-
-    var msg = 'Launching a child process (CP-1) in order to retarget and ' +
-    'generate a binary proto file.'
-    log_web_socket(io, msg);
+    log_web_socket(io, 'Launching a child process (CP-1) in order to ' +
+                        'retarget and generate a binary proto file.');
 
     log_web_socket(io, "[CP-1] analysis of the Inter-Component Communication with IC3...");
     const cmd = spawn('bin/APK-analyzer/apk2icc.sh', [req.file.path, req.file.originalname]);
 
     cmd.stderr.on('data', (data) => {
-        console.log(`stderr: ${data}`);
+        if (data && data.length > 1) {
+            log_web_socket(io, `[CP-1] stderr: ${data}`);
+        }
     });
 
     cmd.stdout.on('data', (data) => {
@@ -78,7 +72,6 @@ function generate_ICC_model(req) {
             }
             log_web_socket(io, `[CP-1] child process exited with code ${code}`);
     });
-    console.log('B end');
     return true;
 }
 
@@ -93,7 +86,7 @@ function generate_source_code_model(req) {
                                         req.file.path]);
 
     cmd_decompile_step1.stderr.on('data', (data) => {
-        if (data) {
+        if (data && data.length > 1) {
             log_web_socket(io, `[CP-2] stderr: ${data}`);
         }
     });
