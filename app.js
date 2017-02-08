@@ -70,17 +70,24 @@ app.get('/sun', function (req, res) {
     //console.log(M.modellingElements['Component'].length);
 
     var source_code =  {};
-    M.modellingElements['Component'].map(function(component) {
-        var file = conf.bin_outputs + 'result-jdcmd/' +
-                    component.name.replace(/\./g, '/') + '.java';
-        var content;
-        try {
-              content = fs.readFileSync(file, 'utf-8')
-        } catch (err) {
-              //console.log(err);
-              console.log("Error when reading: " + file);
+
+    M.modellingElements['Component']
+    .concat(M.modellingElements['Instruction'])
+    .map(function(component) {
+        var name;
+        name = component.name || component.class_name;
+        if (name) {
+            var file = conf.bin_outputs + 'result-jdcmd/' +
+                        name.replace(/\./g, '/')  + '.java';
+            var content;
+            try {
+                  content = fs.readFileSync(file, 'utf-8')
+            } catch (err) {
+                  //console.log(err);
+                  console.log("Error when reading: " + file);
+            }
+            source_code[name] = escape(content);
         }
-        source_code[component.name] = escape(content);
     });
 
     source_code = JSON.stringify(source_code);

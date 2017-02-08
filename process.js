@@ -74,7 +74,7 @@ function generate_ICC_model(req) {
             protoBufModels.build(IC3Proto, IC3ProtoGrammar,
                                 IC3EntryPoint, BinaryAppProtoBuf);
             M = protoBufModels.model;
-            log_web_socket(io, "[CP-1] JSMF model builed.");
+            log_web_socket(io, "[CP-1] JSMF model built.");
             }
             log_web_socket(io, `[CP-1] child process exited with code ${code}`);
     });
@@ -153,8 +153,6 @@ function generate_source_code_model(req) {
         }
     });
 }
-
-
 
 module.exports = {
     start_process: start_process

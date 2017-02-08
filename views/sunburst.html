@@ -136,20 +136,18 @@
 	}
 
 	function click(d) {
-
+		var component_name = "";
 		if (d.name == "Component") {
-			var component_name = d.data.__jsmf__.attributes["name"];
-			if (component_name) {
-				document.getElementById('source-qualified-name').innerHTML = component_name;
+			component_name = d.data.__jsmf__.attributes["name"];
+		} else if (d.name == "Instruction") {
+			component_name = d.data.__jsmf__.attributes["class_name"];
+		}
+		if (component_name != "") {
+			document.getElementById('source-qualified-name').innerHTML = component_name;
 
-				document.getElementById('source_code').innerText = unescape(source_code[component_name]);
-				hljs.initHighlighting.called = false;
-				hljs.initHighlighting();
-			}
-			else {
-				document.getElementById('source-qualified-name').innerHTML = '';
-				document.getElementById('source_code').innerText = '';
-			}
+			document.getElementById('source_code').innerText = unescape(source_code[component_name]);
+			hljs.initHighlighting.called = false;
+			hljs.initHighlighting();
 		}
 		else {
 			document.getElementById('source-qualified-name').innerHTML = '';
