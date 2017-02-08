@@ -59,7 +59,7 @@ function generate_ICC_model(req) {
     });
 
     cmd.on('close', (code) => {
-        if (code ==0)
+        if (code == 0)
         {
             BinaryAppProtoBuf = conf.bin_outputs + 'ic3/' +
                                 req.file.filename + '/result.dat';
@@ -69,8 +69,8 @@ function generate_ICC_model(req) {
                                 IC3EntryPoint, BinaryAppProtoBuf);
             M = protoBufModels.model;
             log_web_socket(io, "[CP-1] JSMF model built.");
-            }
-            log_web_socket(io, `[CP-1] child process exited with code ${code}`);
+        }
+        log_web_socket(io, `[CP-1] child process exited with code ${code}`);
     });
     return true;
 }
@@ -92,16 +92,22 @@ function generate_source_code_model(req) {
     });
 
     cmd_decompile_step1.on('close', (code) => {
-        if (code ==0)
+        if (code == 0)
         {
             log_web_socket(io, '[CP-2] decompiling .class files with jd-cmd...')
             const cmd_decompile_step2 = spawn('java',
-                                    ['-jar', 'bin/jd-cmd/jd-cli.jar',
-                                    '--outputDir', conf.bin_outputs+'/result-jdcmd',
-                                    conf.bin_outputs+'/result-dex2jar.jar']);
+                                ['-jar', 'bin/jd-cmd/jd-cli.jar',
+                                '--outputDir', conf.bin_outputs+'/result-jdcmd',
+                                conf.bin_outputs+'/result-dex2jar.jar']);
+
+            cmd_decompile_step2.stderr.on('data', (data) => {
+                if (data && data.length > 1) {
+                    log_web_socket(io, `[CP-2] stderr: ${data}`);
+                }
+            });
 
             cmd_decompile_step2.on('close', (code) => {
-                    log_web_socket(io, `[CP-2] APK decompiled.`);
+                    log_web_socket(io, '[CP-2] APK decompiled.');
                     //log_web_socket(io, `[CP-2] child process exited with code ${code}`);
             })
 

@@ -96,7 +96,7 @@ function updateScroll() {
 //once a second
 setInterval(updateScroll, 1000);
 // only if the user didn't move
-document.getElementById("log-auto-scroll").addEventListener("scroll", function(){
+document.getElementById("log-auto-scroll").addEventListener("scroll mousedown wheel mousewheel", function(){
     scrolled=true;
 });
 
