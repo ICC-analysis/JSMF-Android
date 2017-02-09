@@ -1,3 +1,4 @@
+'use strict'
 var Promise = require('promise');
 const spawn = require('child_process').spawn;
 var japa = require("java-parser");
@@ -67,7 +68,7 @@ function generate_ICC_model(req) {
             log_web_socket(io, "[CP-1] Building JSMF model from the Inter-Component Communication...");
             protoBufModels.build(IC3Proto, IC3ProtoGrammar,
                                 IC3EntryPoint, BinaryAppProtoBuf);
-            M = protoBufModels.model;
+            var M = protoBufModels.model;
             log_web_socket(io, "[CP-1] JSMF model built.");
         }
         log_web_socket(io, `[CP-1] child process exited with code ${code}`);
