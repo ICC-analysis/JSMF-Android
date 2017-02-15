@@ -62,6 +62,7 @@ app.get('/', function (req, res) {
   res.render('index.html', {errorMessage: errorMessage });
 });
 
+const peg = require('pegjs');
 app.get('/sun', function (req, res) {
     var M = protoBufModels.model;
 	//console.log(M.referenceModel);
@@ -69,10 +70,11 @@ app.get('/sun', function (req, res) {
     //console.log(serializedModel);
     //console.log(M.modellingElements['Component'].length);
 
+    var parser = peg.generate(fs.readFileSync(conf.JAVAGrammar,'utf-8'));
     var source_code =  {};
 
     M.modellingElements['Component']
-    .concat(M.modellingElements['Instruction'])
+    //.concat(M.modellingElements['Instruction'])
     .map(function(component) {
         var name;
         name = component.name || component.class_name;
@@ -82,9 +84,17 @@ app.get('/sun', function (req, res) {
             var content;
             try {
                   content = fs.readFileSync(file, 'utf-8')
+
+                //   var MMJava = parser.parse(content);
+                  //
+                //   console.log(name);
+                //   console.log(MMJava);
+                //   console.log('\n\n');
+
+
             } catch (err) {
                   //console.log(err);
-                  console.log("Error when reading: " + file);
+                  console.log("Error when reading: " + err);
             }
             source_code[name] = escape(content);
         }
