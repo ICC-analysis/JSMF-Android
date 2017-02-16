@@ -1,5 +1,6 @@
 'use strict'
-var fs = require('fs');
+const fs = require('fs');
+const path = require('path');
 var Promise = require('promise');
 const spawn = require('child_process').spawn;
 var japa = require("java-parser");
@@ -20,10 +21,6 @@ var APK_decompiled = false;
 
 
 function start_process(req) {
-    // return new Promise(function (fullfill, reject) {
-    //     B();
-    // }).then(A())
-
     ICCmodelReady = false;
     APK_decompiled = false;
 
@@ -36,11 +33,12 @@ function start_process(req) {
         });
     }
 
-
-    // clean the folder where outputs of subprocess are stored
+    // Before launching the process, clean the folder where outputs of
+    // subprocesses are stored
     const spawn_sync = require('child_process').spawnSync;
     spawn_sync('rm', ['-Rf', conf.bin_outputs]);
 
+    // Generation of the models
     var promises = [generate_ICC_model, generate_source_code_model]
                     .map(function(name) {
                         return new Promise(function(fullfill, reject) {
@@ -48,59 +46,69 @@ function start_process(req) {
                             fullfill();
                         })
                     })
-
     Promise.all(promises)
-    .then(function() {
-        //spawn_sync('rm', ['-Rf', conf.uploads_folder]);
-    })
     .catch(console.error);
 
-
+    // Generation of the AST
     ensureICCmodelReadyAndAPKdecompiled().then(function(){
-        log_web_socket(io, "[CP-3] AST generation...");
+        generate_ast();
+    })
+    .then(function() {
+        // clean the uploads folder
+        fs.readdir(conf.uploads_folder, (err, files) => {
+          if (err) throw error;
 
-        var source_code_ast =  {};
-        M.modellingElements['Component']
-        //.concat(M.modellingElements['Instruction'])
-        .map(function(component) {
-            var name = component.name || component.class_name;
-            if (name) {
-                var file = conf.bin_outputs + 'result-jdcmd/' +
-                            name.replace(/\./g, '/')  + '.java';
-                var content;
-                try {
-                      content = fs.readFileSync(file, 'utf-8');
-                } catch (err) {
-                      //console.log(err);
-                      console.log("Error when reading: " + file);
-                }
-
-                try {
-                    source_code_ast[component.name] = japa.parse(content);
-                }
-                catch (err) {
-                    console.log(err);
-                    log_web_socket(io, "[CP-3] stderr: Unable to create AST for: " + component.name);
-                }
-            }
-
-        });
-
-        //var source_code_ast_serialized = serialize.serialize(source_code_ast);
-        var source_code_ast_serialized = JSON.stringify(source_code_ast);
-        fs.writeFile("/tmp/testS", source_code_ast_serialized, function(err) {
-            if(err) {
-                return console.log(err);
-            }
-            log_web_socket(io, "[CP-3] AST generated.");
+          for (const file of files) {
+            fs.unlink(path.join(conf.uploads_folder, file), err => {
+              if (err) throw error;
+            });
+          }
         });
     })
     .catch(console.error);
 }
 
 
+function generate_ast() {
+    log_web_socket(io, "[CP-3] AST generation...");
+    var source_code_ast =  {};
+    M.modellingElements['Component']
+    //.concat(M.modellingElements['Instruction'])
+    .map(function(component) {
+        var name = component.name || component.class_name;
+        if (name) {
+            var file = conf.bin_outputs + 'result-jdcmd/' +
+                        name.replace(/\./g, '/')  + '.java';
+            var content;
+            try {
+                  content = fs.readFileSync(file, 'utf-8');
+            } catch (err) {
+                  //console.log(err);
+                  console.log("Error when reading: " + file);
+            }
 
+            try {
+                source_code_ast[component.name] = japa.parse(content);
+            }
+            catch (err) {
+                console.log(err);
+                log_web_socket(io, "[CP-3] stderr: Unable to create AST for: " + component.name);
+            }
+        }
 
+    });
+
+    //var source_code_ast_serialized = serialize.serialize(source_code_ast);
+    var source_code_ast_serialized = JSON.stringify(source_code_ast);
+    // fs.writeFileSync("/tmp/testS", source_code_ast_serialized, 'utf-8')
+    // log_web_socket(io, "[CP-3] AST generated.");
+    fs.writeFile("/tmp/testS", source_code_ast_serialized, function(err) {
+        if(err) {
+            return console.log(err);
+        }
+        log_web_socket(io, "[CP-3] AST generated.");
+    });
+}
 
 function generate_ICC_model(req) {
     // Generation of the model of application's
@@ -128,7 +136,7 @@ function generate_ICC_model(req) {
         {
             BinaryAppProtoBuf = conf.bin_outputs + 'ic3/' +
                                 req.file.filename + '/result.dat';
-            log_web_socket(io, "[CP-1] Inter-Component Communication analysis done: " + BinaryAppProtoBuf);
+            log_web_socket(io, "[CP-1] Inter-Component Communication analysis done.");
             log_web_socket(io, "[CP-1] Building JSMF model from the Inter-Component Communication...");
             protoBufModels.build(IC3Proto, IC3ProtoGrammar,
                                 IC3EntryPoint, BinaryAppProtoBuf);
