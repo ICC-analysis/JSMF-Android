@@ -1,15 +1,15 @@
 'use strict'
 const fs = require('fs');
 const path = require('path');
-var Promise = require('promise');
+const Promise = require('promise');
 const spawn = require('child_process').spawn;
-var japa = require("java-parser");
+const japa = require("java-parser");
 var protoBufModels =  require('builder');
 
-var io = require('./bootstrap.js').io;
-var log_web_socket = require('./bootstrap.js').log_web_socket;
+const io = require('./bootstrap.js').io;
+const log_web_socket = require('./bootstrap.js').log_web_socket;
 
-var conf = require('./conf.js');
+const conf = require('./conf.js');
 var IC3Proto = require('./conf.js').IC3Proto,
   IC3ProtoGrammar = require('./conf.js').IC3ProtoGrammar,
   IC3EntryPoint = require('./conf.js').IC3EntryPoint,
@@ -72,36 +72,50 @@ function start_process(req) {
 function generate_ast() {
     log_web_socket(io, "[CP-3] AST generation...");
     var source_code_ast =  {};
+
+
+    // Promise.map(M.modellingElements['Component'], function(component) {
+    //     // Promise.map awaits for returned promises as well.
+    //     var name = component.name || component.class_name;
+    //     if (name) {
+    //         var file = conf.bin_outputs + 'result-jdcmd/' +
+    //                     name.replace(/\./g, '/')  + '.java';
+    //         return fs.readFileAsync(file);
+    //     }
+    // }).then(function(results) {
+    //     console.log("done");
+    //     console.log(results);
+    // });
+
+
+
+
     M.modellingElements['Component']
-    //.concat(M.modellingElements['Instruction'])
     .map(function(component) {
         var name = component.name || component.class_name;
         if (name) {
             var file = conf.bin_outputs + 'result-jdcmd/' +
                         name.replace(/\./g, '/')  + '.java';
             var content;
-            try {
-                  content = fs.readFileSync(file, 'utf-8');
-            } catch (err) {
-                  //console.log(err);
-                  console.log("Error when reading: " + file);
-            }
+            fs.readFile(file, 'utf-8', function(err, content) {
+                if(err) {
+                    return console.log("Error when reading: " + file);
+                }
 
-            try {
-                source_code_ast[component.name] = japa.parse(content);
-            }
-            catch (err) {
-                console.log(err);
-                log_web_socket(io, "[CP-3] stderr: Unable to create AST for: " + component.name);
-            }
+                try {
+                    source_code_ast[component.name] = japa.parse(content);
+                }
+                catch (err) {
+                    console.log(err);
+                    log_web_socket(io, "[CP-3] stderr: Unable to create AST for: " + component.name);
+                }
+
+            })
         }
 
     });
 
-    //var source_code_ast_serialized = serialize.serialize(source_code_ast);
     var source_code_ast_serialized = JSON.stringify(source_code_ast);
-    // fs.writeFileSync("/tmp/testS", source_code_ast_serialized, 'utf-8')
-    // log_web_socket(io, "[CP-3] AST generated.");
     fs.writeFile("/tmp/testS", source_code_ast_serialized, function(err) {
         if(err) {
             return console.log(err);

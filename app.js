@@ -1,32 +1,32 @@
 'use strict'
-var flash = require('connect-flash');
-var session = require('express-session');
-var cookieParser = require('cookie-parser');
-var jsmfjson = require('jsmf-json');
-var fs = require('fs');
-var multer  = require('multer')
+const flash = require('connect-flash');
+const session = require('express-session');
+const cookieParser = require('cookie-parser');
+const jsmfjson = require('jsmf-json');
+const fs = require('fs');
+const multer  = require('multer')
 
-var express = require('./bootstrap.js').express;
-var app = require('./bootstrap.js').app;
-var http = require('./bootstrap.js').http;
-var io = require('./bootstrap.js').io;
-var log_web_socket = require('./bootstrap.js').log_web_socket;
-var buildModel = require('./helper.js').buildModel;
+const express = require('./bootstrap.js').express;
+const app = require('./bootstrap.js').app;
+const http = require('./bootstrap.js').http;
+const io = require('./bootstrap.js').io;
+const log_web_socket = require('./bootstrap.js').log_web_socket;
+const buildModel = require('./helper.js').buildModel;
 
-var conf = require('./conf.js');
+const conf = require('./conf.js');
 var IC3Proto = require('./conf.js').IC3Proto,
   IC3ProtoGrammar = require('./conf.js').IC3ProtoGrammar,
   IC3EntryPoint = require('./conf.js').IC3EntryPoint,
   BinaryAppProtoBuf = require('./conf.js').BinaryAppProtoBuf
 
-var apk_analyzer = require('./process');
+const apk_analyzer = require('./process');
 
 var protoBufModels =  require('builder');
 // load the default model
 protoBufModels.build(IC3Proto, IC3ProtoGrammar, IC3EntryPoint,
                                                         BinaryAppProtoBuf);
 
-var listening_port = process.env.PORT || 3000;
+const listening_port = process.env.PORT || 3000;
 
 
 app.use(session({
