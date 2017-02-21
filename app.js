@@ -62,12 +62,10 @@ app.get('/', function (req, res) {
   res.render('index.html', {errorMessage: errorMessage });
 });
 
-const peg = require('pegjs');
 app.get('/sun', function (req, res) {
     var M = protoBufModels.model;
     var serializedModel = jsmfjson.stringify(M);
 
-    var parser = peg.generate(fs.readFileSync(conf.JAVAGrammar,'utf-8'));
     var source_code =  {};
     M.modellingElements['Component']
     //.concat(M.modellingElements['Instruction'])
