@@ -72,6 +72,7 @@ app.get('/sun', function (req, res) {
 
     var parser = peg.generate(fs.readFileSync(conf.JAVAGrammar,'utf-8'));
     var source_code =  {};
+    var source_code_ast =  {};
 
     M.modellingElements['Component']
     //.concat(M.modellingElements['Instruction'])
@@ -84,14 +85,6 @@ app.get('/sun', function (req, res) {
             var content;
             try {
                   content = fs.readFileSync(file, 'utf-8')
-
-                //   var MMJava = parser.parse(content);
-                  //
-                //   console.log(name);
-                //   console.log(MMJava);
-                //   console.log('\n\n');
-
-
             } catch (err) {
                   //console.log(err);
                   console.log("Error when reading: " + err);
@@ -99,13 +92,22 @@ app.get('/sun', function (req, res) {
             source_code[name] = escape(content);
         }
     });
-
     source_code = JSON.stringify(source_code);
 
-    res.render('sunburst.html',{
-                                serializedModel: serializedModel,
-                                sourceCode: source_code
-                            });
+
+    fs.readFile(conf.bin_outputs + 'apk_ast.json', 'utf-8', (err, data) => {
+        if (err) {
+            console.log(err);
+            data = {};
+        }
+        res.render('sunburst.html',{
+                                    serializedModel: serializedModel,
+                                    sourceCode: source_code,
+                                    sourceCodeAST: data
+                                });
+    });
+
+
 });
 
 app.get('/s', function(req,res) {
