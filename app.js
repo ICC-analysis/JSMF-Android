@@ -65,15 +65,10 @@ app.get('/', function (req, res) {
 const peg = require('pegjs');
 app.get('/sun', function (req, res) {
     var M = protoBufModels.model;
-	//console.log(M.referenceModel);
     var serializedModel = jsmfjson.stringify(M);
-    //console.log(serializedModel);
-    //console.log(M.modellingElements['Component'].length);
 
     var parser = peg.generate(fs.readFileSync(conf.JAVAGrammar,'utf-8'));
     var source_code =  {};
-    var source_code_ast =  {};
-
     M.modellingElements['Component']
     //.concat(M.modellingElements['Instruction'])
     .map(function(component) {
@@ -93,7 +88,6 @@ app.get('/sun', function (req, res) {
         }
     });
     source_code = JSON.stringify(source_code);
-
 
     fs.readFile(conf.bin_outputs + 'apk_ast.json', 'utf-8', (err, data) => {
         if (err) {
