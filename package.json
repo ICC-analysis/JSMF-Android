@@ -17,6 +17,7 @@
   "author": "Jean-Sebastien Sottet <jean-sebastien.sottet@list.lu> (http://www.list.lu)",
   "license": "MIT",
   "dependencies": {
+    "bluebird": "^3.4.7",
     "bower": "^1.8.0",
     "builder": "file:var/lib/protobuffToJSMF",
     "connect-flash": "^0.1.1",

@@ -1,7 +1,10 @@
 'use strict'
-const fs = require('fs');
+//const fs = require('fs');
 const path = require('path');
-const Promise = require('promise');
+//const Promise = require('promise');
+const Promise = require("bluebird");
+const join = Promise.join;
+const fs = Promise.promisifyAll(require("fs"));
 const spawn = require('child_process').spawn;
 const japa = require("java-parser");
 var protoBufModels =  require('builder');
@@ -71,56 +74,41 @@ function start_process(req) {
 
 function generate_ast() {
     log_web_socket(io, "[CP-3] AST generation...");
-    var source_code_ast =  {};
 
-
-    // Promise.map(M.modellingElements['Component'], function(component) {
-    //     // Promise.map awaits for returned promises as well.
-    //     var name = component.name || component.class_name;
-    //     if (name) {
-    //         var file = conf.bin_outputs + 'result-jdcmd/' +
-    //                     name.replace(/\./g, '/')  + '.java';
-    //         return fs.readFileAsync(file);
-    //     }
-    // }).then(function(results) {
-    //     console.log("done");
-    //     console.log(results);
-    // });
-
-
-
-
-    M.modellingElements['Component']
-    .map(function(component) {
+    Promise.map(M.modellingElements['Component'], function(component) {
+        // Promise.map awaits for returned promises as well.
         var name = component.name || component.class_name;
         if (name) {
             var file = conf.bin_outputs + 'result-jdcmd/' +
                         name.replace(/\./g, '/')  + '.java';
-            var content;
-            fs.readFile(file, 'utf-8', function(err, content) {
-                if(err) {
-                    return console.log("Error when reading: " + file);
-                }
-
-                try {
-                    source_code_ast[component.name] = japa.parse(content);
-                }
-                catch (err) {
-                    console.log(err);
-                    log_web_socket(io, "[CP-3] stderr: Unable to create AST for: " + component.name);
-                }
-
-            })
+            var content = fs.readFileAsync(file, 'utf-8').catch(function ignore() {});;
+            return join(name, content, function(name, content) {
+               return {
+                   name: name,
+                   content: content
+               }
+           });
         }
+    }).then(function(result) {
+        var source_code_ast =  {};
+        result.map(function (elem) {
+            try {
+                source_code_ast[elem.name] = japa.parse(elem.content);
+            }
+            catch (err) {
+                // console.log(err);
+                log_web_socket(io, "[CP-3] stderr: Unable to create AST for: " + elem.name);
+            }
+        })
 
-    });
-
-    var source_code_ast_serialized = JSON.stringify(source_code_ast);
-    fs.writeFile("/tmp/testS", source_code_ast_serialized, function(err) {
-        if(err) {
-            return console.log(err);
-        }
-        log_web_socket(io, "[CP-3] AST generated.");
+        var source_code_ast_serialized = JSON.stringify(source_code_ast);
+        fs.writeFile(conf.bin_outputs + 'apk_ast.json',
+                        source_code_ast_serialized, function(err) {
+            if(err) {
+                return console.log(err);
+            }
+            log_web_socket(io, "[CP-3] AST generated.");
+        });
     });
 }
 
