@@ -87,7 +87,7 @@ function generate_ast() {
                    name: name,
                    content: content
                }
-           });
+            });
         }
     }).then(function(result) {
         var source_code_ast =  {};
