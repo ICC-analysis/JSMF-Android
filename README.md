@@ -65,7 +65,7 @@ More information [here](http://jsmf-android-visualization.list.lu/models).
 
 # Contact
 
-* [Jean-Sébastien Sottet](https://git.list.lu/jsottet)
+* [Jean-Sébastien Sottet](https://sites.google.com/site/jssottet/)
 * [Cédric Bonhomme](https://www.cedricbonhomme.org)
 
 [Luxembourg Institute of Science and Technology](https://www.list.lu)
