@@ -2,10 +2,15 @@
 Visualization of Inter-Component Communication (ICC) and source code for Android
 applications.
 
-[JSMF](https://github.com/JS-MF) is used for the modeling of the different
-facets of the applications.
+Our goal is to visualize Inter-Component Communication links (ICC) and
+source code of Android applications (AST). One of the main goal is to identify
+dark patterns through the analysis of models.
 
-[Demonstration site](http://jsmf-android-visualization.list.lu).
+Different facets of Android applications are represented with
+[JSMF](https://github.com/JS-MF) models.
+These models are defined from a PEG.js grammar and instanciated with data that
+are coming from decompiled Android applications.
+[prototype](http://jsmf-android-visualization.list.lu).
 
 # Install
 
@@ -19,20 +24,20 @@ $ node app.js
 Listening on port 3000
 ```
 
+Do not do that on a production server.
+
 If you want to access the application to the port 80:
 
 ```bash
 $ sudo iptables -t nat -A PREROUTING -i [interface] -p tcp --dport 80 -j REDIRECT --to-port 3000
 ```
 
-An instance is available
-[here](http://jsmf-android-visualization.list.lu).
-
 
 ## Deploy on Heroku
 
 Heroku only provides 64 bits based architectures (cedar-14, heroku-16).
-Consequently you will have problems with dare which is a 32 bit executable.
+Consequently you will have problems with dare which is a 32 bit executable
+(you will still be able to analyze ICC links).
 
 ```bash
 $ git clone https://git.list.lu/jsmf/jsmf-interact.git
@@ -59,5 +64,8 @@ More information [here](http://jsmf-android-visualization.list.lu/models).
 
 
 # Contact
+
+* [Jean-Sébastien Sottet](https://git.list.lu/jsottet)
+* [Cédric Bonhomme](https://www.cedricbonhomme.org)
 
 [Luxembourg Institute of Science and Technology](https://www.list.lu)
