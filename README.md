@@ -71,4 +71,3 @@ More information [here](http://jsmf-android-visualization.list.lu/models).
 * [Jean-Sébastien Sottet](https://sites.google.com/site/jssottet/)
 * [Cédric Bonhomme](https://www.cedricbonhomme.org)
 
-[Luxembourg Institute of Science and Technology](https://www.list.lu)
