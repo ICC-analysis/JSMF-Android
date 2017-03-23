@@ -1,19 +1,16 @@
 
-Visualization of Inter-Component Communication (ICC) and source code for Android
-applications.
+Analysis of Inter-Component Communication links (ICC) and source code of
+Android applications (AST).
 
-Our goal is to visualize Inter-Component Communication links (ICC) and
-source code of Android applications (AST). One of the main goal is to identify
-dark patterns through the analysis of models.
+One of the main goal is to identify dark patterns through models computations on
+piggybacked applications and non-piggybacked applications.
 
 Different facets of Android applications are represented with
 [JSMF](https://github.com/JS-MF) models.
 These models are defined from a PEG.js grammar and instanciated with data that
 are coming from decompiled Android applications.
-[prototype](http://jsmf-android-visualization.list.lu).
 
-This prototype started as a use case of JSMF.
-JSMF is developed at @LIST-LUXEMBOURG and is under MIT license.
+This prototype started as a use case of [JSMF](https://github.com/JS-MF).
 
 # Install
 
@@ -34,6 +31,8 @@ If you want to access the application to the port 80:
 ```bash
 $ sudo iptables -t nat -A PREROUTING -i [interface] -p tcp --dport 80 -j REDIRECT --to-port 3000
 ```
+
+[demo instance](http://jsmf-android-visualization.list.lu)
 
 
 ## Deploy on Heroku
