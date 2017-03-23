@@ -12,6 +12,9 @@ These models are defined from a PEG.js grammar and instanciated with data that
 are coming from decompiled Android applications.
 [prototype](http://jsmf-android-visualization.list.lu).
 
+This prototype started as a use case of JSMF.
+JSMF is developed at @LIST-LUXEMBOURG and is under MIT license.
+
 # Install
 
 ## Deploy on your server
