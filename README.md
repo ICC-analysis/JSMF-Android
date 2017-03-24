@@ -7,7 +7,7 @@ piggybacked applications and non-piggybacked applications.
 
 Different facets of Android applications are represented with
 [JSMF](https://github.com/JS-MF) models.
-These models are defined from a PEG.js grammar and instanciated with data that
+These models are defined from a PEG.js grammar and instantiated with data that
 are coming from decompiled Android applications.
 
 This prototype started as a use case of [JSMF](https://github.com/JS-MF).
