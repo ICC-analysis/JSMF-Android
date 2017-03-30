@@ -17,7 +17,7 @@ This prototype started as a use case of [JSMF](https://github.com/JS-MF).
 ## Deploy on your server
 
 ```bash
-$ git clone --recursive https://git.list.lu/jsmf/jsmf-interact.git
+$ git clone --recursive https://github.com/ICC-analysis/JSMF-Android.git
 $ cd jsmf-interact/
 $ ./install.sh
 $ node app.js
@@ -42,7 +42,7 @@ Consequently you will have problems with dare which is a 32 bit executable
 (you will still be able to analyze ICC links).
 
 ```bash
-$ git clone https://git.list.lu/jsmf/jsmf-interact.git
+$ git clone https://github.com/jssottet/protobuffToJSMF.git
 $ cd jsmf-interact/
 $ heroku create
 $ heroku buildpacks:add --index 1 heroku/nodejs
