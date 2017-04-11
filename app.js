@@ -50,17 +50,19 @@ app.use('/images',  express.static(__dirname + '/static/images'));
 app.use('/bower_components',  express.static(__dirname + '/bower_components'));
 
 //configuration of the read file method
-var upload = multer({ dest: 'uploads/' });
+var upload = multer({ dest: 'uploads/' });//.array('files', 2);
 
 
 http.listen(listening_port, function () {
   console.log('Listening on port ' + listening_port);
 });
 
+
 app.get('/', function (req, res) {
   var errorMessage = JSON.stringify('');
   res.render('index.html', {errorMessage: errorMessage });
 });
+
 
 app.get('/sun', function (req, res) {
     var M = protoBufModels.model;
@@ -102,33 +104,38 @@ app.get('/sun', function (req, res) {
 
 });
 
-app.get('/s', function(req,res) {
+
+app.get('/s', function(req, res) {
 	var M = protoBufModels.model;
 	var serializedModel = jsmfjson.stringify(M);
 	res.render('graph.html',{serializedModel: serializedModel });
 });
 
-app.get('/models', function(req,res){
+
+app.get('/models', function(req, res){
    res.render('modelsbehind.html' );
 });
 
-app.post('/upload', upload.single('file'), function(req, res, next) {
+
+app.post('/upload',  upload.array('files[]', 2) ,function(req, res, next) {
     var M = protoBufModels.model;
 
-    if (req.file && req.file.originalname.split('.').pop() == "dat") {
+    var file = req.files;
+
+    if (file[0] && file[0].originalname.split('.').pop() == "dat") {
         // A binary protobuf is directly submitted -
         // simply relaunch the protobufModel construction.
         console.log('A binary protobuf file has been received: ' +
-                                                        req.file.originalname)
+                                                        file[0].originalname)
         protoBufModels.build(IC3Proto, IC3ProtoGrammar, IC3EntryPoint,
-                                                        req.file.path);
+                                                        req.file[0].path);
     }
 
-    else if (req.file && req.file.originalname.split('.').pop() == "apk") {
+    else if (file[0] && file[0].originalname.split('.').pop() == "apk") {
         // An APK is submitted - launch the full process.
         log_web_socket(io, 'An APK file has been received: ' +
-                                                        req.file.originalname)
-        apk_analyzer.start_process(req);
+                                                        file[0].originalname)
+        apk_analyzer.start_process(file[0]);
     }
 
     else {
@@ -136,4 +143,9 @@ app.post('/upload', upload.single('file'), function(req, res, next) {
     }
 
     res.redirect("/");
+});
+
+
+app.get('/compare', function(req, res){
+   res.render('compare.html');
 });

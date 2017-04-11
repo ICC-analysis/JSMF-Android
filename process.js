@@ -23,7 +23,7 @@ var ICCmodelReady = false;
 var APK_decompiled = false;
 
 
-function start_process(req) {
+function start_process(file) {
     ICCmodelReady = false;
     APK_decompiled = false;
 
@@ -42,10 +42,11 @@ function start_process(req) {
     spawn_sync('rm', ['-Rf', conf.bin_outputs]);
 
     // Generation of the models
+    //console.log(file)
     var promises = [generate_ICC_model, generate_source_code_model]
                     .map(function(name) {
                         return new Promise(function(fullfill, reject) {
-                            name(req);
+                            name(file);
                             fullfill();
                         })
                     })
@@ -112,7 +113,7 @@ function generate_ast() {
     });
 }
 
-function generate_ICC_model(req) {
+function generate_ICC_model(file) {
     // Generation of the model of application's
     // "Inter-Component Communication" representation.
     //
@@ -120,7 +121,7 @@ function generate_ICC_model(req) {
                         'retarget and generate a binary proto file.');
 
     log_web_socket(io, "[CP-1] analysis of the Inter-Component Communication with IC3...");
-    const cmd = spawn('bin/APK-analyzer/apk2icc.sh', [req.file.path, req.file.originalname]);
+    const cmd = spawn('bin/APK-analyzer/apk2icc.sh', [file.path, file.originalname]);
 
     cmd.stderr.on('data', (data) => {
         if (data && data.length > 1) {
@@ -137,7 +138,7 @@ function generate_ICC_model(req) {
         if (code == 0)
         {
             BinaryAppProtoBuf = conf.bin_outputs + 'ic3/' +
-                                req.file.filename + '/result.dat';
+                                file.filename + '/result.dat';
             log_web_socket(io, "[CP-1] Inter-Component Communication analysis done.");
             log_web_socket(io, "[CP-1] Building JSMF model from the Inter-Component Communication...");
             protoBufModels.build(IC3Proto, IC3ProtoGrammar,
@@ -151,7 +152,7 @@ function generate_ICC_model(req) {
     return true;
 }
 
-function generate_source_code_model(req) {
+function generate_source_code_model(file) {
     // Generation of the model of application's source code.
     //
     log_web_socket(io, 'Launching a child process (CP-2) in order to decompile the APK.');
@@ -159,7 +160,7 @@ function generate_source_code_model(req) {
     const cmd_decompile_step1 = spawn('bin/dex2jar/d2j-dex2jar.sh',
                                         ['--force','--output',
                                         conf.bin_outputs+'/result-dex2jar.jar',
-                                        req.file.path]);
+                                        file.path]);
 
     cmd_decompile_step1.stderr.on('data', (data) => {
         if (data && data.length > 1) {

@@ -31,7 +31,7 @@
 				</div>
 				<div class="mdl-card__actions mdl-card--border" id="uploadaction">
 					<form id="file-form" action="upload" method="post" enctype="multipart/form-data">
-						<input id="file-select" type="file" name="file" />
+						<input id="file-select" type="file" name="files[]" multiple />
 						<input id="upload-button" type="submit" value="Proceed analysis" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-grey-300"  accept="application/octet-stream, zz-application/zz-winassoc-dat" disabled />
 					</form>
 				</div>
@@ -176,11 +176,13 @@ form.onsubmit = function(event) {
   	uploadButton.innerHTML = 'Uploading...';
 
   	// Get the selected file from the input.
-	var file = fileSelect.files[0]
+	var file1 = fileSelect.files[0]
+	//var file2 = fileSelect.files[1]
 
 	// Create a new FormData object.
 	var formData = new FormData();
-	formData.append('file', file, file.name);
+	formData.append('files[]', file1, file1.name);
+	//formData.append('files[]', file2, file2.name);
 
 	// Set up the request.
 	var xhr = new XMLHttpRequest();
