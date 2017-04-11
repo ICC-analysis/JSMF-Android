@@ -64,7 +64,7 @@ function start_process(file) {
 
           for (const file of files) {
             fs.unlink(path.join(conf.uploads_folder, file), err => {
-              if (err) throw error;
+              if (err) throw err;
             });
           }
         });
@@ -125,7 +125,8 @@ function generate_ICC_model(file) {
 
     cmd.stderr.on('data', (data) => {
         if (data && data.length > 1) {
-            log_web_socket(io, `[CP-1] stderr: ${data}`);
+            //log_web_socket(io, `[CP-1] stderr: ${data}`);
+            console.log(`[CP-1] stderr: ${data}`);
         }
     });
 
@@ -164,7 +165,8 @@ function generate_source_code_model(file) {
 
     cmd_decompile_step1.stderr.on('data', (data) => {
         if (data && data.length > 1) {
-            log_web_socket(io, `[CP-2] stderr: ${data}`);
+            //log_web_socket(io, `[CP-2] stderr: ${data}`);
+            console.log(`[CP-2] stderr: ${data}`);
         }
     });
 
@@ -179,7 +181,8 @@ function generate_source_code_model(file) {
 
             cmd_decompile_step2.stderr.on('data', (data) => {
                 if (data && data.length > 1) {
-                    log_web_socket(io, `[CP-2] stderr: ${data}`);
+                    //log_web_socket(io, `[CP-2] stderr: ${data}`);
+                    console.log(`[CP-2] stderr: ${data}`);
                 }
             });
 
