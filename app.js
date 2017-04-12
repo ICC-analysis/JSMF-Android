@@ -141,7 +141,8 @@ app.post('/upload',  upload.array('files[]', 2) ,function(req, res, next) {
         }
 
         else {
-            req.flash("error", "You must submit a *.apk or *.dat file.");
+            req.flash('error', `File ignored: ${file.originalname}. ` +
+                                    'You must submit a *.apk or *.dat file.');
         }
 
     })
