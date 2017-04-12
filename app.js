@@ -118,29 +118,33 @@ app.get('/models', function(req, res){
 
 
 app.post('/upload',  upload.array('files[]', 2) ,function(req, res, next) {
+    // We can receive 1 or 2 APK through the POST request. When 2 APK are
+    // submitted the user is redirected to twe comparison page.
     var M = protoBufModels.model;
 
-    var file = req.files;
+    req.files.map(function(file) {
 
-    if (file[0] && file[0].originalname.split('.').pop() == "dat") {
         // A binary protobuf is directly submitted -
         // simply relaunch the protobufModel construction.
-        console.log('A binary protobuf file has been received: ' +
-                                                        file[0].originalname)
-        protoBufModels.build(IC3Proto, IC3ProtoGrammar, IC3EntryPoint,
-                                                        req.file[0].path);
-    }
+        if (file && file.originalname.split('.').pop() == "dat") {
+            console.log('A binary protobuf file has been received: ' +
+                                                            file.originalname)
+            protoBufModels.build(IC3Proto, IC3ProtoGrammar, IC3EntryPoint,
+                                                            file.path);
+        }
 
-    else if (file[0] && file[0].originalname.split('.').pop() == "apk") {
         // An APK is submitted - launch the full process.
-        log_web_socket(io, 'An APK file has been received: ' +
-                                                        file[0].originalname)
-        apk_analyzer.start_process(file[0]);
-    }
+        else if (file && file.originalname.split('.').pop() == "apk") {
+            log_web_socket(io, 'An APK file has been received: ' +
+                                                            file.originalname)
+            apk_analyzer.start_process(file);
+        }
 
-    else {
-        req.flash("error", "You must submit a *.apk or *.dat file.");
-    }
+        else {
+            req.flash("error", "You must submit a *.apk or *.dat file.");
+        }
+
+    })
 
     res.redirect("/");
 });
