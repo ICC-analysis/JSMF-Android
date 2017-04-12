@@ -117,7 +117,7 @@ app.get('/models', function(req, res){
 });
 
 
-app.post('/upload',  upload.array('files[]', 2) ,function(req, res, next) {
+app.post('/upload',  upload.array('files[]', 2), function(req, res, next) {
     // We can receive 1 or 2 APK through the POST request. When 2 APK are
     // submitted the user is redirected to twe comparison page.
     var M = protoBufModels.model;
@@ -127,16 +127,15 @@ app.post('/upload',  upload.array('files[]', 2) ,function(req, res, next) {
         // A binary protobuf is directly submitted -
         // simply relaunch the protobufModel construction.
         if (file && file.originalname.split('.').pop() == "dat") {
-            console.log('A binary protobuf file has been received: ' +
-                                                            file.originalname)
+            console.log(`A binary protobuf file has been received: ${file.originalname}`)
             protoBufModels.build(IC3Proto, IC3ProtoGrammar, IC3EntryPoint,
                                                             file.path);
         }
 
         // An APK is submitted - launch the full process.
         else if (file && file.originalname.split('.').pop() == "apk") {
-            log_web_socket(io, 'An APK file has been received: ' +
-                                                            file.originalname)
+            log_web_socket(io,
+                `An APK file has been received: ${file.originalname}`)
             apk_analyzer.start_process(file);
         }
 
@@ -146,8 +145,7 @@ app.post('/upload',  upload.array('files[]', 2) ,function(req, res, next) {
         }
 
     })
-
-    res.redirect("/");
+    //res.redirect("/");
 });
 
 
