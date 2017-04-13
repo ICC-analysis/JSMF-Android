@@ -15,9 +15,9 @@ const buildModel = require('./helper.js').buildModel;
 
 const conf = require('./conf.js');
 var IC3Proto = require('./conf.js').IC3Proto,
-IC3ProtoGrammar = require('./conf.js').IC3ProtoGrammar,
-IC3EntryPoint = require('./conf.js').IC3EntryPoint,
-BinaryAppProtoBuf = require('./conf.js').BinaryAppProtoBuf
+    IC3ProtoGrammar = require('./conf.js').IC3ProtoGrammar,
+    IC3EntryPoint = require('./conf.js').IC3EntryPoint,
+    BinaryAppProtoBuf = require('./conf.js').BinaryAppProtoBuf
 
 const apk_analyzer = require('./process');
 
