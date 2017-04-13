@@ -147,8 +147,7 @@ app.post('/upload',  upload.array('files[]', 2), function(req, res, next) {
             'You must submit a *.apk or *.dat file.');
         }
     })
-    //res.redirect("/");
-    res.send('POST request')
+    res.status(200).send('process launched in background');
 });
 
 
