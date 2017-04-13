@@ -59,22 +59,22 @@
                 </div>
             </div>
 
-                    <!-- div class="mdl-card mdl-cell mdl-cell--4-col mdl-cell--6-col-tablet mdl-shadow--16dp">
-                    <div class="mdl-card__media">
-                    <img src="images/discovery.jpg" alt="" />
-                </div>
-                <div class="mdl-card__title">
-                <h1 class="mdl-card__title-text mdl-color-text--light-blue-900">To be Continued</h1>
-            </div>
-            <div class="mdl-card__supporting-text">
-            <p>Upload other models, connect information, compute differences, etc....</p>
+            <!-- div class="mdl-card mdl-cell mdl-cell--4-col mdl-cell--6-col-tablet mdl-shadow--16dp">
+            <div class="mdl-card__media">
+            <img src="images/discovery.jpg" alt="" />
         </div>
-        <div class="mdl-card__actions mdl-card--border">
-        <input type="file" id="file">
-        <label for="file" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900">Upload</label>
-    </input>
+        <div class="mdl-card__title">
+        <h1 class="mdl-card__title-text mdl-color-text--light-blue-900">To be Continued</h1>
+    </div>
+    <div class="mdl-card__supporting-text">
+    <p>Upload other models, connect information, compute differences, etc....</p>
+</div>
+<div class="mdl-card__actions mdl-card--border">
+<input type="file" id="file">
+<label for="file" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900">Upload</label>
+</input>
 </div> -->
-        </div>
+</div>
 
 
 </main>
@@ -105,18 +105,18 @@ document.getElementById("log-auto-scroll").addEventListener("scroll mousedown wh
 
 var socket = io.connect('http://' + document.domain + ':' + location.port);
 socket.on('news', function (data) {
-  //console.log(data);
+    //console.log(data);
 
-  var color = 'black';
-  if (data.indexOf('[CP-1]') >= 0) { color = 'blue'; }
-  else if (data.indexOf('[CP-2]') >= 0) { color = 'green'; }
-  else if (data.indexOf('[CP-3]') >= 0) { color = 'black'; }
+    var color = 'black';
+    if (data.indexOf('[CP-1]') >= 0) { color = 'blue'; }
+    else if (data.indexOf('[CP-2]') >= 0) { color = 'green'; }
+    else if (data.indexOf('[CP-3]') >= 0) { color = 'black'; }
 
-  if (data.indexOf('stderr') >= 0) { color = 'orange'; }
+    if (data.indexOf('stderr') >= 0) { color = 'orange'; }
 
-  var div = document.getElementById('logs-list')
-  div.innerHTML = div.innerHTML + ' <li class="mdl-list__item mdl-color-text--'
-                                  + color + '">' + data + '</li>';
+    var div = document.getElementById('logs-list')
+    div.innerHTML = div.innerHTML + ' <li class="mdl-list__item mdl-color-text--'
+    + color + '">' + data + '</li>';
 });
 
 
@@ -168,12 +168,12 @@ fileSelect.onchange= function(e){
 
 
 form.onsubmit = function(event) {
-      event.preventDefault();
+    event.preventDefault();
 
     document.getElementById('logs-list').innerHTML = "";
 
-      // Update button text.
-      uploadButton.innerHTML = 'Uploading...';
+    // Update button text.
+    uploadButton.innerHTML = 'Uploading...';
 
     // Get the selected file from the input.
     // Create a new FormData object.
@@ -191,12 +191,12 @@ form.onsubmit = function(event) {
 
     // Set up a handler for when the request finishes.
     xhr.onload = function () {
-      if (xhr.status === 200) {
-        // File(s) uploaded.
-        uploadButton.innerHTML = 'File uploaded.';
-      } else {
-        alert('An error occurred!');
-      }
+        if (xhr.status === 200) {
+            // File(s) uploaded.
+            uploadButton.innerHTML = 'File uploaded.';
+        } else {
+            alert('An error occurred!');
+        }
     };
     // Send the Data.
     xhr.send(formData);

@@ -14,9 +14,9 @@ const log_web_socket = require('./bootstrap.js').log_web_socket;
 
 const conf = require('./conf.js');
 var IC3Proto = require('./conf.js').IC3Proto,
-  IC3ProtoGrammar = require('./conf.js').IC3ProtoGrammar,
-  IC3EntryPoint = require('./conf.js').IC3EntryPoint,
-  BinaryAppProtoBuf = require('./conf.js').BinaryAppProtoBuf
+IC3ProtoGrammar = require('./conf.js').IC3ProtoGrammar,
+IC3EntryPoint = require('./conf.js').IC3EntryPoint,
+BinaryAppProtoBuf = require('./conf.js').BinaryAppProtoBuf
 
 var M = null;
 var ICCmodelReady = false;
@@ -44,12 +44,12 @@ function start_process(file) {
     // Generation of the models
     //console.log(file)
     var promises = [generate_ICC_model, generate_source_code_model]
-                    .map(function(name) {
-                        return new Promise(function(fullfill, reject) {
-                            name(file);
-                            fullfill();
-                        })
-                    })
+    .map(function(name) {
+        return new Promise(function(fullfill, reject) {
+            name(file);
+            fullfill();
+        })
+    })
     Promise.all(promises)
     .catch(console.error);
 
@@ -81,13 +81,13 @@ function generate_ast() {
         var name = component.name || component.class_name;
         if (name) {
             var file = conf.bin_outputs + 'result-jdcmd/' +
-                        name.replace(/\./g, '/')  + '.java';
+            name.replace(/\./g, '/')  + '.java';
             var content = fs.readFileAsync(file, 'utf-8').catch(function ignore() {});;
             return join(name, content, function(name, content) {
-               return {
-                   name: name,
-                   content: content
-               }
+                return {
+                    name: name,
+                    content: content
+                }
             });
         }
     }).then(function(result) {
@@ -104,7 +104,7 @@ function generate_ast() {
 
         var source_code_ast_serialized = JSON.stringify(source_code_ast);
         fs.writeFile(conf.bin_outputs + 'apk_ast.json',
-                        source_code_ast_serialized, function(err) {
+        source_code_ast_serialized, function(err) {
             if(err) {
                 return console.log(err);
             }
@@ -118,7 +118,7 @@ function generate_ICC_model(file) {
     // "Inter-Component Communication" representation.
     //
     log_web_socket(io, 'Launching a child process (CP-1) in order to ' +
-                        'retarget and generate a binary proto file.');
+    'retarget and generate a binary proto file.');
 
     log_web_socket(io, "[CP-1] analysis of the Inter-Component Communication with IC3...");
     const cmd = spawn('bin/APK-analyzer/apk2icc.sh', [file.path, file.originalname]);
@@ -139,63 +139,63 @@ function generate_ICC_model(file) {
         if (code == 0)
         {
             BinaryAppProtoBuf = conf.bin_outputs + 'ic3/' +
-                                file.filename + '/result.dat';
+            file.filename + '/result.dat';
             log_web_socket(io, "[CP-1] Inter-Component Communication analysis done.");
             log_web_socket(io, "[CP-1] Building JSMF model from the Inter-Component Communication...");
             protoBufModels.build(IC3Proto, IC3ProtoGrammar,
-                                IC3EntryPoint, BinaryAppProtoBuf);
-            M = protoBufModels.model;
-            ICCmodelReady = true;
-            log_web_socket(io, "[CP-1] JSMF model built.");
-        }
-        log_web_socket(io, `[CP-1] child process exited with code ${code}`);
-    });
-    return true;
-}
+                IC3EntryPoint, BinaryAppProtoBuf);
+                M = protoBufModels.model;
+                ICCmodelReady = true;
+                log_web_socket(io, "[CP-1] JSMF model built.");
+            }
+            log_web_socket(io, `[CP-1] child process exited with code ${code}`);
+        });
+        return true;
+    }
 
-function generate_source_code_model(file) {
-    // Generation of the model of application's source code.
-    //
-    log_web_socket(io, 'Launching a child process (CP-2) in order to decompile the APK.');
-    log_web_socket(io, '[CP-2] convert .dex file to .class files (zipped as jar)...')
-    const cmd_decompile_step1 = spawn('bin/dex2jar/d2j-dex2jar.sh',
-                                        ['--force','--output',
-                                        conf.bin_outputs+'/result-dex2jar.jar',
-                                        file.path]);
+    function generate_source_code_model(file) {
+        // Generation of the model of application's source code.
+        //
+        log_web_socket(io, 'Launching a child process (CP-2) in order to decompile the APK.');
+        log_web_socket(io, '[CP-2] convert .dex file to .class files (zipped as jar)...')
+        const cmd_decompile_step1 = spawn('bin/dex2jar/d2j-dex2jar.sh',
+        ['--force','--output',
+        conf.bin_outputs+'/result-dex2jar.jar',
+        file.path]);
 
-    cmd_decompile_step1.stderr.on('data', (data) => {
-        if (data && data.length > 1) {
-            //log_web_socket(io, `[CP-2] stderr: ${data}`);
-            console.log(`[CP-2] stderr: ${data}`);
-        }
-    });
+        cmd_decompile_step1.stderr.on('data', (data) => {
+            if (data && data.length > 1) {
+                //log_web_socket(io, `[CP-2] stderr: ${data}`);
+                console.log(`[CP-2] stderr: ${data}`);
+            }
+        });
 
-    cmd_decompile_step1.on('close', (code) => {
-        if (code == 0)
-        {
-            log_web_socket(io, '[CP-2] decompiling .class files with jd-cmd...')
-            const cmd_decompile_step2 = spawn('java',
-                                ['-jar', 'bin/jd-cmd/jd-cli.jar',
-                                '--outputDir', conf.bin_outputs+'/result-jdcmd',
-                                conf.bin_outputs+'/result-dex2jar.jar']);
+        cmd_decompile_step1.on('close', (code) => {
+            if (code == 0)
+            {
+                log_web_socket(io, '[CP-2] decompiling .class files with jd-cmd...')
+                const cmd_decompile_step2 = spawn('java',
+                ['-jar', 'bin/jd-cmd/jd-cli.jar',
+                '--outputDir', conf.bin_outputs+'/result-jdcmd',
+                conf.bin_outputs+'/result-dex2jar.jar']);
 
-            cmd_decompile_step2.stderr.on('data', (data) => {
-                if (data && data.length > 1) {
-                    //log_web_socket(io, `[CP-2] stderr: ${data}`);
-                    console.log(`[CP-2] stderr: ${data}`);
-                }
-            });
+                cmd_decompile_step2.stderr.on('data', (data) => {
+                    if (data && data.length > 1) {
+                        //log_web_socket(io, `[CP-2] stderr: ${data}`);
+                        console.log(`[CP-2] stderr: ${data}`);
+                    }
+                });
 
-            cmd_decompile_step2.on('close', (code) => {
-                APK_decompiled = true;
-                log_web_socket(io, '[CP-2] APK decompiled.');
-                log_web_socket(io, `[CP-2] child process exited with code ${code}`);
-            })
-        }
-    });
-}
+                cmd_decompile_step2.on('close', (code) => {
+                    APK_decompiled = true;
+                    log_web_socket(io, '[CP-2] APK decompiled.');
+                    log_web_socket(io, `[CP-2] child process exited with code ${code}`);
+                })
+            }
+        });
+    }
 
 
-module.exports = {
-    start_process: start_process
-};
+    module.exports = {
+        start_process: start_process
+    };
