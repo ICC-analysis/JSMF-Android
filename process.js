@@ -42,7 +42,6 @@ function start_process(file) {
     //spawn_sync('rm', ['-Rf', conf.bin_outputs]);
 
     // Generation of the models
-    //console.log(file)
     var promises = [generate_ICC_model, generate_source_code_model]
     .map(function(name) {
         return new Promise(function(fullfill, reject) {
