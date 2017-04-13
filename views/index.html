@@ -170,7 +170,7 @@ fileSelect.onchange= function(e){
 form.onsubmit = function(event) {
     event.preventDefault();
 
-    document.getElementById('logs-list').innerHTML = "";
+    console.log(event);
 
     // Update button text.
     uploadButton.innerHTML = 'Uploading...';
@@ -187,17 +187,15 @@ form.onsubmit = function(event) {
     // Set up the request.
     var xhr = new XMLHttpRequest();
     // Open the connection.
-    xhr.open('POST', '/upload', true);
+    xhr.open('POST', '/upload');
+    //xhr.setRequestHeader("Content-type", "multipart/form-data");
 
     // Set up a handler for when the request finishes.
-    xhr.onload = function () {
-        if (xhr.status === 200) {
-            // File(s) uploaded.
-            uploadButton.innerHTML = 'File uploaded.';
-        } else {
-            alert('An error occurred!');
+    xhr.onreadystatechange = function() { //Call a function when the state changes.
+        if(xhr.readyState == XMLHttpRequest.DONE && xhr.status == 200) {
+            // Request finished. Do processing here.
         }
-    };
+    }
     // Send the Data.
     xhr.send(formData);
 }
