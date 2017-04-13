@@ -39,7 +39,7 @@ function start_process(file) {
     // Before launching the process, clean the folder where outputs of
     // subprocesses are stored
     const spawn_sync = require('child_process').spawnSync;
-    spawn_sync('rm', ['-Rf', conf.bin_outputs]);
+    //spawn_sync('rm', ['-Rf', conf.bin_outputs]);
 
     // Generation of the models
     //console.log(file)
@@ -59,15 +59,15 @@ function start_process(file) {
     })
     .then(function() {
         // clean the uploads folder
-        fs.readdir(conf.uploads_folder, (err, files) => {
-          if (err) throw error;
-
-          for (const file of files) {
-            fs.unlink(path.join(conf.uploads_folder, file), err => {
-              if (err) throw err;
-            });
-          }
-        });
+        // fs.readdir(conf.uploads_folder, (err, files) => {
+        //   if (err) throw error;
+        //
+        //   for (const file of files) {
+        //     fs.unlink(path.join(conf.uploads_folder, file), err => {
+        //       if (err) throw err;
+        //     });
+        //   }
+        // });
     })
     .catch(console.error);
 }

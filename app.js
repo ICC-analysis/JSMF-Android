@@ -122,6 +122,8 @@ app.post('/upload',  upload.array('files[]', 2), function(req, res, next) {
     // submitted the user is redirected to twe comparison page.
     var M = protoBufModels.model;
 
+    console.log(req.files.length);
+
     req.files.map(function(file) {
 
         // A binary protobuf is directly submitted -
@@ -136,6 +138,7 @@ app.post('/upload',  upload.array('files[]', 2), function(req, res, next) {
         else if (file && file.originalname.split('.').pop() == "apk") {
             log_web_socket(io,
                 `An APK file has been received: ${file.originalname}`)
+            console.log('LAUNCHING A NEW ANALYSIS...');
             apk_analyzer.start_process(file);
         }
 
