@@ -124,8 +124,6 @@ app.post('/upload',  upload.array('files[]', 2), function(req, res, next) {
 
     console.log((req.body.generate_ast == 'false'));
 
-    return res.status(200).send('process launched in background');
-
     var M = protoBufModels.model;
 
     req.files.map(function(file) {
