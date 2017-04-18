@@ -38,7 +38,7 @@ function start_process(file) {
 
     // Before launching the process, clean the folder where outputs of
     // subprocesses are stored
-    const spawn_sync = require('child_process').spawnSync;
+    //const spawn_sync = require('child_process').spawnSync;
     //spawn_sync('rm', ['-Rf', conf.bin_outputs]);
 
     // Generation of the models
