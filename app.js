@@ -81,7 +81,6 @@ app.get('/sun', function (req, res) {
             try {
                 content = fs.readFileSync(file, 'utf-8')
             } catch (err) {
-                //console.log(err);
                 console.log("Error when reading: " + err);
             }
             source_code[name] = escape(content);
@@ -124,8 +123,6 @@ app.post('/upload',  upload.array('files[]', 2), function(req, res, next) {
     spawn_sync('rm', ['-Rf', conf.bin_outputs]);
 
     var M = protoBufModels.model;
-
-    console.log(req.files.length);
 
     req.files.map(function(file) {
 
