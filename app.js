@@ -122,6 +122,10 @@ app.post('/upload',  upload.array('files[]', 2), function(req, res, next) {
     const spawn_sync = require('child_process').spawnSync;
     spawn_sync('rm', ['-Rf', conf.bin_outputs]);
 
+    console.log((req.body.generate_ast == 'false'));
+
+    return res.status(200).send('process launched in background');
+
     var M = protoBufModels.model;
 
     req.files.map(function(file) {
@@ -147,7 +151,7 @@ app.post('/upload',  upload.array('files[]', 2), function(req, res, next) {
             'You must submit a *.apk or *.dat file.');
         }
     })
-    res.status(200).send('process launched in background');
+    return res.status(200).send('process launched in background');
 });
 
 
