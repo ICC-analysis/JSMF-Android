@@ -90,7 +90,7 @@ app.get('/sun', function (req, res) {
 
     fs.readFile(conf.bin_outputs + 'apk_ast.json', 'utf-8', (err, data) => {
         if (err) {
-            console.log(err);
+            console.log(`APK not found: ${err}`);
             data = {};
         }
         res.render('sunburst.html',{
