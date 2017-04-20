@@ -81,7 +81,7 @@ function generate_ast() {
         // Promise.map awaits for returned promises as well.
         var name = component.name || component.class_name;
         if (name) {
-            var file = conf.bin_outputs + 'jdcmd/' +
+            var file = conf.bin_outputs + 'jdcmd/' + file.originalname + '/' +
             name.replace(/\./g, '/')  + '.java';
             var content = fs.readFileAsync(file, 'utf-8').catch(function ignore() {});;
             return join(name, content, function(name, content) {
@@ -177,7 +177,7 @@ function generate_ICC_model(file) {
                 log_web_socket(io, '[CP-2] decompiling .class files with jd-cmd...')
                 const cmd_decompile_step2 = spawn('java',
                 ['-jar', 'bin/jd-cmd/jd-cli.jar',
-                '--outputDir', conf.bin_outputs+'/jdcmd',
+                '--outputDir', conf.bin_outputs+'/jdcmd/'+file.originalname,
                 conf.bin_outputs+'/result-dex2jar.jar']);
 
                 cmd_decompile_step2.stderr.on('data', (data) => {
