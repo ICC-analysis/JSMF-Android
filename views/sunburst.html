@@ -1,214 +1,214 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<% include ./partials/head %>
+    <% include ./partials/head %>
 </head>
 <body>
-	<header>
-		<% include ./partials/header %>
-	</header>
+    <header>
+        <% include ./partials/header %>
+    </header>
 
-	<div class="mdl-layout">
-		<main class="mdl-layout__content">
-			<div class="mdl-grid">
-				<div class="mdl-cell mdl-cell--12-col" id="sequence"></div>
-			</div>
-			<div class="mdl-grid">
-				<div class="mdl-cell mdl-cell--6-col" id="chart"></div>
-				<div class="mdl-cell mdl-cell--6-col" id="explanation" style="visibility:hidden;">
-					<span class="mdl-layout-title" id="titleProperties">Node Properties</span>
-					<table class="mdl-data-table mdl-js-data-table">
-						<thead>
-							<tr>
-								<th class="mdl-data-table__cell--non-numeric">Properties</th>
-								<th class="mdl-data-table__cell--non-numeric full-size">Value</th>
-							</tr>
-						</thead>
-						<tbody id="cellsProperties">
-							<tr>
-								<td class="mdl-data-table__cell--non-numeric">Editable</td>
-								<td class="mdl-data-table__cell">
-									<input class="mdl-textfield__input" type="text" id="sample1" />
-								</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-			</div>
-			<div class="mdl-grid">
-				<div class="mdl-cell mdl-cell--12-col">
-					<h4 id="source-qualified-name"></h4>
-					<pre><code id="source_code" class="java"></code></pre>
-				</div>
-			</div>
-		</main>
-	</div>
+    <div class="mdl-layout">
+        <main class="mdl-layout__content">
+            <div class="mdl-grid">
+                <div class="mdl-cell mdl-cell--12-col" id="sequence"></div>
+            </div>
+            <div class="mdl-grid">
+                <div class="mdl-cell mdl-cell--6-col" id="chart"></div>
+                <div class="mdl-cell mdl-cell--6-col" id="explanation" style="visibility:hidden;">
+                    <span class="mdl-layout-title" id="titleProperties">Node Properties</span>
+                    <table class="mdl-data-table mdl-js-data-table">
+                        <thead>
+                            <tr>
+                                <th class="mdl-data-table__cell--non-numeric">Properties</th>
+                                <th class="mdl-data-table__cell--non-numeric full-size">Value</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cellsProperties">
+                            <tr>
+                                <td class="mdl-data-table__cell--non-numeric">Editable</td>
+                                <td class="mdl-data-table__cell">
+                                    <input class="mdl-textfield__input" type="text" id="sample1" />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="mdl-grid">
+                <div class="mdl-cell mdl-cell--12-col">
+                    <h4 id="source-qualified-name"></h4>
+                    <pre><code id="source_code" class="java"></code></pre>
+                </div>
+            </div>
+        </main>
+    </div>
 
-	<script>
-	var width = 550,
-	height = 550,
-	radius = (Math.min(width, height) / 2) ;
+    <script>
+    var width = 550,
+    height = 550,
+    radius = (Math.min(width, height) / 2) ;
 
-	var formatNumber = d3.format(",d");
+    var formatNumber = d3.format(",d");
 
-	var x = d3.scale.linear()
-	.range([0, 2 * Math.PI]);
+    var x = d3.scale.linear()
+    .range([0, 2 * Math.PI]);
 
-	var y = d3.scale.sqrt()
-	.range([0, radius]);
+    var y = d3.scale.sqrt()
+    .range([0, radius]);
 
-	// Breadcrumb dimensions: width, height, spacing, width of tip/tail.
-	var b = {
-		w: 75, h: 30, s: 3, t: 10
-	};
-
-
-	// make `colors` an ordinal scale
-	var colors = d3.scale.category20();
-
-	var partition = d3.layout.partition()
-	.value(function(d) { return d.size; });
-
-	var arc = d3.svg.arc()
-	.startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x))); })
-	.endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x + d.dx))); })
-	.innerRadius(function(d) { return Math.max(0, y(d.y)); })
-	.outerRadius(function(d) { return Math.max(0, y(d.y + d.dy)); });
-
-	var svg = d3.select("#chart").append("svg:svg")
-	.attr("width", width)
-	.attr("height", height)
-	.append("g")
-	.attr("transform", "translate(" + width / 2 + "," + (height / 2) + ")");
-
-	//Getting model from server
-	var s_M = <%- serializedModel %>;
-	var source_code = <%- sourceCode %>;
-
-	s_M = JSON.stringify(s_M);
-
-	var M = jsmf.parse(s_M);
-
-	var root = _.first(M.elements());
-	var visuJSMF= buildModel(root);
-	buildVisualization(visuJSMF);
-
-	function buildVisualization(visuJSMF) {
-
-		// Basic setup of page elements.
-		initializeBreadcrumbTrail();
-
-		var nodes = partition.nodes(visuJSMF).filter(function(d) {
-			return (d.dx > 0.005); // 0.005 radians = 0.29 degrees
-		});
-
-		var uniqueNames = (function(a) {
-			var output = [];
-			a.forEach(function(d) {
-				if (output.indexOf(d.name) === -1) {
-					output.push(d.name);
-				}
-			});
-			return output;
-		})(nodes);
-
-		// set domain of colors scale based on data
-		colors.domain(uniqueNames);
-
-		//createVisualization(visuJSMF);
-		svg.selectAll("path")
-		.data(partition.nodes(visuJSMF))
-		.enter().append("path")
-		.attr("d", arc)
-		.style("fill", function(d) {  return colors(d.name); })
-		.on("click", click)
-		.on("mouseover", mouseover)
-		.append("title")
-		.text(function(d) { return d.name + "\n" + formatNumber(d.value); });
-
-		// make sure this is done after setting the domain
-		drawLegend();
+    // Breadcrumb dimensions: width, height, spacing, width of tip/tail.
+    var b = {
+        w: 75, h: 30, s: 3, t: 10
+    };
 
 
+    // make `colors` an ordinal scale
+    var colors = d3.scale.category20();
 
-		d3.select(self.frameElement).style("height", height + "px");
+    var partition = d3.layout.partition()
+    .value(function(d) { return d.size; });
 
-	}
+    var arc = d3.svg.arc()
+    .startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x))); })
+    .endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x + d.dx))); })
+    .innerRadius(function(d) { return Math.max(0, y(d.y)); })
+    .outerRadius(function(d) { return Math.max(0, y(d.y + d.dy)); });
 
-	function click(d) {
-		var component_name = "";
-		if (d.name == "Component") {
-			component_name = d.data.__jsmf__.attributes["name"];
-		} else if (d.name == "Instruction") {
-			component_name = d.data.__jsmf__.attributes["class_name"];
-		}
-		if (component_name != "") {
-			document.getElementById('source-qualified-name').innerHTML = component_name;
+    var svg = d3.select("#chart").append("svg:svg")
+    .attr("width", width)
+    .attr("height", height)
+    .append("g")
+    .attr("transform", "translate(" + width / 2 + "," + (height / 2) + ")");
 
-			document.getElementById('source_code').innerText = unescape(source_code[component_name]);
-			hljs.initHighlighting.called = false;
-			hljs.initHighlighting();
-		}
-		else {
-			document.getElementById('source-qualified-name').innerHTML = '';
-			document.getElementById('source_code').innerText = '';
-		}
+    //Getting model from server
+    var s_M = <%- serializedModel %>;
+    var source_code = <%- sourceCode %>;
 
-		svg.transition()
-		.duration(750)
-		.tween("scale", function() {
-			var xd = d3.interpolate(x.domain(), [d.x, d.x + d.dx]),
-			yd = d3.interpolate(y.domain(), [d.y, 1]),
-			yr = d3.interpolate(y.range(), [d.y ? 20 : 0, radius]);
-			return function(t) { x.domain(xd(t)); y.domain(yd(t)).range(yr(t)); };
-		})
-		.selectAll("path")
-		.attrTween("d", function(d) { return function() { return arc(d); }; });
+    s_M = JSON.stringify(s_M);
 
-	}
+    var M = jsmf.parse(s_M);
 
-	function mouseover(d) {
+    var root = _.first(M.elements());
+    var visuJSMF= buildModel(root);
+    buildVisualization(visuJSMF);
 
-		d3.select("#explanation")
-		.style("visibility", "");
+    function buildVisualization(visuJSMF) {
 
-		var tTitle = 'Class '+d.name;
-		var M2title = d3.select("#titleProperties").text(tTitle)
-		var table = d3.select('#cellsProperties');
-		table.html("");
-		var jsmfData = d.data;
-		for(index in jsmfData.__jsmf__.attributes) {
-			var attType = jsmfData.conformsTo().attributes[index].type;
-			var value = jsmf.isJSMFEnum(attType)? attType.getName(jsmfData[index]) : jsmfData[index];
-			//console.log('msg',messageNode[x],x, jsmf.isJSMFEnum(messageNode.conformsTo().attributes[x].type)); //messageNode.conformsTo().attributes[x]
-			var tRow = table.append("tr");
-			tRow.append("td").attr("class","mdl-data-table__cell--non-numeric").text(index);
-			tRow.append("td").
-			attr("class","mdl-data-table__cell--non-numeric").
-			append("input").
-			attr("class","mdl-textfield--full-width mdl-textfield__input").
-			attr("type","text").
-			attr("value",value).
-			on("change", function(e) { //Adding event handler on change "value"
-			d3.event.stopPropagation();
-			//console.log(this.value);
-			//update Class + model (or add "flexible attribute")
-		});
-	}
+        // Basic setup of page elements.
+        initializeBreadcrumbTrail();
+
+        var nodes = partition.nodes(visuJSMF).filter(function(d) {
+            return (d.dx > 0.005); // 0.005 radians = 0.29 degrees
+        });
+
+        var uniqueNames = (function(a) {
+            var output = [];
+            a.forEach(function(d) {
+                if (output.indexOf(d.name) === -1) {
+                    output.push(d.name);
+                }
+            });
+            return output;
+        })(nodes);
+
+        // set domain of colors scale based on data
+        colors.domain(uniqueNames);
+
+        //createVisualization(visuJSMF);
+        svg.selectAll("path")
+        .data(partition.nodes(visuJSMF))
+        .enter().append("path")
+        .attr("d", arc)
+        .style("fill", function(d) {  return colors(d.name); })
+        .on("click", click)
+        .on("mouseover", mouseover)
+        .append("title")
+        .text(function(d) { return d.name + "\n" + formatNumber(d.value); });
+
+        // make sure this is done after setting the domain
+        drawLegend();
 
 
-	var sequenceArray = getAncestors(d);
-	updateBreadcrumbs(sequenceArray, d.name);
 
-	d3.selectAll("path")
-	.style("opacity", 0.7);
+        d3.select(self.frameElement).style("height", height + "px");
 
-	// Then highlight only those that are an ancestor of the current segment.
-	svg.selectAll("path")
-	.filter(function(node) {
-		return (sequenceArray.indexOf(node) >= 0);
-	})
-	.style("opacity", 1.5);
+    }
+
+    function click(d) {
+        var component_name = "";
+        if (d.name == "Component") {
+            component_name = d.data.__jsmf__.attributes["name"];
+        } else if (d.name == "Instruction") {
+            component_name = d.data.__jsmf__.attributes["class_name"];
+        }
+        if (component_name != "") {
+            document.getElementById('source-qualified-name').innerHTML = component_name;
+
+            document.getElementById('source_code').innerText = unescape(source_code[component_name]);
+            hljs.initHighlighting.called = false;
+            hljs.initHighlighting();
+        }
+        else {
+            document.getElementById('source-qualified-name').innerHTML = '';
+            document.getElementById('source_code').innerText = '';
+        }
+
+        svg.transition()
+        .duration(750)
+        .tween("scale", function() {
+            var xd = d3.interpolate(x.domain(), [d.x, d.x + d.dx]),
+            yd = d3.interpolate(y.domain(), [d.y, 1]),
+            yr = d3.interpolate(y.range(), [d.y ? 20 : 0, radius]);
+            return function(t) { x.domain(xd(t)); y.domain(yd(t)).range(yr(t)); };
+        })
+        .selectAll("path")
+        .attrTween("d", function(d) { return function() { return arc(d); }; });
+
+    }
+
+    function mouseover(d) {
+
+        d3.select("#explanation")
+        .style("visibility", "");
+
+        var tTitle = 'Class '+d.name;
+        var M2title = d3.select("#titleProperties").text(tTitle)
+        var table = d3.select('#cellsProperties');
+        table.html("");
+        var jsmfData = d.data;
+        for(index in jsmfData.__jsmf__.attributes) {
+            var attType = jsmfData.conformsTo().attributes[index].type;
+            var value = jsmf.isJSMFEnum(attType)? attType.getName(jsmfData[index]) : jsmfData[index];
+            //console.log('msg',messageNode[x],x, jsmf.isJSMFEnum(messageNode.conformsTo().attributes[x].type)); //messageNode.conformsTo().attributes[x]
+            var tRow = table.append("tr");
+            tRow.append("td").attr("class","mdl-data-table__cell--non-numeric").text(index);
+            tRow.append("td").
+            attr("class","mdl-data-table__cell--non-numeric").
+            append("input").
+            attr("class","mdl-textfield--full-width mdl-textfield__input").
+            attr("type","text").
+            attr("value",value).
+            on("change", function(e) { //Adding event handler on change "value"
+            d3.event.stopPropagation();
+            //console.log(this.value);
+            //update Class + model (or add "flexible attribute")
+        });
+    }
+
+
+    var sequenceArray = getAncestors(d);
+    updateBreadcrumbs(sequenceArray, d.name);
+
+    d3.selectAll("path")
+    .style("opacity", 0.7);
+
+    // Then highlight only those that are an ancestor of the current segment.
+    svg.selectAll("path")
+    .filter(function(node) {
+        return (sequenceArray.indexOf(node) >= 0);
+    })
+    .style("opacity", 1.5);
 
 
 }
@@ -276,32 +276,32 @@ totalSize = path.node().__data__.value;
 // Fade all but the current sequence, and show it in the breadcrumb trail.
 function mouseover2(d) {
 
-	d3.select("#explanation")
-	.style("visibility", "");
+    d3.select("#explanation")
+    .style("visibility", "");
 
-	var tTitle = 'Class '+d.name;
-	var M2title = d3.select("#titleProperties").text(tTitle)
-	var table = d3.select('#cellsProperties');
-	table.html("");
-	var jsmfData = d.data;
-	for(x in jsmfData.__jsmf__.attributes) {
-		var attType = jsmfData.conformsTo().attributes[x].type;
-		var value = jsmf.isJSMFEnum(attType)? attType.getName(jsmfData[x]) : jsmfData[x];
-		//console.log('msg',messageNode[x],x, jsmf.isJSMFEnum(messageNode.conformsTo().attributes[x].type)); //messageNode.conformsTo().attributes[x]
-		var tRow = table.append("tr");
-		tRow.append("td").attr("class","mdl-data-table__cell--non-numeric").text(x);
-		tRow.append("td").
-		attr("class","mdl-data-table__cell--non-numeric").
-		append("input").
-		attr("class","mdl-textfield--full-width mdl-textfield__input").
-		attr("type","textarea").
-		attr("row","2").
-		attr("value",value).
-		on("change", function(e) { //Adding event handler on change "value"
-		d3.event.stopPropagation();
-		//console.log(this.value);
-		//update Class + model (or add "flexible attribute")
-	});
+    var tTitle = 'Class '+d.name;
+    var M2title = d3.select("#titleProperties").text(tTitle)
+    var table = d3.select('#cellsProperties');
+    table.html("");
+    var jsmfData = d.data;
+    for(x in jsmfData.__jsmf__.attributes) {
+        var attType = jsmfData.conformsTo().attributes[x].type;
+        var value = jsmf.isJSMFEnum(attType)? attType.getName(jsmfData[x]) : jsmfData[x];
+        //console.log('msg',messageNode[x],x, jsmf.isJSMFEnum(messageNode.conformsTo().attributes[x].type)); //messageNode.conformsTo().attributes[x]
+        var tRow = table.append("tr");
+        tRow.append("td").attr("class","mdl-data-table__cell--non-numeric").text(x);
+        tRow.append("td").
+        attr("class","mdl-data-table__cell--non-numeric").
+        append("input").
+        attr("class","mdl-textfield--full-width mdl-textfield__input").
+        attr("type","textarea").
+        attr("row","2").
+        attr("value",value).
+        on("change", function(e) { //Adding event handler on change "value"
+        d3.event.stopPropagation();
+        //console.log(this.value);
+        //update Class + model (or add "flexible attribute")
+    });
 }
 
 var sequenceArray = getAncestors(d);
@@ -314,7 +314,7 @@ d3.selectAll("path")
 // Then highlight only those that are an ancestor of the current segment.
 svg.selectAll("path")
 .filter(function(node) {
-	return (sequenceArray.indexOf(node) >= 0);
+    return (sequenceArray.indexOf(node) >= 0);
 })
 .style("opacity", 1);
 }
@@ -322,26 +322,26 @@ svg.selectAll("path")
 // Restore everything to full opacity when moving off the visualization.
 function mouseleave(d) {
 
-	// Hide the breadcrumb trail
-	d3.select("#trail")
-	.style("visibility", "hidden");
+    // Hide the breadcrumb trail
+    d3.select("#trail")
+    .style("visibility", "hidden");
 
-	// Deactivate all segments during transition.
-	d3.selectAll("path").on("mouseover", null);
+    // Deactivate all segments during transition.
+    d3.selectAll("path").on("mouseover", null);
 
-	// Transition each segment to full opacity and then reactivate it.
-	d3.selectAll("path")
-	.transition()
-	.duration(1000)
-	.style("opacity", 1)
-	.each("end", function() {
-		d3.select(this).on("mouseover", mouseover);
-	});
+    // Transition each segment to full opacity and then reactivate it.
+    d3.selectAll("path")
+    .transition()
+    .duration(1000)
+    .style("opacity", 1)
+    .each("end", function() {
+        d3.select(this).on("mouseover", mouseover);
+    });
 
-	d3.select("#explanation")
-	.transition()
-	.duration(1000)
-	.style("visibility", "hidden");
+    d3.select("#explanation")
+    .transition()
+    .duration(1000)
+    .style("visibility", "hidden");
 
 }
 
@@ -349,37 +349,37 @@ function mouseleave(d) {
 // Given a node in a partition layout, return an array of all of its ancestor
 // nodes, highest first, but excluding the root.
 function getAncestors(node) {
-	var path = [];
-	var current = node;
-	while (current.parent) {
-		path.unshift(current);
-		current = current.parent;
-	}
-	return path;
+    var path = [];
+    var current = node;
+    while (current.parent) {
+        path.unshift(current);
+        current = current.parent;
+    }
+    return path;
 }
 
 function initializeBreadcrumbTrail() {
-	// Add the svg area.
-	var trail = d3.select("#sequence").append("svg:svg")
-	.attr("width", width)
-	.attr("height", 50)
-	.attr("id", "trail");
-	// Add the label at the end, for the percentage.
-	trail.append("svg:text")
-	.attr("id", "endlabel")
-	.style("fill", "#000");
+    // Add the svg area.
+    var trail = d3.select("#sequence").append("svg:svg")
+    .attr("width", width)
+    .attr("height", 50)
+    .attr("id", "trail");
+    // Add the label at the end, for the percentage.
+    trail.append("svg:text")
+    .attr("id", "endlabel")
+    .style("fill", "#000");
 }
 
 // Generate a string that describes the points of a breadcrumb polygon.
 function breadcrumbPoints(d, i) {
-	var points = [];
-	points.push("0,0");
-	points.push(b.w + ",0");
-	points.push(b.w + b.t + "," + (b.h / 2));
-	points.push(b.w + "," + b.h);
-	points.push("0," + b.h);
-	if (i > 0) { // Leftmost breadcrumb; don't include 6th vertex.
-	points.push(b.t + "," + (b.h / 2));
+    var points = [];
+    points.push("0,0");
+    points.push(b.w + ",0");
+    points.push(b.w + b.t + "," + (b.h / 2));
+    points.push(b.w + "," + b.h);
+    points.push("0," + b.h);
+    if (i > 0) { // Leftmost breadcrumb; don't include 6th vertex.
+    points.push(b.t + "," + (b.h / 2));
 }
 return points.join(" ");
 }
@@ -387,106 +387,106 @@ return points.join(" ");
 // Update the breadcrumb trail to show the current sequence and percentage.
 function updateBreadcrumbs(nodeArray, percentageString) {
 
-	// Data join; key function combines name and depth (= position in sequence).
-	var g = d3.select("#trail")
-	.selectAll("g")
-	.data(nodeArray, function(d) { return d.name + d.depth; });
+    // Data join; key function combines name and depth (= position in sequence).
+    var g = d3.select("#trail")
+    .selectAll("g")
+    .data(nodeArray, function(d) { return d.name + d.depth; });
 
-	// Add breadcrumb and label for entering nodes.
-	var entering = g.enter().append("svg:g");
+    // Add breadcrumb and label for entering nodes.
+    var entering = g.enter().append("svg:g");
 
-	entering.append("svg:polygon")
-	.attr("points", breadcrumbPoints)
-	.style("fill", function(d) { return colors(d.name); });
+    entering.append("svg:polygon")
+    .attr("points", breadcrumbPoints)
+    .style("fill", function(d) { return colors(d.name); });
 
-	entering.append("svg:text")
-	.attr("x", (b.w + b.t) / 2)
-	.attr("y", b.h / 2)
-	.attr("dy", "0.35em")
-	.attr("text-anchor", "middle")
-	.text(function(d) { return d.name; });
+    entering.append("svg:text")
+    .attr("x", (b.w + b.t) / 2)
+    .attr("y", b.h / 2)
+    .attr("dy", "0.35em")
+    .attr("text-anchor", "middle")
+    .text(function(d) { return d.name; });
 
-	// Set position for entering and updating nodes.
-	g.attr("transform", function(d, i) {
-		return "translate(" + i * (b.w + b.s) + ", 0)";
-	});
+    // Set position for entering and updating nodes.
+    g.attr("transform", function(d, i) {
+        return "translate(" + i * (b.w + b.s) + ", 0)";
+    });
 
-	// Remove exiting nodes.
-	g.exit().remove();
+    // Remove exiting nodes.
+    g.exit().remove();
 
-	// Now move and update the percentage at the end.
-	d3.select("#trail").select("#endlabel")
-	.attr("x", (nodeArray.length + 0.5) * (b.w + b.s))
-	.attr("y", b.h / 2)
-	.attr("dy", "0.35em")
-	.attr("text-anchor", "middle")
-	.text(percentageString);
+    // Now move and update the percentage at the end.
+    d3.select("#trail").select("#endlabel")
+    .attr("x", (nodeArray.length + 0.5) * (b.w + b.s))
+    .attr("y", b.h / 2)
+    .attr("dy", "0.35em")
+    .attr("text-anchor", "middle")
+    .text(percentageString);
 
-	// Make the breadcrumb trail visible, if it's hidden.
-	d3.select("#trail")
-	.style("visibility", "");
+    // Make the breadcrumb trail visible, if it's hidden.
+    d3.select("#trail")
+    .style("visibility", "");
 
 }
 
 function drawLegend() {
 
-	// Dimensions of legend item: width, height, spacing, radius of rounded rect.
-	var li = {
-		w: 75, h: 30, s: 3, r: 3
-	};
+    // Dimensions of legend item: width, height, spacing, radius of rounded rect.
+    var li = {
+        w: 75, h: 30, s: 3, r: 3
+    };
 
-	var legend = d3.select("#legend").append("svg:svg")
-	.attr("width", li.w)
-	.attr("height", colors.domain().length * (li.h + li.s));
+    var legend = d3.select("#legend").append("svg:svg")
+    .attr("width", li.w)
+    .attr("height", colors.domain().length * (li.h + li.s));
 
-	var g = legend.selectAll("g")
-	.data(colors.domain())
-	.enter().append("svg:g")
-	.attr("transform", function(d, i) {
-		return "translate(0," + i * (li.h + li.s) + ")";
-	});
+    var g = legend.selectAll("g")
+    .data(colors.domain())
+    .enter().append("svg:g")
+    .attr("transform", function(d, i) {
+        return "translate(0," + i * (li.h + li.s) + ")";
+    });
 
-	g.append("svg:rect")
-	.attr("rx", li.r)
-	.attr("ry", li.r)
-	.attr("width", li.w)
-	.attr("height", li.h)
-	.style("fill", function(d) { return colors(d); });
+    g.append("svg:rect")
+    .attr("rx", li.r)
+    .attr("ry", li.r)
+    .attr("width", li.w)
+    .attr("height", li.h)
+    .style("fill", function(d) { return colors(d); });
 
-	g.append("svg:text")
-	.attr("x", li.w / 2)
-	.attr("y", li.h / 2)
-	.attr("dy", "0.35em")
-	.attr("text-anchor", "middle")
-	.text(function(d) { return d; });
+    g.append("svg:text")
+    .attr("x", li.w / 2)
+    .attr("y", li.h / 2)
+    .attr("dy", "0.35em")
+    .attr("text-anchor", "middle")
+    .text(function(d) { return d; });
 }
 
 function toggleLegend() {
-	var legend = d3.select("#legend");
-	if (legend.style("visibility") == "hidden") {
-		legend.style("visibility", "");
-	} else {
-		legend.style("visibility", "hidden");
-	}
+    var legend = d3.select("#legend");
+    if (legend.style("visibility") == "hidden") {
+        legend.style("visibility", "");
+    } else {
+        legend.style("visibility", "hidden");
+    }
 }
 
 
 function buildModel(root) {
-	var result = {}
-	result.name=root.conformsTo().__name; // name = name of the classifier used for categorising elements => should be configurable.
-	result.size=1; // size of the partition should be computable/configurable.
+    var result = {}
+    result.name=root.conformsTo().__name; // name = name of the classifier used for categorising elements => should be configurable.
+    result.size=1; // size of the partition should be computable/configurable.
 
-	result.data = root;
+    result.data = root;
 
-	_.each(root.__jsmf__.references, function(e,n){
-		_.each(e, function(elem){
-			if(result.children==undefined) {
-				result.children=[];
-			}
-			result.children.push(buildModel(elem));
-		});
-	});
-	return result;
+    _.each(root.__jsmf__.references, function(e,n){
+        _.each(e, function(elem){
+            if(result.children==undefined) {
+                result.children=[];
+            }
+            result.children.push(buildModel(elem));
+        });
+    });
+    return result;
 }
 </script>
 </body>
