@@ -75,7 +75,7 @@ app.get('/sun', function (req, res) {
         var name;
         name = component.name || component.class_name;
         if (name) {
-            var file = conf.bin_outputs + 'result-jdcmd/' +
+            var file = conf.bin_outputs + 'jdcmd/' +
             name.replace(/\./g, '/')  + '.java';
             var content;
             try {
@@ -122,9 +122,10 @@ app.post('/upload',  upload.array('files[]', 2), function(req, res, next) {
     const spawn_sync = require('child_process').spawnSync;
     spawn_sync('rm', ['-Rf', conf.bin_outputs]);
 
-    console.log((req.body.generate_ast == 'false'));
-
-    var M = protoBufModels.model;
+    var generate_ast = true;
+    if (req.body.generate_ast == 'false') {
+        generate_ast = false;
+    }
 
     req.files.map(function(file) {
 
@@ -140,8 +141,7 @@ app.post('/upload',  upload.array('files[]', 2), function(req, res, next) {
         else if (file && file.originalname.split('.').pop() == "apk") {
             log_web_socket(io,
                 `An APK file has been received: ${file.originalname}`)
-                console.log('LAUNCHING A NEW ANALYSIS...');
-                    apk_analyzer.start_process(file);
+            apk_analyzer.start_process(file, generate_ast);
         }
 
         else {

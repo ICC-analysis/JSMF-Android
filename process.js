@@ -23,7 +23,7 @@ var ICCmodelReady = false;
 var APK_decompiled = false;
 
 
-function start_process(file) {
+function start_process(file, should_generate_ast) {
     ICCmodelReady = false;
     APK_decompiled = false;
 
@@ -52,9 +52,11 @@ function start_process(file) {
     Promise.all(promises)
     .catch(console.error);
 
-    // Generation of the AST
     ensureICCmodelReadyAndAPKdecompiled().then(function(){
-        generate_ast();
+        if (should_generate_ast) {
+            // Generation of the AST
+            generate_ast();
+        }
     })
     .then(function() {
         // clean the uploads folder
@@ -79,7 +81,7 @@ function generate_ast() {
         // Promise.map awaits for returned promises as well.
         var name = component.name || component.class_name;
         if (name) {
-            var file = conf.bin_outputs + 'result-jdcmd/' +
+            var file = conf.bin_outputs + 'jdcmd/' +
             name.replace(/\./g, '/')  + '.java';
             var content = fs.readFileAsync(file, 'utf-8').catch(function ignore() {});;
             return join(name, content, function(name, content) {
@@ -175,7 +177,7 @@ function generate_ICC_model(file) {
                 log_web_socket(io, '[CP-2] decompiling .class files with jd-cmd...')
                 const cmd_decompile_step2 = spawn('java',
                 ['-jar', 'bin/jd-cmd/jd-cli.jar',
-                '--outputDir', conf.bin_outputs+'/result-jdcmd',
+                '--outputDir', conf.bin_outputs+'/jdcmd',
                 conf.bin_outputs+'/result-dex2jar.jar']);
 
                 cmd_decompile_step2.stderr.on('data', (data) => {
