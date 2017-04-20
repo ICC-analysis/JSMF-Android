@@ -160,9 +160,9 @@ function generate_ICC_model(file) {
         log_web_socket(io, 'Launching a child process (CP-2) in order to decompile the APK.');
         log_web_socket(io, '[CP-2] convert .dex file to .class files (zipped as jar)...')
         const cmd_decompile_step1 = spawn('bin/dex2jar/d2j-dex2jar.sh',
-        ['--force','--output',
-        conf.bin_outputs+'/result-dex2jar.jar',
-        file.path]);
+                                        ['--force','--output',
+                                        conf.bin_outputs+'/result-dex2jar.jar',
+                                        file.path]);
 
         cmd_decompile_step1.stderr.on('data', (data) => {
             if (data && data.length > 1) {
