@@ -43,11 +43,11 @@ function start_process(file, should_generate_ast) {
 
     // Generation of the models
     var promises = [generate_ICC_model, generate_source_code_model]
-    .map(function(name) {
-        return new Promise(function(fullfill, reject) {
-            name(file);
-            fullfill();
-        })
+        .map(function(task) {
+            return new Promise(function(fullfill, reject) {
+                task(file);
+                fullfill();
+            })
     })
     Promise.all(promises)
     .catch(console.error);
@@ -146,6 +146,7 @@ function generate_ICC_model(file) {
             protoBufModels.build(IC3Proto, IC3ProtoGrammar,
                 IC3EntryPoint, BinaryAppProtoBuf);
                 M = protoBufModels.model;
+                // TODO: serialization of the Model
                 ICCmodelReady = true;
                 log_web_socket(io, "[CP-1] JSMF model built.");
             }
