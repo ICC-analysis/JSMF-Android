@@ -146,7 +146,16 @@ function generate_ICC_model(file) {
             protoBufModels.build(IC3Proto, IC3ProtoGrammar,
                 IC3EntryPoint, BinaryAppProtoBuf);
                 M = protoBufModels.model;
-                // TODO: serialization of the Model
+                // Serialization of the Model for later use
+                var ICC_model_serialized = JSON.stringify(protoBufModels.model);
+                fs.writeFile(conf.bin_outputs + file.originalname + '.json',
+                    ICC_model_serialized, function(err) {
+                        if(err) {
+                            return console.log(err);
+                        }
+                        log_web_socket(io, "[CP-1] JSMF model serialized.");
+                    }
+                );
                 ICCmodelReady = true;
                 log_web_socket(io, "[CP-1] JSMF model built.");
             }
