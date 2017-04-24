@@ -8,6 +8,7 @@ const fs = Promise.promisifyAll(require("fs"));
 const spawn = require('child_process').spawn;
 const japa = require("java-parser");
 var protoBufModels =  require('builder');
+const jsmfjson = require('jsmf-json');
 
 const io = require('./bootstrap.js').io;
 const log_web_socket = require('./bootstrap.js').log_web_socket;
@@ -147,7 +148,8 @@ function generate_ICC_model(file) {
                 IC3EntryPoint, BinaryAppProtoBuf);
                 M = protoBufModels.model;
                 // Serialization of the Model for later use
-                var ICC_model_serialized = JSON.stringify(protoBufModels.model);
+                //var ICC_model_serialized = JSON.stringify(protoBufModels.model);
+                var ICC_model_serialized = jsmfjson.stringify(protoBufModels.model);
                 fs.writeFile(conf.bin_outputs + file.originalname + '.json',
                     ICC_model_serialized, function(err) {
                         if(err) {

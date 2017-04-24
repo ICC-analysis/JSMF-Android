@@ -154,5 +154,31 @@ app.post('/upload',  upload.array('files[]', 2), function(req, res, next) {
 
 
 app.get('/compare', function(req, res){
-    res.render('compare.html');
+
+    var serializedModel_1 = null;
+    var serializedModel_2 = null;
+
+    fs.readFile(conf.bin_outputs + 'krep.itmtd.ywtjexf-1.apk.json', 'utf-8', (err, data) => {
+        if (err) {
+            console.log(`ICC model not found: ${err}`);
+            data = {};
+        }
+        serializedModel_1 = jsmfjson.parse(data);
+        serializedModel_1 = jsmfjson.stringify(serializedModel_1);
+
+        fs.readFile(conf.bin_outputs + 'krep.itmtd.ywtjexf-1.apk.json', 'utf-8', (err, data) => {
+            if (err) {
+                console.log(`ICC model not found: ${err}`);
+                data = {};
+            }
+            serializedModel_2 = jsmfjson.parse(data);
+            serializedModel_2 = jsmfjson.stringify(serializedModel_2);
+
+
+            res.render('compare.html',{
+                serializedModel1: serializedModel_1,
+                serializedModel2: serializedModel_2
+            });
+        });
+    });
 });
