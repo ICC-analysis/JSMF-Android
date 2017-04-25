@@ -166,7 +166,7 @@ app.get('/compare', function(req, res){
         serializedModel_1 = jsmfjson.parse(data);
         serializedModel_1 = jsmfjson.stringify(serializedModel_1);
 
-        fs.readFile(conf.bin_outputs + 'krep.itmtd.ywtjexf-1.apk.json', 'utf-8', (err, data) => {
+        fs.readFile(conf.bin_outputs + 'syssecApp.apk.json', 'utf-8', (err, data) => {
             if (err) {
                 console.log(`ICC model not found: ${err}`);
                 data = {};
