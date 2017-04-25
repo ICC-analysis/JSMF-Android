@@ -4,190 +4,204 @@
 	<% include ./partials/head %>
 </head>
 <body>
-    <header>
-        <% include ./partials/header %>
-    </header>
+<header>
+    <% include ./partials/header %>
+</header>
+<main class="mdl-layout__content">
+    <div class="mdl-grid">
+        <%- messages() %>
+    </div>
 
-    <main class="mdl-layout__content">
+    <div class="mdl-grid">
+        <div class="mdl-cell mdl-cell--12-col" id="sequence1"></div>
+    </div>
+    <div class="mdl-grid">
+        <div class="mdl-cell mdl-cell--5-col" id="chart1"></div>
+        <div class="mdl-cell mdl-cell--2-col" id="chart1"></div>
+        <div class="mdl-cell mdl-cell--5-col" id="chart2"></div>
+    </div>
+</main>
 
-        <div class="mdl-grid">
-            <%- messages() %>
-        </div>
-
-        <div class="mdl-grid">
-            <div class="mdl-cell mdl-cell--12-col" id="sequence"></div>
-        </div>
-        <div class="mdl-grid">
-            <div class="mdl-cell mdl-cell--6-col" id="chart1"></div>
-            <div class="mdl-cell mdl-cell--6-col" id="chart2"></div>
-        </div>
-
-    </main>
-
-    <script>
-    var width = 550,
-    height = 550,
+<script>
+var width = 700,
+    height = 500,
     radius = (Math.min(width, height) / 2) ;
 
-    var formatNumber = d3.format(",d");
+var formatNumber = d3.format(",d");
 
-    var x = d3.scale.linear()
-    .range([0, 2 * Math.PI]);
+var x = d3.scale.linear().range([0, 2 * Math.PI]);
 
-    var y = d3.scale.sqrt()
-    .range([0, radius]);
+var y = d3.scale.sqrt().range([0, radius]);
 
-    // Breadcrumb dimensions: width, height, spacing, width of tip/tail.
-    var b = {
-        w: 75, h: 30, s: 3, t: 10
-    };
+// Breadcrumb dimensions: width, height, spacing, width of tip/tail.
+var b = {
+    w: 75, h: 30, s: 3, t: 10
+};
 
 
-    // make `colors` an ordinal scale
-    var colors = d3.scale.category20();
+// make `colors` an ordinal scale
+var colors = d3.scale.category20();
 
-    var partition = d3.layout.partition()
-    .value(function(d) { return d.size; });
+var partition = d3.layout.partition()
+.value(function(d) { return d.size; });
 
-    var arc = d3.svg.arc()
-    .startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x))); })
-    .endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x + d.dx))); })
-    .innerRadius(function(d) { return Math.max(0, y(d.y)); })
-    .outerRadius(function(d) { return Math.max(0, y(d.y + d.dy)); });
+var arc = d3.svg.arc()
+.startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x))); })
+.endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x + d.dx))); })
+.innerRadius(function(d) { return Math.max(0, y(d.y)); })
+.outerRadius(function(d) { return Math.max(0, y(d.y + d.dy)); });
 
-    var svg1 = d3.select("#chart1").append("svg:svg")
-    .attr("width", width)
-    .attr("height", height)
-    .append("g")
-    .attr("transform", "translate(" + width / 2 + "," + (height / 2) + ")");
+var svg1 = d3.select("#chart1").append("svg:svg")
+.attr("width", width)
+.attr("height", height)
+.append("g")
+.attr("transform", "translate(" + width / 2 + "," + (height / 2) + ")");
 
-    var svg2 = d3.select("#chart2").append("svg:svg")
-    .attr("width", width)
-    .attr("height", height)
-    .append("g")
-    .attr("transform", "translate(" + width / 2 + "," + (height / 2) + ")");
+var svg2 = d3.select("#chart2").append("svg:svg")
+.attr("width", width)
+.attr("height", height)
+.append("g")
+.attr("transform", "translate(" + width / 2 + "," + (height / 2) + ")");
 
-    //Getting model from server
-    var s_M_1 = <%- serializedModel1 %>;
-    s_M_1 = JSON.stringify(s_M_1);
-    var M = jsmf.parse(s_M_1);
-    var root_1 = _.first(M.elements());
-    var visuJSMF_1 = buildModel(root_1);
-    buildVisualization(visuJSMF_1, svg1);
+//Getting models from server
+var s_M_1 = <%- serializedModel1 %>;
+s_M_1 = JSON.stringify(s_M_1);
+var M = jsmf.parse(s_M_1);
+var root_1 = _.first(M.elements());
+var visuJSMF_1 = buildModel(root_1);
+buildVisualization(visuJSMF_1, svg1);
 
-    var s_M_2 = <%- serializedModel2 %>;
-    s_M_2 = JSON.stringify(s_M_2);
-    var M = jsmf.parse(s_M_2);
-    var root_2 = _.first(M.elements());
-    var visuJSMF_2 = buildModel(root_2);
-    buildVisualization(visuJSMF_2, svg2);
+var s_M_2 = <%- serializedModel2 %>;
+s_M_2 = JSON.stringify(s_M_2);
+var M = jsmf.parse(s_M_2);
+var root_2 = _.first(M.elements());
+var visuJSMF_2 = buildModel(root_2);
+buildVisualization(visuJSMF_2, svg2);
 
 
-    function buildVisualization(visuJSMF, svg) {
+function buildModel(root) {
+    var result = {}
+    result.name = root.conformsTo().__name; // name = name of the classifier used for categorising elements => should be configurable.
+    result.size = 1; // size of the partition should be computable/configurable.
 
-        // Basic setup of page elements.
-        initializeBreadcrumbTrail();
+    result.data = root;
 
-        var nodes = partition.nodes(visuJSMF).filter(function(d) {
-            return (d.dx > 0.005); // 0.005 radians = 0.29 degrees
+    _.each(root.__jsmf__.references, function(e,n){
+        _.each(e, function(elem){
+            if(result.children==undefined) {
+                result.children=[];
+            }
+            result.children.push(buildModel(elem));
         });
+    });
+    return result;
+}
 
-        var uniqueNames = (function(a) {
-            var output = [];
-            a.forEach(function(d) {
-                if (output.indexOf(d.name) === -1) {
-                    output.push(d.name);
-                }
-            });
-            return output;
-        })(nodes);
+function buildVisualization(visuJSMF, svg) {
 
-        // set domain of colors scale based on data
-        colors.domain(uniqueNames);
+    // Basic setup of page elements.
+    initializeBreadcrumbTrail();
 
-        //createVisualization(visuJSMF);
-        svg.selectAll("path")
-        .data(partition.nodes(visuJSMF))
-        .enter().append("path")
-        .attr("d", arc)
-        .style("fill", function(d) {  return colors(d.name); })
-        .on("click", click)
-        .on("mouseover", mouseover)
-        .append("title")
-        .text(function(d) { return d.name + "\n" + formatNumber(d.value); });
+    var nodes = partition.nodes(visuJSMF).filter(function(d) {
+        return (d.dx > 0.005); // 0.005 radians = 0.29 degrees
+    });
 
-        // make sure this is done after setting the domain
-        drawLegend();
+    var uniqueNames = (function(a) {
+        var output = [];
+        a.forEach(function(d) {
+            if (output.indexOf(d.name) === -1) {
+                output.push(d.name);
+            }
+        });
+        return output;
+    })(nodes);
+
+    // set domain of colors scale based on data
+    colors.domain(uniqueNames);
+
+    //createVisualization(visuJSMF);
+    svg.selectAll("path")
+    .data(partition.nodes(visuJSMF))
+    .enter().append("path")
+    .attr("d", arc)
+    .style("fill", function(d) {  return colors(d.name); })
+    .on("click", click)
+    .on("mouseover", mouseover)
+    .append("title")
+    .text(function(d) { return d.name + "\n" + formatNumber(d.value); });
+
+    // make sure this is done after setting the domain
+    drawLegend();
 
 
 
-        d3.select(self.frameElement).style("height", height + "px");
+    d3.select(self.frameElement).style("height", height + "px");
 
+}
+
+function click(d) {
+    var component_name = "";
+    if (d.name == "Component") {
+        component_name = d.data.__jsmf__.attributes["name"];
+    } else if (d.name == "Instruction") {
+        component_name = d.data.__jsmf__.attributes["class_name"];
     }
 
-    function click(d) {
-        var component_name = "";
-        if (d.name == "Component") {
-            component_name = d.data.__jsmf__.attributes["name"];
-        } else if (d.name == "Instruction") {
-            component_name = d.data.__jsmf__.attributes["class_name"];
-        }
+    svg.transition()
+    .duration(750)
+    .tween("scale", function() {
+        var xd = d3.interpolate(x.domain(), [d.x, d.x + d.dx]),
+        yd = d3.interpolate(y.domain(), [d.y, 1]),
+        yr = d3.interpolate(y.range(), [d.y ? 20 : 0, radius]);
+        return function(t) { x.domain(xd(t)); y.domain(yd(t)).range(yr(t)); };
+    })
+    .selectAll("path")
+    .attrTween("d", function(d) { return function() { return arc(d); }; });
 
-        svg.transition()
-        .duration(750)
-        .tween("scale", function() {
-            var xd = d3.interpolate(x.domain(), [d.x, d.x + d.dx]),
-            yd = d3.interpolate(y.domain(), [d.y, 1]),
-            yr = d3.interpolate(y.range(), [d.y ? 20 : 0, radius]);
-            return function(t) { x.domain(xd(t)); y.domain(yd(t)).range(yr(t)); };
-        })
-        .selectAll("path")
-        .attrTween("d", function(d) { return function() { return arc(d); }; });
+}
 
+function mouseover(d) {
+
+    d3.select("#explanation")
+    .style("visibility", "");
+
+    var tTitle = 'Class '+d.name;
+    var M2title = d3.select("#titleProperties").text(tTitle)
+    var table = d3.select('#cellsProperties');
+    table.html("");
+    var jsmfData = d.data;
+    for(index in jsmfData.__jsmf__.attributes) {
+        var attType = jsmfData.conformsTo().attributes[index].type;
+        var value = jsmf.isJSMFEnum(attType)? attType.getName(jsmfData[index]) : jsmfData[index];
+        //console.log('msg',messageNode[x],x, jsmf.isJSMFEnum(messageNode.conformsTo().attributes[x].type)); //messageNode.conformsTo().attributes[x]
+        var tRow = table.append("tr");
+        tRow.append("td").attr("class","mdl-data-table__cell--non-numeric").text(index);
+        tRow.append("td").
+        attr("class","mdl-data-table__cell--non-numeric").
+        append("input").
+        attr("class","mdl-textfield--full-width mdl-textfield__input").
+        attr("type","text").
+        attr("value",value).
+        on("change", function(e) { //Adding event handler on change "value"
+            d3.event.stopPropagation();
+            //console.log(this.value);
+            //update Class + model (or add "flexible attribute")
+        });
     }
 
-    function mouseover(d) {
+    var sequenceArray = getAncestors(d);
+    updateBreadcrumbs(sequenceArray, d.name);
 
-        d3.select("#explanation")
-        .style("visibility", "");
+    d3.selectAll("path")
+    .style("opacity", 0.7);
 
-        var tTitle = 'Class '+d.name;
-        var M2title = d3.select("#titleProperties").text(tTitle)
-        var table = d3.select('#cellsProperties');
-        table.html("");
-        var jsmfData = d.data;
-        for(index in jsmfData.__jsmf__.attributes) {
-            var attType = jsmfData.conformsTo().attributes[index].type;
-            var value = jsmf.isJSMFEnum(attType)? attType.getName(jsmfData[index]) : jsmfData[index];
-            //console.log('msg',messageNode[x],x, jsmf.isJSMFEnum(messageNode.conformsTo().attributes[x].type)); //messageNode.conformsTo().attributes[x]
-            var tRow = table.append("tr");
-            tRow.append("td").attr("class","mdl-data-table__cell--non-numeric").text(index);
-            tRow.append("td").
-            attr("class","mdl-data-table__cell--non-numeric").
-            append("input").
-            attr("class","mdl-textfield--full-width mdl-textfield__input").
-            attr("type","text").
-            attr("value",value).
-            on("change", function(e) { //Adding event handler on change "value"
-                d3.event.stopPropagation();
-                //console.log(this.value);
-                //update Class + model (or add "flexible attribute")
-            });
-        }
-
-        var sequenceArray = getAncestors(d);
-        updateBreadcrumbs(sequenceArray, d.name);
-
-        d3.selectAll("path")
-        .style("opacity", 0.7);
-
-        // Then highlight only those that are an ancestor of the current segment.
-        svg.selectAll("path")
-        .filter(function(node) {
-            return (sequenceArray.indexOf(node) >= 0);
-        })
-        .style("opacity", 1.5);
-    }
+    // Then highlight only those that are an ancestor of the current segment.
+    svg.selectAll("path")
+    .filter(function(node) {
+        return (sequenceArray.indexOf(node) >= 0);
+    })
+    .style("opacity", 1.5);
+}
 
 
 // Fade all but the current sequence, and show it in the breadcrumb trail.
@@ -225,8 +239,7 @@ var sequenceArray = getAncestors(d);
 updateBreadcrumbs(sequenceArray, d.name);
 
 // Fade all the segments.
-d3.selectAll("path")
-.style("opacity", 0.3);
+d3.selectAll("path").style("opacity", 0.3);
 
 // Then highlight only those that are an ancestor of the current segment.
 svg.selectAll("path")
@@ -277,7 +290,7 @@ function getAncestors(node) {
 
 function initializeBreadcrumbTrail() {
     // Add the svg area.
-    var trail = d3.select("#sequence").append("svg:svg")
+    var trail = d3.select("#sequence1").append("svg:svg")
     .attr("width", width)
     .attr("height", 50)
     .attr("id", "trail");
@@ -346,7 +359,6 @@ function updateBreadcrumbs(nodeArray, percentageString) {
 }
 
 function drawLegend() {
-
     // Dimensions of legend item: width, height, spacing, radius of rounded rect.
     var li = {
         w: 75, h: 30, s: 3, r: 3
@@ -385,25 +397,6 @@ function toggleLegend() {
     } else {
         legend.style("visibility", "hidden");
     }
-}
-
-
-function buildModel(root) {
-    var result = {}
-    result.name=root.conformsTo().__name; // name = name of the classifier used for categorising elements => should be configurable.
-    result.size=1; // size of the partition should be computable/configurable.
-
-    result.data = root;
-
-    _.each(root.__jsmf__.references, function(e,n){
-        _.each(e, function(elem){
-            if(result.children==undefined) {
-                result.children=[];
-            }
-            result.children.push(buildModel(elem));
-        });
-    });
-    return result;
 }
 </script>
 </body>
