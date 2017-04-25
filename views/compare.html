@@ -52,12 +52,14 @@ var arc = d3.svg.arc()
 .outerRadius(function(d) { return Math.max(0, y(d.y + d.dy)); });
 
 var svg1 = d3.select("#chart1").append("svg:svg")
+.attr("id", "chart1")
 .attr("width", width)
 .attr("height", height)
 .append("g")
 .attr("transform", "translate(" + width / 2 + "," + (height / 2) + ")");
 
 var svg2 = d3.select("#chart2").append("svg:svg")
+.attr("id", "chart2")
 .attr("width", width)
 .attr("height", height)
 .append("g")
@@ -86,10 +88,10 @@ function buildModel(root) {
 
     result.data = root;
 
-    _.each(root.__jsmf__.references, function(e,n){
-        _.each(e, function(elem){
-            if(result.children==undefined) {
-                result.children=[];
+    _.each(root.__jsmf__.references, function(e, n) {
+        _.each(e, function(elem) {
+            if(result.children == undefined) {
+                result.children = [];
             }
             result.children.push(buildModel(elem));
         });
@@ -98,7 +100,6 @@ function buildModel(root) {
 }
 
 function buildVisualization(visuJSMF, svg) {
-
     // Basic setup of page elements.
     initializeBreadcrumbTrail();
 
@@ -139,7 +140,10 @@ function buildVisualization(visuJSMF, svg) {
 
 }
 
-function click(d) {
+function click(d, i) {
+    var chart_id = d3.event.originalTarget.farthestViewportElement.id;
+    var svg = d3.select("#"+chart_id);
+
     var component_name = "";
     if (d.name == "Component") {
         component_name = d.data.__jsmf__.attributes["name"];
@@ -160,7 +164,9 @@ function click(d) {
 
 }
 
-function mouseover(d) {
+function mouseover(d, i) {
+    var chart_id = d3.event.originalTarget.farthestViewportElement.id;
+    var svg = d3.select("#"+chart_id);
 
     d3.select("#explanation")
     .style("visibility", "");
@@ -206,6 +212,8 @@ function mouseover(d) {
 
 // Fade all but the current sequence, and show it in the breadcrumb trail.
 function mouseover2(d) {
+    var chart_id = d3.event.originalTarget.farthestViewportElement.id;
+    var svg = d3.select("#"+chart_id);
 
     d3.select("#explanation")
     .style("visibility", "");
@@ -229,29 +237,28 @@ function mouseover2(d) {
         attr("row","2").
         attr("value",value).
         on("change", function(e) { //Adding event handler on change "value"
-        d3.event.stopPropagation();
-        //console.log(this.value);
-        //update Class + model (or add "flexible attribute")
-    });
-}
+            d3.event.stopPropagation();
+            //console.log(this.value);
+            //update Class + model (or add "flexible attribute")
+        });
+    }
 
-var sequenceArray = getAncestors(d);
-updateBreadcrumbs(sequenceArray, d.name);
+    var sequenceArray = getAncestors(d);
+    updateBreadcrumbs(sequenceArray, d.name);
 
-// Fade all the segments.
-d3.selectAll("path").style("opacity", 0.3);
+    // Fade all the segments.
+    d3.selectAll("path").style("opacity", 0.3);
 
-// Then highlight only those that are an ancestor of the current segment.
-svg.selectAll("path")
-.filter(function(node) {
-    return (sequenceArray.indexOf(node) >= 0);
-})
-.style("opacity", 1);
+    // Then highlight only those that are an ancestor of the current segment.
+    svg.selectAll("path")
+    .filter(function(node) {
+        return (sequenceArray.indexOf(node) >= 0);
+    })
+    .style("opacity", 1);
 }
 
 // Restore everything to full opacity when moving off the visualization.
 function mouseleave(d) {
-
     // Hide the breadcrumb trail
     d3.select("#trail")
     .style("visibility", "hidden");
@@ -309,9 +316,9 @@ function breadcrumbPoints(d, i) {
     points.push(b.w + "," + b.h);
     points.push("0," + b.h);
     if (i > 0) { // Leftmost breadcrumb; don't include 6th vertex.
-    points.push(b.t + "," + (b.h / 2));
-}
-return points.join(" ");
+        points.push(b.t + "," + (b.h / 2));
+    }
+    return points.join(" ");
 }
 
 // Update the breadcrumb trail to show the current sequence and percentage.
