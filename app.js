@@ -47,6 +47,7 @@ app.engine('.html', require('ejs').renderFile);
 //configure the static content (bower components) and links to views.
 //app.use(express.static(__dirname + '/views'));
 app.use('/images',  express.static(__dirname + '/static/images'));
+app.use('/js',  express.static(__dirname + '/static/js'));
 app.use('/bower_components',  express.static(__dirname + '/bower_components'));
 
 //configuration of the read file method
