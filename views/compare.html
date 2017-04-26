@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<% include ./partials/head %>
+    <% include ./partials/head %>
     <script src="js/sunburst.js"></script>
 </head>
 <body>
@@ -14,9 +14,9 @@
     </div>
 
     <div class="mdl-grid">
-        <div class="mdl-cell mdl-cell--5-col" id="appName1">test</div>
-        <div class="mdl-cell mdl-cell--2-col"></div>
         <div class="mdl-cell mdl-cell--5-col" id="appName1"></div>
+        <div class="mdl-cell mdl-cell--2-col"></div>
+        <div class="mdl-cell mdl-cell--5-col" id="appName2"></div>
     </div>
     <div class="mdl-grid">
         <div class="mdl-cell mdl-cell--5-col" id="sequence1"></div>
@@ -88,19 +88,23 @@ var svg2 = d3.select("#chart2").append("svg:svg")
 .attr("transform", "translate(" + width / 2 + "," + (height / 2) + ")");
 
 //Getting models from server
-var s_M_1 = <%- serializedModel1 %>;
-s_M_1 = JSON.stringify(s_M_1);
-var M = jsmf.parse(s_M_1);
-var root_1 = _.first(M.elements());
-var visuJSMF_1 = buildModel(root_1);
-buildVisualization(visuJSMF_1, svg1);
+if (<%- serializedModel1 %>) {
+    var s_M_1 = <%- serializedModel1 %>;
+    s_M_1 = JSON.stringify(s_M_1);
+    var M = jsmf.parse(s_M_1);
+    var root_1 = _.first(M.elements());
+    var visuJSMF_1 = buildModel(root_1);
+    buildVisualization(visuJSMF_1, svg1);
+}
 
-var s_M_2 = <%- serializedModel2 %>;
-s_M_2 = JSON.stringify(s_M_2);
-var M = jsmf.parse(s_M_2);
-var root_2 = _.first(M.elements());
-var visuJSMF_2 = buildModel(root_2);
-buildVisualization(visuJSMF_2, svg2);
+if (<%- serializedModel2 %> ) {
+    var s_M_2 = <%- serializedModel2 %>;
+    s_M_2 = JSON.stringify(s_M_2);
+    var M = jsmf.parse(s_M_2);
+    var root_2 = _.first(M.elements());
+    var visuJSMF_2 = buildModel(root_2);
+    buildVisualization(visuJSMF_2, svg2);
+}
 </script>
 </body>
 </html>

@@ -154,27 +154,30 @@ app.post('/upload',  upload.array('files[]', 2), function(req, res, next) {
 });
 
 
-app.get('/compare', function(req, res){
+app.get('/compare', function(req, res) {
 
-    var serializedModel_1 = null;
-    var serializedModel_2 = null;
+    var serializedModel_1 = false;
+    var serializedModel_2 = false;
 
     fs.readFile(conf.bin_outputs + 'krep.itmtd.ywtjexf-1.apk.json', 'utf-8', (err, data) => {
         if (err) {
             console.log(`ICC model not found: ${err}`);
-            data = {};
+            req.flash('error', `ICC model not found: ${err}`);
         }
-        serializedModel_1 = jsmfjson.parse(data);
-        serializedModel_1 = jsmfjson.stringify(serializedModel_1);
+        else {
+            serializedModel_1 = jsmfjson.parse(data);
+            serializedModel_1 = jsmfjson.stringify(serializedModel_1);
+        }
 
         fs.readFile(conf.bin_outputs + 'syssecApp.apk.json', 'utf-8', (err, data) => {
             if (err) {
                 console.log(`ICC model not found: ${err}`);
-                data = {};
+                req.flash('error', `ICC model not found: ${err}`);
             }
-            serializedModel_2 = jsmfjson.parse(data);
-            serializedModel_2 = jsmfjson.stringify(serializedModel_2);
-
+            else {
+                serializedModel_2 = jsmfjson.parse(data);
+                serializedModel_2 = jsmfjson.stringify(serializedModel_2);
+            }
 
             res.render('compare.html',{
                 serializedModel1: serializedModel_1,
