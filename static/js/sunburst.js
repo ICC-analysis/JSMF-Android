@@ -48,7 +48,7 @@ function buildVisualization(visuJSMF, svg) {
     // Basic setup of page elements.
     initializeBreadcrumbTrail();
 
-    console.log(visuJSMF.data);
+    //console.log(visuJSMF.data);
 
     var nodes = partition.nodes(visuJSMF).filter(function(d) {
         return (d.dx > 0.005); // 0.005 radians = 0.29 degrees

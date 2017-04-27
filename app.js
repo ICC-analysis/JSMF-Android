@@ -159,7 +159,7 @@ app.get('/compare', function(req, res) {
     var serializedModel_1 = false;
     var serializedModel_2 = false;
 
-    fs.readFile(conf.bin_outputs + 'krep.itmtd.ywtjexf-1.apk.json', 'utf-8', (err, data) => {
+    fs.readFile(conf.bin_outputs + 'FFDE8B674AE70E27D04303EAEB8B6DA2B28BA5341848E2FF3375AC58142E5297.apk.json', 'utf-8', (err, data) => {
         if (err) {
             console.log(`ICC model not found: ${err}`);
             req.flash('error', `ICC model not found: ${err}`);
@@ -169,7 +169,7 @@ app.get('/compare', function(req, res) {
             serializedModel_1 = jsmfjson.stringify(serializedModel_1);
         }
 
-        fs.readFile(conf.bin_outputs + 'syssecApp.apk.json', 'utf-8', (err, data) => {
+        fs.readFile(conf.bin_outputs + 'DB2CB6BC378FA5ED47047D5AA332F69A4F4663CDA3C9AF2498403654E27CE61A.apk.json', 'utf-8', (err, data) => {
             if (err) {
                 console.log(`ICC model not found: ${err}`);
                 req.flash('error', `ICC model not found: ${err}`);

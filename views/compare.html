@@ -12,7 +12,6 @@
     <div class="mdl-grid">
         <%- messages() %>
     </div>
-
     <div class="mdl-grid">
         <div class="mdl-cell mdl-cell--5-col" id="appName1"></div>
         <div class="mdl-cell mdl-cell--2-col"></div>
@@ -91,18 +90,20 @@ var svg2 = d3.select("#chart2").append("svg:svg")
 if (<%- serializedModel1 %>) {
     var s_M_1 = <%- serializedModel1 %>;
     s_M_1 = JSON.stringify(s_M_1);
-    var M = jsmf.parse(s_M_1);
-    var root_1 = _.first(M.elements());
-    var visuJSMF_1 = buildModel(root_1);
+    var M_1 = jsmf.parse(s_M_1);
+    var root = _.first(M_1.elements());
+    document.getElementById('appName1').innerHTML = `<h5>Application name: ${root.name}</h5>`;
+    var visuJSMF_1 = buildModel(root);
     buildVisualization(visuJSMF_1, svg1);
 }
 
 if (<%- serializedModel2 %> ) {
     var s_M_2 = <%- serializedModel2 %>;
     s_M_2 = JSON.stringify(s_M_2);
-    var M = jsmf.parse(s_M_2);
-    var root_2 = _.first(M.elements());
-    var visuJSMF_2 = buildModel(root_2);
+    var M_2 = jsmf.parse(s_M_2);
+    var root = _.first(M_2.elements());
+    document.getElementById('appName2').innerHTML = `<h5>Application name: ${root.name}</h5>`;
+    var visuJSMF_2 = buildModel(root);
     buildVisualization(visuJSMF_2, svg2);
 }
 </script>
