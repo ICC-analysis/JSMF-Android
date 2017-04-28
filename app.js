@@ -118,8 +118,7 @@ app.get('/models', function(req, res){
 
 
 app.post('/upload',  upload.array('files[]', 2), function(req, res, next) {
-    // We can receive 1 or 2 APK through the POST request. When 2 APK are
-    // submitted the user is redirected to twe comparison page.
+    // We can receive 1 or 2 APK through the POST request.
     const spawn_sync = require('child_process').spawnSync;
     spawn_sync('rm', ['-Rf', conf.bin_outputs]);
     apk_analyzer.ICC_models = [];
