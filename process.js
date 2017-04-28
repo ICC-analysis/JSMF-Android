@@ -27,7 +27,6 @@ var APK_decompiled = false;
 function start_process(file, should_generate_ast) {
     ICCmodelReady = false;
     APK_decompiled = false;
-    module.exports.ICC_models = [];
 
     function ensureICCmodelReadyAndAPKdecompiled() {
         return new Promise(function (resolve, reject) {
@@ -148,16 +147,6 @@ function generate_ICC_model(file) {
             protoBufModels.build(IC3Proto, IC3ProtoGrammar,
                 IC3EntryPoint, BinaryAppProtoBuf);
                 M = protoBufModels.model;
-                // Serialization of the Model for later use
-                // var ICC_model_serialized = jsmfjson.stringify(protoBufModels.model);
-                // fs.writeFile(conf.bin_outputs + file.originalname + '.json',
-                //     ICC_model_serialized, function(err) {
-                //         if(err) {
-                //             return console.log(err);
-                //         }
-                //         log_web_socket(io, "[CP-1] JSMF model serialized.");
-                //     }
-                // );
                 module.exports.ICC_models.push(protoBufModels.model);
                 ICCmodelReady = true;
                 log_web_socket(io, "[CP-1] JSMF model built.");
