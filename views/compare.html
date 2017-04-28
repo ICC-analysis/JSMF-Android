@@ -87,21 +87,21 @@ var svg2 = d3.select("#chart2").append("svg:svg")
 .attr("transform", "translate(" + width / 2 + "," + (height / 2) + ")");
 
 //Getting models from server
-if (<%- serializedModel1 %>) {
-    var s_M_1 = <%- serializedModel1 %>;
+if (<%- model1 %> ) {
+    var s_M_1 = <%- model1 %>;
     s_M_1 = JSON.stringify(s_M_1);
-    var M_1 = jsmf.parse(s_M_1);
-    var root = _.first(M_1.elements());
+    s_M_1 = jsmf.parse(s_M_1);
+    var root = _.first(s_M_1.elements());
     document.getElementById('appName1').innerHTML = `<h5>Application name: ${root.name}</h5>`;
     var visuJSMF_1 = buildModel(root);
     buildVisualization(visuJSMF_1, svg1);
 }
 
-if (<%- serializedModel2 %> ) {
-    var s_M_2 = <%- serializedModel2 %>;
+if (<%- model2 %> ) {
+    var s_M_2 = <%- model2 %>;
     s_M_2 = JSON.stringify(s_M_2);
-    var M_2 = jsmf.parse(s_M_2);
-    var root = _.first(M_2.elements());
+    s_M_2 = jsmf.parse(s_M_2);
+    var root = _.first(s_M_2.elements());
     document.getElementById('appName2').innerHTML = `<h5>Application name: ${root.name}</h5>`;
     var visuJSMF_2 = buildModel(root);
     buildVisualization(visuJSMF_2, svg2);

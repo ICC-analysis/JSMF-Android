@@ -156,33 +156,53 @@ app.post('/upload',  upload.array('files[]', 2), function(req, res, next) {
 
 app.get('/compare', function(req, res) {
 
-    var serializedModel_1 = false;
-    var serializedModel_2 = false;
+    var model1 = false;
+    var model2 = false;
 
-    fs.readFile(conf.bin_outputs + 'FFDE8B674AE70E27D04303EAEB8B6DA2B28BA5341848E2FF3375AC58142E5297.apk.json', 'utf-8', (err, data) => {
-        if (err) {
-            console.log(`ICC model not found: ${err}`);
-            req.flash('error', `ICC model not found: ${err}`);
-        }
-        else {
-            serializedModel_1 = jsmfjson.parse(data);
-            serializedModel_1 = jsmfjson.stringify(serializedModel_1);
-        }
+    try {
+        var model1 = jsmfjson.stringify(apk_analyzer.ICC_models[0]);
+    }
+    catch (err) {
+        console.log(`ICC model not found: ${err}`);
+        req.flash('error', `ICC model not found.`);
+    }
+    try {
+        var model2 = jsmfjson.stringify(apk_analyzer.ICC_models[1]);
+    }
+    catch (err) {
+        console.log(`ICC model not found: ${err}`);
+        req.flash('error', `ICC model not found.`);
+    }
 
-        fs.readFile(conf.bin_outputs + 'DB2CB6BC378FA5ED47047D5AA332F69A4F4663CDA3C9AF2498403654E27CE61A.apk.json', 'utf-8', (err, data) => {
-            if (err) {
-                console.log(`ICC model not found: ${err}`);
-                req.flash('error', `ICC model not found: ${err}`);
-            }
-            else {
-                serializedModel_2 = jsmfjson.parse(data);
-                serializedModel_2 = jsmfjson.stringify(serializedModel_2);
-            }
-
-            res.render('compare.html',{
-                serializedModel1: serializedModel_1,
-                serializedModel2: serializedModel_2
-            });
-        });
+    res.render('compare.html',{
+        model1: model1,
+        model2: model2
     });
+
+    // fs.readFile(conf.bin_outputs + 'FFDE8B674AE70E27D04303EAEB8B6DA2B28BA5341848E2FF3375AC58142E5297.apk.json', 'utf-8', (err, data) => {
+    //     if (err) {
+    //         console.log(`ICC model not found: ${err}`);
+    //         req.flash('error', `ICC model not found: ${err}`);
+    //     }
+    //     else {
+    //         serializedModel_1 = jsmfjson.parse(data);
+    //         serializedModel_1 = jsmfjson.stringify(serializedModel_1);
+    //     }
+    //
+    //     fs.readFile(conf.bin_outputs + 'DB2CB6BC378FA5ED47047D5AA332F69A4F4663CDA3C9AF2498403654E27CE61A.apk.json', 'utf-8', (err, data) => {
+    //         if (err) {
+    //             console.log(`ICC model not found: ${err}`);
+    //             req.flash('error', `ICC model not found: ${err}`);
+    //         }
+    //         else {
+    //             serializedModel_2 = jsmfjson.parse(data);
+    //             serializedModel_2 = jsmfjson.stringify(serializedModel_2);
+    //         }
+    //
+    //         res.render('compare.html',{
+    //             serializedModel1: serializedModel_1,
+    //             serializedModel2: serializedModel_2
+    //         });
+    //     });
+    // });
 });
