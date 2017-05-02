@@ -87,22 +87,39 @@ function buildVisualization(visuJSMF, svg) {
 
 }
 
+function getJsmfELementIdentifier(d) {
+    var result ="";
+    var typeName=d.name;
+    console.log(typeName);
+    switch(typeName) {
+        case "Component":   result=d.data.name; break;       
+        case "Application": result=d.data.name; break;
+        case "Instruction": result=d.data.class_name; break;
+        case "Attribute":   result=d.data.value; break;
+        default:            result="";
+    }
+    return result;
+}
+
+
 function click(d, i) {
-   // console.log(d.data.__jsmf__);
+    console.log(d);
 
     var chart_id = d3.event.originalTarget.farthestViewportElement.id;
 
-    var component_name = "";
-    if (d.name == "Component") {
-        component_name = d.data.name //__jsmf__.attributes["name"];
+    var component_name = getJsmfELementIdentifier(d);
+    console.log(component_name);
+    /*
+        "";
+    if (d.name == "Component"|| "Application") {
+        component_name = d.data.name; 
     } else if (d.name == "Instruction") {
-        component_name = d.data.class_name;  //data.__jsmf__.attributes["class_name"];
+        component_name = d.data.class_name;  
     } else if (d.name == "Attribute") {
         component_name = d.data.value;
-    } else if (d.name == "Application") {
-        component_name =d.data.name;
-    }
-
+    } 
+    */
+        
     //retieve the module component in the other view
 
     transition(chart_id, d);
@@ -115,10 +132,13 @@ function click(d, i) {
             d3.select("#"+sunburst_svg.id).select("svg").select("g").selectAll("path")[0]
             .filter(function(itElem){
                var jsmfElment = itElem.__data__.data;
-                return jsmfElment.name==component_name;
-            }).map(function(x){console.log(x);}); 
-            
-            transition(sunburst_svg.id, d);
+               // console.log());
+                return getJsmfELementIdentifier(itElem.__data__)==component_name;
+            }).map(function(x){
+                console.log(x.__data__);
+                transition(sunburst_svg.id, x.__data__);        
+            }); 
+ 
         }
     })
 }
