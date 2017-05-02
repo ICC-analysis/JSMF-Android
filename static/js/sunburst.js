@@ -90,6 +90,7 @@ function buildVisualization(visuJSMF, svg) {
 function click(d, i) {
     var chart_id = d3.event.originalTarget.farthestViewportElement.id;
     var svg = d3.select("#"+chart_id);
+    console.log(d.data);
 
     var component_name = "";
     if (d.name == "Component") {
@@ -97,6 +98,8 @@ function click(d, i) {
     } else if (d.name == "Instruction") {
         component_name = d.data.__jsmf__.attributes["class_name"];
     }
+
+    console.log(d.data.__jsmf__);
 
     svg.transition()
     .duration(750)
@@ -112,6 +115,7 @@ function click(d, i) {
 }
 
 function mouseover(d, i) {
+
     var chart_id = d3.event.originalTarget.farthestViewportElement.id;
     var svg = d3.select("#"+chart_id);
 
