@@ -88,17 +88,9 @@ function buildVisualization(visuJSMF, svg) {
 }
 
 function click(d, i) {
-    console.log(d);
     console.log(d.data.__jsmf__);
 
-    console.log(d3.selectAll(".sunburst"));
-
-
     var chart_id = d3.event.originalTarget.farthestViewportElement.id;
-    var svg = d3.select("#"+chart_id);
-    console.log(d.data);
-
-    console.log(svg);
 
     var component_name = "";
     if (d.name == "Component") {
@@ -112,6 +104,18 @@ function click(d, i) {
 
     //retieve the module component in the other view
 
+    transition(chart_id, d);
+
+    d3.selectAll(".sunburst")[0]
+    .filter(function(elem) { return elem.id !== chart_id })
+    .map(function(sunburst_svg) {
+        transition(sunburst_svg.id, d);
+    })
+}
+
+function transition(chart_id, d) {
+    var svg = d3.select("#"+chart_id);
+
     svg.transition()
     .duration(750)
     .tween("scale", function() {
@@ -122,7 +126,6 @@ function click(d, i) {
     })
     .selectAll("path")
     .attrTween("d", function(d) { return function() { return arc(d); }; });
-
 }
 
 function mouseover(d, i) {
