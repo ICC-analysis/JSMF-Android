@@ -104,7 +104,7 @@ document.getElementById("log-auto-scroll").addEventListener("scroll mousedown wh
 
 
 
-var socket = io.connect('http://' + document.domain + ':' + location.port);
+var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
 socket.on('news', function (data) {
     var color = 'black';
     if (data.indexOf('[CP-1]') >= 0) { color = 'blue'; }
