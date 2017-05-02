@@ -90,13 +90,16 @@ function buildVisualization(visuJSMF, svg) {
 function click(d, i) {
     console.log(d);
     console.log(d.data.__jsmf__);
-    
+
+    console.log(d3.selectAll(".sunburst"));
+
+
     var chart_id = d3.event.originalTarget.farthestViewportElement.id;
     var svg = d3.select("#"+chart_id);
     console.log(d.data);
 
     console.log(svg);
-    
+
     var component_name = "";
     if (d.name == "Component") {
         component_name = d.data.name //__jsmf__.attributes["name"];
@@ -106,9 +109,9 @@ function click(d, i) {
         component_name = d.data.value;
     }
     console.log(component_name);
-    
+
     //retieve the module component in the other view
-    
+
     svg.transition()
     .duration(750)
     .tween("scale", function() {
