@@ -88,7 +88,7 @@ function buildVisualization(visuJSMF, svg) {
 }
 
 function click(d, i) {
-    console.log(d.data.__jsmf__);
+   // console.log(d.data.__jsmf__);
 
     var chart_id = d3.event.originalTarget.farthestViewportElement.id;
 
@@ -99,17 +99,27 @@ function click(d, i) {
         component_name = d.data.class_name;  //data.__jsmf__.attributes["class_name"];
     } else if (d.name == "Attribute") {
         component_name = d.data.value;
+    } else if (d.name == "Application") {
+        component_name =d.data.name;
     }
-    console.log(component_name);
 
     //retieve the module component in the other view
 
     transition(chart_id, d);
+    //console.log(d);
 
     d3.selectAll(".sunburst")[0]
     .filter(function(elem) { return elem.id !== chart_id })
     .map(function(sunburst_svg) {
-        transition(sunburst_svg.id, d);
+        if(component_name!==""){
+            d3.select("#"+sunburst_svg.id).select("svg").select("g").selectAll("path")[0]
+            .filter(function(itElem){
+               var jsmfElment = itElem.__data__.data;
+                return jsmfElment.name==component_name;
+            }).map(function(x){console.log(x);}); 
+            
+            transition(sunburst_svg.id, d);
+        }
     })
 }
 
