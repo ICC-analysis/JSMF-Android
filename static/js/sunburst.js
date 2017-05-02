@@ -88,16 +88,25 @@ function buildVisualization(visuJSMF, svg) {
 }
 
 function click(d, i) {
+    console.log(d);
+    
     var chart_id = d3.event.originalTarget.farthestViewportElement.id;
     var svg = d3.select("#"+chart_id);
 
+    console.log(svg);
+    
     var component_name = "";
     if (d.name == "Component") {
-        component_name = d.data.__jsmf__.attributes["name"];
+        component_name = d.data.name //__jsmf__.attributes["name"];
     } else if (d.name == "Instruction") {
-        component_name = d.data.__jsmf__.attributes["class_name"];
+        component_name = d.data.class_name;  //data.__jsmf__.attributes["class_name"];
+    } else if (d.name == "Attribute") {
+        component_name = d.data.value;
     }
-
+    console.log(component_name);
+    
+    //retieve the module component 
+    
     svg.transition()
     .duration(750)
     .tween("scale", function() {
