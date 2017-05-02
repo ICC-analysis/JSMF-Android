@@ -118,8 +118,7 @@ app.get('/models', function(req, res){
 
 
 app.post('/upload',  upload.array('files[]', 2), function(req, res, next) {
-    // We can receive 1 or 2 APK through the POST request. When 2 APK are
-    // submitted the user is redirected to twe comparison page.
+    // We can receive 1 or 2 APK through the POST request.
     const spawn_sync = require('child_process').spawnSync;
     spawn_sync('rm', ['-Rf', conf.bin_outputs]);
     apk_analyzer.ICC_models = [];
@@ -160,23 +159,54 @@ app.get('/compare', function(req, res) {
     var model1 = false;
     var model2 = false;
 
-    try {
-        var model1 = jsmfjson.stringify(apk_analyzer.ICC_models[0]);
-    }
-    catch (err) {
-        console.log(`ICC model not found: ${err}`);
-        req.flash('error', `ICC model not found.`);
-    }
-    try {
-        var model2 = jsmfjson.stringify(apk_analyzer.ICC_models[1]);
-    }
-    catch (err) {
-        console.log(`ICC model not found: ${err}`);
-        req.flash('error', `ICC model not found.`);
-    }
+    // try {
+    //     var model1 = jsmfjson.stringify(apk_analyzer.ICC_models[0]);
+    // }
+    // catch (err) {
+    //     console.log(`ICC model not found: ${err}`);
+    //     req.flash('error', `ICC model not found.`);
+    // }
+    // try {
+    //     var model2 = jsmfjson.stringify(apk_analyzer.ICC_models[1]);
+    // }
+    // catch (err) {
+    //     console.log(`ICC model not found: ${err}`);
+    //     req.flash('error', `ICC model not found.`);
+    // }
 
-    res.render('compare.html',{
-        model1: model1,
-        model2: model2
+
+
+
+    fs.readFile(conf.bin_outputs + 'FFE44A8695CCEB4979825C54A29B4CB9765057308A97E49F6C6C5C473DED0AB3.apk.json', 'utf-8', (err, data) => {
+        if (err) {
+            console.log(`ICC model not found: ${err}`);
+            req.flash('error', `ICC model not found: ${err}`);
+        }
+        else {
+            model1 = jsmfjson.parse(data);
+            model1 = jsmfjson.stringify(model1);
+        }
+
+        fs.readFile(conf.bin_outputs + '1CA20CC2CCF0E981781B25BAD314098A168B6FAF848393A37D19A302A40F3F4C.apk.json', 'utf-8', (err, data) => {
+            if (err) {
+                console.log(`ICC model not found: ${err}`);
+                req.flash('error', `ICC model not found: ${err}`);
+            }
+            else {
+                model2 = jsmfjson.parse(data);
+                model2 = jsmfjson.stringify(model2);
+            }
+
+            res.render('compare.html',{
+                model1: model1,
+                model2: model2
+            });
+        });
     });
+
+
+    // res.render('compare.html',{
+    //     model1: model1,
+    //     model2: model2
+    // });
 });

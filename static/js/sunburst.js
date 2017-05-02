@@ -89,9 +89,11 @@ function buildVisualization(visuJSMF, svg) {
 
 function click(d, i) {
     console.log(d);
+    console.log(d.data.__jsmf__);
     
     var chart_id = d3.event.originalTarget.farthestViewportElement.id;
     var svg = d3.select("#"+chart_id);
+    console.log(d.data);
 
     console.log(svg);
     
@@ -105,7 +107,7 @@ function click(d, i) {
     }
     console.log(component_name);
     
-    //retieve the module component 
+    //retieve the module component in the other view
     
     svg.transition()
     .duration(750)
@@ -121,6 +123,7 @@ function click(d, i) {
 }
 
 function mouseover(d, i) {
+
     var chart_id = d3.event.originalTarget.farthestViewportElement.id;
     var svg = d3.select("#"+chart_id);
 
