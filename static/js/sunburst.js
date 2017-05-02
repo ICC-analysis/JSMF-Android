@@ -90,7 +90,7 @@ function buildVisualization(visuJSMF, svg) {
 function getJsmfELementIdentifier(d) {
     var result ="";
     var typeName=d.name;
-    console.log(typeName);
+    
     switch(typeName) {
         case "Component":   result=d.data.name; break;       
         case "Application": result=d.data.name; break;
@@ -98,44 +98,38 @@ function getJsmfELementIdentifier(d) {
         case "Attribute":   result=d.data.value; break;
         default:            result="";
     }
+    
+    if(result==undefined) {
+        result = "";
+    }
+    
     return result;
 }
 
 
 function click(d, i) {
-    console.log(d);
+    //console.log(d);
 
     var chart_id = d3.event.originalTarget.farthestViewportElement.id;
 
     var component_name = getJsmfELementIdentifier(d);
-    console.log(component_name);
-    /*
-        "";
-    if (d.name == "Component"|| "Application") {
-        component_name = d.data.name; 
-    } else if (d.name == "Instruction") {
-        component_name = d.data.class_name;  
-    } else if (d.name == "Attribute") {
-        component_name = d.data.value;
-    } 
-    */
         
     //retieve the module component in the other view
 
     transition(chart_id, d);
-    //console.log(d);
 
     d3.selectAll(".sunburst")[0]
     .filter(function(elem) { return elem.id !== chart_id })
     .map(function(sunburst_svg) {
         if(component_name!==""){
             d3.select("#"+sunburst_svg.id).select("svg").select("g").selectAll("path")[0]
+            .filter(function(typeElem){return typeElem.__data__.name == d.name})
             .filter(function(itElem){
                var jsmfElment = itElem.__data__.data;
-               // console.log());
-                return getJsmfELementIdentifier(itElem.__data__)==component_name;
+                var test = getJsmfELementIdentifier(itElem.__data__);
+                return test==component_name;
             }).map(function(x){
-                console.log(x.__data__);
+                console.log(getJsmfELementIdentifier(x.__data__));
                 transition(sunburst_svg.id, x.__data__);        
             }); 
  
@@ -146,7 +140,7 @@ function click(d, i) {
 function transition(chart_id, d) {
     var svg = d3.select("#"+chart_id);
 
-    console.log(svg);
+    //console.log(svg);
 
     svg.transition()
     .duration(750)
