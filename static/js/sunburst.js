@@ -116,6 +116,8 @@ function click(d, i) {
 function transition(chart_id, d) {
     var svg = d3.select("#"+chart_id);
 
+    console.log(svg);
+
     svg.transition()
     .duration(750)
     .tween("scale", function() {
@@ -171,78 +173,6 @@ function mouseover(d, i) {
         return (sequenceArray.indexOf(node) >= 0);
     })
     .style("opacity", 1.5);
-}
-
-// Fade all but the current sequence, and show it in the breadcrumb trail.
-function mouseover2(d) {
-    var chart_id = d3.event.originalTarget.farthestViewportElement.id;
-    var svg = d3.select("#"+chart_id);
-
-    d3.select("#explanation-"+chart_id)
-    .style("visibility", "");
-
-    var tTitle = 'Class '+d.name;
-    var M2title = d3.select("#titleProperties-"+chart_id).text(tTitle)
-    var table = d3.select('#cellsProperties-'+chart_id);
-    table.html("");
-    var jsmfData = d.data;
-    for(x in jsmfData.__jsmf__.attributes) {
-        var attType = jsmfData.conformsTo().attributes[x].type;
-        var value = jsmf.isJSMFEnum(attType)? attType.getName(jsmfData[x]) : jsmfData[x];
-        //console.log('msg',messageNode[x],x, jsmf.isJSMFEnum(messageNode.conformsTo().attributes[x].type)); //messageNode.conformsTo().attributes[x]
-        var tRow = table.append("tr");
-        tRow.append("td").attr("class","mdl-data-table__cell--non-numeric").text(x);
-        tRow.append("td").
-        attr("class","mdl-data-table__cell--non-numeric").
-        append("input").
-        attr("class","mdl-textfield--full-width mdl-textfield__input").
-        attr("type","textarea").
-        attr("row","2").
-        attr("value",value).
-        on("change", function(e) { //Adding event handler on change "value"
-            d3.event.stopPropagation();
-            //console.log(this.value);
-            //update Class + model (or add "flexible attribute")
-        });
-    }
-
-    var sequenceArray = getAncestors(d);
-    updateBreadcrumbs(sequenceArray, d.name);
-
-    // Fade all the segments.
-    d3.selectAll("path").style("opacity", 0.3);
-
-    // Then highlight only those that are an ancestor of the current segment.
-    svg.selectAll("path")
-    .filter(function(node) {
-        return (sequenceArray.indexOf(node) >= 0);
-    })
-    .style("opacity", 1);
-}
-
-// Restore everything to full opacity when moving off the visualization.
-function mouseleave(d) {
-    // Hide the breadcrumb trail
-    d3.select("#trail")
-    .style("visibility", "hidden");
-
-    // Deactivate all segments during transition.
-    d3.selectAll("path").on("mouseover", null);
-
-    // Transition each segment to full opacity and then reactivate it.
-    d3.selectAll("path")
-    .transition()
-    .duration(1000)
-    .style("opacity", 1)
-    .each("end", function() {
-        d3.select(this).on("mouseover", mouseover);
-    });
-
-    d3.select("#explanation-"+chart_id)
-    .transition()
-    .duration(1000)
-    .style("visibility", "hidden");
-
 }
 
 // Given a node in a partition layout, return an array of all of its ancestor
@@ -357,13 +287,4 @@ function drawLegend() {
     .attr("dy", "0.35em")
     .attr("text-anchor", "middle")
     .text(function(d) { return d; });
-}
-
-function toggleLegend() {
-    var legend = d3.select("#legend");
-    if (legend.style("visibility") == "hidden") {
-        legend.style("visibility", "");
-    } else {
-        legend.style("visibility", "hidden");
-    }
 }
