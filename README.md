@@ -24,9 +24,11 @@ $ node app.js
 Listening on port 3000
 ```
 
-Do not do that on a production server.
+OpenJDK 8 will be installed, check with *update-alternatives* that it is the
+default version of Java used on your system.
 
-If you want to access the application to the port 80:
+If you want to access the application to the port 80 (Do not do that on a
+production server):
 
 ```bash
 $ sudo iptables -t nat -A PREROUTING -i [interface] -p tcp --dport 80 -j REDIRECT --to-port 3000
@@ -69,4 +71,3 @@ More information [here](http://jsmf-android-visualization.list.lu/models).
 
 * [Jean-Sébastien Sottet](https://sites.google.com/site/jssottet/)
 * [Cédric Bonhomme](https://www.cedricbonhomme.org)
-
