@@ -17,6 +17,20 @@ function compare(ModelSource,ModelTarget) {
     //comparison class by class
     _.each(mSourceElements,function(elements,id){
         mSourceMetrics.set(id,elements.length);
+        
+        //WARNING: To be changed...
+        //we know that mTargetElements have more elements than original (source)... but it may not be always the case
+        for(var i in mTargetElements[id]) {
+            var currentTarget = mTargetElements[id][i];
+            var currentSource = mSourceElements[id][i];
+           // console.log(id,'  ',i, ' : ',currentTarget,currentSource);
+            _.each(Object.keys(currentTarget.conformsTo().getAllAttributes()), function(attName) {
+                if(currentSource!==undefined) {
+                    console.log(attName,currentTarget[attName],currentSource[attName]);
+                } else
+            });
+           // console.log(_.pick(currentTarget,));
+        }
         _(mSourceElements[id]).each(function(jsmfS,id2){
             _(mTargetElements[id]).each(function(jsmfT,id3){
                // compareModelElement(jsmfS,jsmfT);
@@ -26,13 +40,8 @@ function compare(ModelSource,ModelTarget) {
     
     _.each(mTargetElements,function(elements,id){
         mTargetMetrics.set(id,elements.length);
-        _.each(mTargetElements[id],function(jsmfCI,id2){
-            //console.log(id,' : ',jsmfCI);
-        });
     });
     
-  //  console.log(mSourceMetrics);
-    //console.log(mTargetMetrics);
     return ({"sourceMetrics": mSourceMetrics,"targetMetrics":mTargetMetrics});
 }
 
