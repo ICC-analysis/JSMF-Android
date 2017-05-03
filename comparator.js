@@ -14,33 +14,44 @@ function compare(ModelSource,ModelTarget) {
     
     var mSourceMetrics = new Map();
     var mTargetMetrics = new Map();
+    
+    var currentMetaListTarget = [];
+    var currentMetaListSource = [];
+    
+    var keys = [];
     //comparison class by class
     _.each(mSourceElements,function(elements,id){
+      //  console.log(id);
+        keys.push(id);
         mSourceMetrics.set(id,elements.length);
-        
-        //WARNING: To be changed...
-        //we know that mTargetElements have more elements than original (source)... but it may not be always the case
-        for(var i in mTargetElements[id]) {
-            var currentTarget = mTargetElements[id][i];
-            var currentSource = mSourceElements[id][i];
-           // console.log(id,'  ',i, ' : ',currentTarget,currentSource);
-            _.each(Object.keys(currentTarget.conformsTo().getAllAttributes()), function(attName) {
-                if(currentSource!==undefined) {
-                    console.log(attName,currentTarget[attName],currentSource[attName]);
-                } 
-            });
-           // console.log(_.pick(currentTarget,));
-        }
-        _(mSourceElements[id]).each(function(jsmfS,id2){
-            _(mTargetElements[id]).each(function(jsmfT,id3){
-               // compareModelElement(jsmfS,jsmfT);
-            });
-        });
-    });
+        currentMetaListSource.push(elements);
+     }); 
     
     _.each(mTargetElements,function(elements,id){
         mTargetMetrics.set(id,elements.length);
+        currentMetaListTarget.push(elements);
     });
+   
+    
+    _.each(keys,function(i) {
+          //  console.log(mTargetElements[i]);
+            _.each(mTargetElements[i],function(elems){
+                _.each(Object.keys(elems.conformsTo().getAllAttributes()), function(attName) {  
+                    console.log(attName,elems[attName]);
+                });
+            });
+    });
+    
+            //console.log(id,'  ',i, ' : ')//,currentTarget,currentSource);
+          /*  _.each(Object.keys(currentTarget.conformsTo().getAllAttributes()), function(attName) {
+                if(currentSource!==undefined) {
+                    //console.log(attName,currentTarget[attName],currentSource[attName]);
+          */
+       /* _(mSourceElements[id]).each(function(jsmfS,id2){
+            _(mTargetElements[id]).each(function(jsmfT,id3){
+               // compareModelElement(jsmfS,jsmfT);
+            });
+        }); */
     
     return ({"sourceMetrics": mSourceMetrics,"targetMetrics":mTargetMetrics});
 }
