@@ -21,6 +21,8 @@ var IC3Proto = require('./conf.js').IC3Proto,
 
 const apk_analyzer = require('./process');
 
+const comparator = require('./comparator.js');
+
 var protoBufModels =  require('builder');
 // load the default model
 protoBufModels.build(IC3Proto, IC3ProtoGrammar, IC3EntryPoint,
@@ -197,6 +199,11 @@ app.get('/compare', function(req, res) {
                 model2 = jsmfjson.stringify(model2);
             }
 
+            if(model1!==undefined && model2 !==undefined) {
+                comparator.compare(jsmfjson.parse(model1),jsmfjson.parse(model2));
+                
+            }
+            
             res.render('compare.html',{
                 model1: model1,
                 model2: model2
