@@ -109,6 +109,28 @@ if (<%- model2 %> ) {
     buildVisualization(visuJSMF_2, svg2);
 }
 
+if(<%- metrics %>) {
+   var metrics = <%- metrics %>;
+   const difference = metrics.diffMetrics;
+   var intro = document.createElement("h6");
+   intro.innerHTML="Piggy-Backed Application Statistics";
+    document.getElementById('appName2').appendChild(intro);
+    for(var i in difference) {
+        if(i>0) {
+            var badge = document.createElement("span");
+            badge.classList.add("mdl-badge");
+            badge.setAttribute("data-badge",difference[i].val);
+            t = document.createTextNode(difference[i].key);
+            badge.appendChild(t);
+            document.getElementById('appName2').appendChild(badge);
+            //<span class="mdl-badge" data-badge="4">Inbox</span>
+            //var t =  document.createTextNode(difference[i].val+' more '+difference[i].key+'  ');
+            //h6.appendChild(t);
+        }
+    }
+    
+}
+
 </script>
 </body>
 </html>

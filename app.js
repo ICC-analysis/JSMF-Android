@@ -12,6 +12,7 @@ const http = require('./bootstrap.js').http;
 const io = require('./bootstrap.js').io;
 const log_web_socket = require('./bootstrap.js').log_web_socket;
 const buildModel = require('./helper.js').buildModel;
+const _ = require('lodash');
 
 const conf = require('./conf.js');
 var IC3Proto = require('./conf.js').IC3Proto,
@@ -198,15 +199,33 @@ app.get('/compare', function(req, res) {
                 model2 = jsmfjson.parse(data);
                 model2 = jsmfjson.stringify(model2);
             }
-
+            
+            // Done during the hackathon: try to get directly the tab from compartor not the map.
             if(model1!==undefined && model2 !==undefined) {
-                comparator.compare(jsmfjson.parse(model1),jsmfjson.parse(model2));
-                
+                var metrics = comparator.compare(jsmfjson.parse(model1),jsmfjson.parse(model2));
+                var sourceMetricsTab = [];
+                var targetMetricsTab = [];
+                var diffMetrics = [];
+                for (var [key, value] of metrics.sourceMetrics) {
+                   sourceMetricsTab.push({"key":key,"val":value});
+                }
+                 for (var [key, value] of metrics.targetMetrics) {
+                   targetMetricsTab.push({"key":key,"val":value});
+                }
+                //List are ordered the same way...
+                for(var i in sourceMetricsTab) {
+                    var diffVal = (targetMetricsTab[i].val-sourceMetricsTab[i].val);    
+                    diffMetrics.push({"key":sourceMetricsTab[i].key,"val":diffVal});
+                }
+              
+                var metricsToSend={sourceMetrics: sourceMetricsTab,targetMetrics:targetMetricsTab,diffMetrics:diffMetrics};
+                metrics = JSON.stringify(metricsToSend);
             }
             
             res.render('compare.html',{
                 model1: model1,
-                model2: model2
+                model2: model2,
+                metrics: metrics
             });
         });
     });
