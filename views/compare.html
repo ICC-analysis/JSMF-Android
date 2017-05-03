@@ -70,6 +70,15 @@
             </table>
         </div>
     </div>
+    <div class="mdl-grid">
+        <div class="mdl-cell mdl-cell--5-col">
+            <pre><code id="source_code-chart1" class="java"></code></pre>
+        </div>
+        <div class="mdl-cell mdl-cell--2-col"></div>
+        <div class="mdl-cell mdl-cell--5-col">
+            <pre><code id="source_code-chart2" class="java"></code></pre>
+        </div>
+    </div>
 </main>
 <script>
 var svg1 = d3.select("#chart1").append("svg:svg")
@@ -90,6 +99,8 @@ var svg2 = d3.select("#chart2").append("svg:svg")
 
 //Getting models from server
 if (<%- model1 %> ) {
+    var source_code_1 = <%- source_code_1 %>;
+
     var s_M_1 = <%- model1 %>;
     s_M_1 = JSON.stringify(s_M_1);
     s_M_1 = jsmf.parse(s_M_1);
@@ -100,6 +111,8 @@ if (<%- model1 %> ) {
 }
 
 if (<%- model2 %> ) {
+    var source_code_2 = <%- source_code_2 %>;
+
     var s_M_2 = <%- model2 %>;
     s_M_2 = JSON.stringify(s_M_2);
     s_M_2 = jsmf.parse(s_M_2);

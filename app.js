@@ -162,6 +162,9 @@ app.get('/compare', function(req, res) {
     var model1 = false;
     var model2 = false;
 
+    var source_code_1 = {};
+    var source_code_2 = {};
+
     // try {
     //     var model1 = jsmfjson.stringify(apk_analyzer.ICC_models[0]);
     // }
@@ -178,61 +181,82 @@ app.get('/compare', function(req, res) {
     // }
 
 
+    var data = fs.readFileSync(conf.bin_outputs + 'FFE44A8695CCEB4979825C54A29B4CB9765057308A97E49F6C6C5C473DED0AB3.apk.json', 'utf8');
+    model1 = jsmfjson.parse(data);
+    model1.modellingElements['Component'].map(function(component) {
+        var name;
+        name = component.name || component.class_name;
+        if (name) {
+            var file = conf.bin_outputs + 'jdcmd/' +
+            'FFE44A8695CCEB4979825C54A29B4CB9765057308A97E49F6C6C5C473DED0AB3.apk/' +
+            name.replace(/\./g, '/')  + '.java';
+            var content;
+            try {
+                content = fs.readFileSync(file, 'utf-8')
+            } catch (err) {
+                console.log("Error when reading source code: " + err);
+            }
 
-
-    fs.readFile(conf.bin_outputs + 'FFE44A8695CCEB4979825C54A29B4CB9765057308A97E49F6C6C5C473DED0AB3.apk.json', 'utf-8', (err, data) => {
-        if (err) {
-            console.log(`ICC model not found: ${err}`);
-            req.flash('error', `ICC model not found: ${err}`);
+            source_code_1[name] = escape(content);
         }
-        else {
-            model1 = jsmfjson.parse(data);
-            model1 = jsmfjson.stringify(model1);
-        }
-
-        fs.readFile(conf.bin_outputs + '1CA20CC2CCF0E981781B25BAD314098A168B6FAF848393A37D19A302A40F3F4C.apk.json', 'utf-8', (err, data) => {
-            if (err) {
-                console.log(`ICC model not found: ${err}`);
-                req.flash('error', `ICC model not found: ${err}`);
-            }
-            else {
-                model2 = jsmfjson.parse(data);
-                model2 = jsmfjson.stringify(model2);
-            }
-            
-            // Done during the hackathon: try to get directly the tab from compartor not the map.
-            if(model1!==undefined && model2 !==undefined) {
-                var metrics = comparator.compare(jsmfjson.parse(model1),jsmfjson.parse(model2));
-                var sourceMetricsTab = [];
-                var targetMetricsTab = [];
-                var diffMetrics = [];
-                for (var [key, value] of metrics.sourceMetrics) {
-                   sourceMetricsTab.push({"key":key,"val":value});
-                }
-                 for (var [key, value] of metrics.targetMetrics) {
-                   targetMetricsTab.push({"key":key,"val":value});
-                }
-                //List are ordered the same way...
-                for(var i in sourceMetricsTab) {
-                    var diffVal = (targetMetricsTab[i].val-sourceMetricsTab[i].val);    
-                    diffMetrics.push({"key":sourceMetricsTab[i].key,"val":diffVal});
-                }
-              
-                var metricsToSend={sourceMetrics: sourceMetricsTab,targetMetrics:targetMetricsTab,diffMetrics:diffMetrics};
-                metrics = JSON.stringify(metricsToSend);
-            }
-            
-            res.render('compare.html',{
-                model1: model1,
-                model2: model2,
-                metrics: metrics
-            });
-        });
     });
+    source_code_1 = JSON.stringify(source_code_1);
 
 
-    // res.render('compare.html',{
-    //     model1: model1,
-    //     model2: model2
-    // });
+    var data = fs.readFileSync(conf.bin_outputs + '1CA20CC2CCF0E981781B25BAD314098A168B6FAF848393A37D19A302A40F3F4C.apk.json', 'utf8');
+    model2 = jsmfjson.parse(data);
+    model2.modellingElements['Component'].map(function(component) {
+        var name;
+        name = component.name || component.class_name;
+        if (name) {
+            var file = conf.bin_outputs + 'jdcmd/' +
+            '1CA20CC2CCF0E981781B25BAD314098A168B6FAF848393A37D19A302A40F3F4C.apk/' +
+            name.replace(/\./g, '/')  + '.java';
+            var content;
+            try {
+                content = fs.readFileSync(file, 'utf-8')
+            } catch (err) {
+                console.log("Error when reading source code: " + err);
+            }
+            source_code_2[name] = escape(content);
+        }
+    });
+    source_code_2 = JSON.stringify(source_code_2);
+
+
+    model1 = jsmfjson.stringify(model1);
+    model2 = jsmfjson.stringify(model2);
+
+
+    // Done during the hackathon: try to get directly the tab from compartor not the map.
+    if(model1!==undefined && model2 !==undefined) {
+        var metrics = comparator.compare(jsmfjson.parse(model1),jsmfjson.parse(model2));
+        var sourceMetricsTab = [];
+        var targetMetricsTab = [];
+        var diffMetrics = [];
+        for (var [key, value] of metrics.sourceMetrics) {
+           sourceMetricsTab.push({"key":key,"val":value});
+        }
+         for (var [key, value] of metrics.targetMetrics) {
+           targetMetricsTab.push({"key":key,"val":value});
+        }
+        //List are ordered the same way...
+        for(var i in sourceMetricsTab) {
+            var diffVal = (targetMetricsTab[i].val-sourceMetricsTab[i].val);
+            diffMetrics.push({"key":sourceMetricsTab[i].key,"val":diffVal});
+        }
+
+        var metricsToSend={sourceMetrics: sourceMetricsTab,targetMetrics:targetMetricsTab,diffMetrics:diffMetrics};
+        metrics = JSON.stringify(metricsToSend);
+    }
+
+
+
+    res.render('compare.html',{
+        model1: model1,
+        model2: model2,
+        source_code_1: source_code_1,
+        source_code_2: source_code_2,
+        metrics: metrics
+    });
 });

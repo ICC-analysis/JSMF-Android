@@ -25,6 +25,7 @@ var arc = d3.svg.arc()
 .outerRadius(function(d) { return Math.max(0, y(d.y + d.dy)); });
 
 
+
 function buildModel(root) {
     var result = {}
     // name = name of the classifier used for categorising elements (should be
@@ -111,6 +112,30 @@ function getJsmfELementIdentifier(d) {
 function click(d, i) {
     var chart_id = d3.event.originalTarget.farthestViewportElement.id;
     var component_name = getJsmfELementIdentifier(d);
+
+    if (d.name == "Component") {
+            var component_name = d.data.__jsmf__.attributes["name"];
+            if (component_name) {
+                if (chart_id == "chart1") {
+                    document.getElementById('source_code-'+chart_id).innerText = unescape(source_code_1[component_name]);
+                }
+                else {
+                    document.getElementById('source_code-'+chart_id).innerText = unescape(source_code_2[component_name]);
+                }
+                hljs.initHighlighting.called = false;
+                hljs.initHighlighting();
+            }
+            else {
+                document.getElementById('source_code-'+chart_id).innerText = '';
+            }
+        }
+        else {
+            document.getElementById('source_code-'+chart_id).innerText = '';
+        }
+
+
+
+
 
     //retieve the module component in the other view
 
@@ -285,8 +310,6 @@ function updateBreadcrumbs(nodeArray, percentageString) {
 function mouseleave(d) {
     var chart_id = d3.event.originalTarget.farthestViewportElement.id;
 
-    console.log("mouseleave");
-    console.log(d);
     // Hide the breadcrumb trail
     d3.select("#trail")
     .style("visibility", "hidden");
