@@ -12,7 +12,6 @@ var b = {
     w: 75, h: 30, s: 3, t: 10
 };
 
-
 // make `colors` an ordinal scale
 var colors = d3.scale.category20();
 
@@ -28,8 +27,11 @@ var arc = d3.svg.arc()
 
 function buildModel(root) {
     var result = {}
-    result.name = root.conformsTo().__name; // name = name of the classifier used for categorising elements => should be configurable.
-    result.size = 1; // size of the partition should be computable/configurable.
+    // name = name of the classifier used for categorising elements (should be
+    // configurable).
+    result.name = root.conformsTo().__name;
+    // size of the partition should be computable/configurable.
+    result.size = 1;
 
     result.data = root;
 
@@ -81,39 +83,33 @@ function buildVisualization(visuJSMF, svg) {
     // make sure this is done after setting the domain
     drawLegend();
 
-
-
     d3.select(self.frameElement).style("height", height + "px");
-
 }
 
 function getJsmfELementIdentifier(d) {
     var result ="";
     var typeName=d.name;
-    
+
     switch(typeName) {
-        case "Component":   result=d.data.name; break;       
+        case "Component":   result=d.data.name; break;
         case "Application": result=d.data.name; break;
         case "Instruction": result=d.data.class_name; break;
         case "Attribute":   result=d.data.value; break;
         default:            result="";
     }
-    
+
     if(result==undefined) {
         result = "";
     }
-    
+
     return result;
 }
 
 
 function click(d, i) {
-    //console.log(d);
-
     var chart_id = d3.event.originalTarget.farthestViewportElement.id;
-
     var component_name = getJsmfELementIdentifier(d);
-        
+
     //retieve the module component in the other view
 
     transition(chart_id, d);
@@ -122,26 +118,24 @@ function click(d, i) {
     .filter(function(elem) { return elem.id !== chart_id })
     .map(function(sunburst_svg) {
         if(component_name!==""){
-            d3.select("#"+sunburst_svg.id).select("svg").select("g").selectAll("path")[0]
+            d3.select("#"+sunburst_svg.id).select("svg").select("g")
+            .selectAll("path")[0]
             .filter(function(typeElem){return typeElem.__data__.name == d.name})
             .filter(function(itElem){
-               var jsmfElment = itElem.__data__.data;
+                var jsmfElment = itElem.__data__.data;
                 var test = getJsmfELementIdentifier(itElem.__data__);
                 return test==component_name;
             }).map(function(x){
                 console.log(getJsmfELementIdentifier(x.__data__));
-                transition(sunburst_svg.id, x.__data__);        
-            }); 
- 
+                transition(sunburst_svg.id, x.__data__);
+            });
+
         }
     })
 }
 
 function transition(chart_id, d) {
     var svg = d3.select("#"+chart_id);
-
-    //console.log(svg);
-
     svg.transition()
     .duration(750)
     .tween("scale", function() {
@@ -155,9 +149,11 @@ function transition(chart_id, d) {
 }
 
 function mouseover(d, i) {
-
     var chart_id = d3.event.originalTarget.farthestViewportElement.id;
     var svg = d3.select("#"+chart_id);
+
+    var component_name = getJsmfELementIdentifier(d);
+    console.log(component_name);
 
     d3.select("#explanation-"+chart_id).style("visibility", "");
 
@@ -171,7 +167,9 @@ function mouseover(d, i) {
         var value = jsmf.isJSMFEnum(attType)? attType.getName(jsmfData[index]) : jsmfData[index];
         //console.log('msg',messageNode[x],x, jsmf.isJSMFEnum(messageNode.conformsTo().attributes[x].type)); //messageNode.conformsTo().attributes[x]
         var tRow = table.append("tr");
-        tRow.append("td").attr("class","mdl-data-table__cell--non-numeric").text(index);
+        tRow.append("td")
+        .attr("class","mdl-data-table__cell--non-numeric")
+        .text(index);
         tRow.append("td").
         attr("class","mdl-data-table__cell--non-numeric").
         append("input").
