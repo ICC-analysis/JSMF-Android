@@ -27,7 +27,7 @@ function compare(ModelSource,ModelTarget) {
             _.each(Object.keys(currentTarget.conformsTo().getAllAttributes()), function(attName) {
                 if(currentSource!==undefined) {
                     console.log(attName,currentTarget[attName],currentSource[attName]);
-                } else
+                } 
             });
            // console.log(_.pick(currentTarget,));
         }
