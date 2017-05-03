@@ -34,12 +34,20 @@ function compare(ModelSource,ModelTarget) {
    
     
     _.each(keys,function(i) {
-          //  console.log(mTargetElements[i]);
-            _.each(mTargetElements[i],function(elems){
-                _.each(Object.keys(elems.conformsTo().getAllAttributes()), function(attName) {  
-                    console.log(attName,elems[attName]);
+          var zipped = _.zip(mSourceElements[i],mTargetElements[i]);
+            _.map(zipped,function(pair){
+                //console.log(pair[0]);
+               var keys= Object.keys(pair[1].conformsTo().getAllAttributes());
+                 _.each(keys, function(attName) {
+                     if(pair[0]!==undefined) {
+                        console.log(pair[0][attName],' : ',pair[1][attName]);
+                     }
                 });
-            });
+            })
+          
+              //  _.each(Object.keys(elems.conformsTo().getAllAttributes()), function(attName) {  
+                   // console.log(attName,elems[attName]);
+            //    });
     });
     
             //console.log(id,'  ',i, ' : ')//,currentTarget,currentSource);
