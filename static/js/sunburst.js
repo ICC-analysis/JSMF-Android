@@ -80,6 +80,8 @@ function buildVisualization(visuJSMF, svg) {
     .append("title")
     .text(function(d) { return d.name + "\n" + formatNumber(d.value); });
 
+    svg.on("mouseleave", mouseleave);
+
     // make sure this is done after setting the domain
     drawLegend();
 
@@ -277,6 +279,34 @@ function updateBreadcrumbs(nodeArray, percentageString) {
     d3.select("#trail")
     .style("visibility", "");
 
+}
+
+// Restore everything to full opacity when moving off the visualization.
+function mouseleave(d) {
+    var chart_id = d3.event.originalTarget.farthestViewportElement.id;
+
+    console.log("mouseleave");
+    console.log(d);
+    // Hide the breadcrumb trail
+    d3.select("#trail")
+    .style("visibility", "hidden");
+
+    // Deactivate all segments during transition.
+    d3.selectAll("path").on("mouseover", null);
+
+    // Transition each segment to full opacity and then reactivate it.
+    d3.selectAll("path")
+    .transition()
+    .duration(1000)
+    .style("opacity", 1)
+    .each("end", function() {
+        d3.select(this).on("mouseover", mouseover);
+    });
+
+    d3.select("#explanation-"+chart_id)
+    .transition()
+    .duration(1000)
+    .style("visibility", "hidden");
 }
 
 function drawLegend() {
