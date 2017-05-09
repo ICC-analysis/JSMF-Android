@@ -59,26 +59,8 @@
                     <a href="/s" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900">Graph view</a>
                 </div>
             </div>
-
-            <!-- div class="mdl-card mdl-cell mdl-cell--4-col mdl-cell--6-col-tablet mdl-shadow--16dp">
-            <div class="mdl-card__media">
-            <img src="images/discovery.jpg" alt="" />
         </div>
-        <div class="mdl-card__title">
-        <h1 class="mdl-card__title-text mdl-color-text--light-blue-900">To be Continued</h1>
-    </div>
-    <div class="mdl-card__supporting-text">
-    <p>Upload other models, connect information, compute differences, etc....</p>
-</div>
-<div class="mdl-card__actions mdl-card--border">
-<input type="file" id="file">
-<label for="file" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--light-blue-900">Upload</label>
-</input>
-</div> -->
-</div>
-
-
-</main>
+    </main>
 <script>
 var snackbarContainer = document.querySelector('#demo-snackbar-example');
 var showSnackbarButton = document.querySelector('#demo-show-snackbar');
@@ -100,8 +82,6 @@ function updateScroll() {
 document.getElementById("log-auto-scroll").addEventListener("scroll mousedown wheel mousewheel", function(){
     scrolled=true;
 });
-
-
 
 
 var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
