@@ -113,52 +113,53 @@ function click(d, i) {
     var chart_id = d3.event.originalTarget.farthestViewportElement.id;
     var component_name = getJsmfELementIdentifier(d);
 
-    if (d.name == "Component") {
-            var component_name = d.data.__jsmf__.attributes["name"];
-            if (component_name) {
-                if (chart_id == "chart1") {
-                    document.getElementById('source_code-'+chart_id).innerText = unescape(source_code_1[component_name]);
-                }
-                else {
-                    document.getElementById('source_code-'+chart_id).innerText = unescape(source_code_2[component_name]);
-                }
-                hljs.initHighlighting.called = false;
-                hljs.initHighlighting();
-            }
-            else {
-                document.getElementById('source_code-'+chart_id).innerText = '';
-            }
-        }
-        else {
-            document.getElementById('source_code-'+chart_id).innerText = '';
-        }
+    // if (d.name == "Component") {
+    //         var component_name = d.data.__jsmf__.attributes["name"];
+    //         if (component_name) {
+    //             if (chart_id == "chart1") {
+    //                 document.getElementById('source_code-'+chart_id).innerText = unescape(source_code[chart_id][component_name]);
+    //             }
+    //             else {
+    //                 document.getElementById('source_code-'+chart_id).innerText = unescape(source_code[chart_id][component_name]);
+    //             }
+    //             hljs.initHighlighting.called = false;
+    //             hljs.initHighlighting();
+    //         }
+    //         else {
+    //             document.getElementById('source_code-'+chart_id).innerText = '';
+    //         }
+    //     }
+    //     else {
+    //         document.getElementById('source_code-'+chart_id).innerText = '';
+    //     }
 
 
-
+    var svg = d3.select(chart_id);
 
 
     //retieve the module component in the other view
 
     transition(chart_id, d);
 
-    d3.selectAll(".sunburst")[0]
-    .filter(function(elem) { return elem.id !== chart_id })
-    .map(function(sunburst_svg) {
-        if(component_name!==""){
-            d3.select("#"+sunburst_svg.id).select("svg").select("g")
-            .selectAll("path")[0]
-            .filter(function(typeElem){return typeElem.__data__.name == d.name})
-            .filter(function(itElem){
-                var jsmfElment = itElem.__data__.data;
-                var test = getJsmfELementIdentifier(itElem.__data__);
-                return test==component_name;
-            }).map(function(x){
-                console.log(getJsmfELementIdentifier(x.__data__));
-                transition(sunburst_svg.id, x.__data__);
-            });
-
-        }
-    })
+    // d3.selectAll(".sunburst")[0]
+    // .filter(function(elem) { return elem.id !== chart_id })
+    // .map(function(sunburst_svg) {
+    //     if(component_name!==""){
+    //         console.log("#"+sunburst_svg.id);
+    //         d3.select(sunburst_svg.id).select("svg").select("g")
+    //         .selectAll("path")[0]
+    //         .filter(function(typeElem){return typeElem.__data__.name == d.name})
+    //         .filter(function(itElem){
+    //             var jsmfElment = itElem.__data__.data;
+    //             var test = getJsmfELementIdentifier(itElem.__data__);
+    //             return test==component_name;
+    //         }).map(function(x){
+    //             console.log(getJsmfELementIdentifier(x.__data__));
+    //             transition(sunburst_svg.id, x.__data__);
+    //         });
+    //
+    //     }
+    // })
 }
 
 function transition(chart_id, d) {
@@ -177,10 +178,15 @@ function transition(chart_id, d) {
 
 function mouseover(d, i) {
     var chart_id = d3.event.originalTarget.farthestViewportElement.id;
-    var svg = d3.select("#"+chart_id);
+    var svg = d3.select(chart_id);
+    console.log(chart_id);
+}
 
+function mouseover_back(d, i) {
+    var chart_id = d3.event.originalTarget.farthestViewportElement.id;
+    var svg = d3.select(chart_id);
+    console.log(chart_id);
     var component_name = getJsmfELementIdentifier(d);
-    console.log(component_name);
 
     d3.select("#explanation-"+chart_id).style("visibility", "");
 

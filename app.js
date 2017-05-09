@@ -124,7 +124,7 @@ app.post('/upload',  upload.array('files[]', 2), function(req, res, next) {
     // We can receive 1 or 2 APK through the POST request.
     const spawn_sync = require('child_process').spawnSync;
     spawn_sync('rm', ['-Rf', conf.bin_outputs]);
-    apk_analyzer.ICC_models = [];
+    apk_analyzer.ICC_models = {};
 
     var generate_ast = true;
     if (req.body.generate_ast == 'false') {
@@ -158,105 +158,67 @@ app.post('/upload',  upload.array('files[]', 2), function(req, res, next) {
 
 
 app.get('/compare', function(req, res) {
+    var models = {};
+    var source_code = {};
 
-    var model1 = false;
-    var model2 = false;
+    Object.keys(apk_analyzer.ICC_models).forEach(function(filename) {
+        var model = apk_analyzer.ICC_models[filename];
+        // model = jsmfjson.parse(model);
 
-    var source_code_1 = {};
-    var source_code_2 = {};
+        // Get decompiled source code of apps
+        var source_code_current_app = []
+        model.modellingElements['Component'].map(function(component) {
+            var name;
+            name = component.name || component.class_name;
+            if (name) {
+                var file = conf.bin_outputs + 'jdcmd/' +
+                filename + '/' +
+                name.replace(/\./g, '/')  + '.java';
+                var content;
+                try {
+                    content = fs.readFileSync(file, 'utf-8')
+                } catch (err) {
+                    console.log("[Warning] Error when reading source code: " + err);
+                }
 
-    // try {
-    //     var model1 = jsmfjson.stringify(apk_analyzer.ICC_models[0]);
-    // }
-    // catch (err) {
-    //     console.log(`ICC model not found: ${err}`);
-    //     req.flash('error', `ICC model not found.`);
-    // }
-    // try {
-    //     var model2 = jsmfjson.stringify(apk_analyzer.ICC_models[1]);
-    // }
-    // catch (err) {
-    //     console.log(`ICC model not found: ${err}`);
-    //     req.flash('error', `ICC model not found.`);
-    // }
+                source_code_current_app[name] = escape(content);
 
-
-    var data = fs.readFileSync(conf.bin_outputs + 'FFE44A8695CCEB4979825C54A29B4CB9765057308A97E49F6C6C5C473DED0AB3.apk.json', 'utf8');
-    model1 = jsmfjson.parse(data);
-    model1.modellingElements['Component'].map(function(component) {
-        var name;
-        name = component.name || component.class_name;
-        if (name) {
-            var file = conf.bin_outputs + 'jdcmd/' +
-            'FFE44A8695CCEB4979825C54A29B4CB9765057308A97E49F6C6C5C473DED0AB3.apk/' +
-            name.replace(/\./g, '/')  + '.java';
-            var content;
-            try {
-                content = fs.readFileSync(file, 'utf-8')
-            } catch (err) {
-                console.log("Error when reading source code: " + err);
             }
+        });
+        source_code[filename] = source_code_current_app;
 
-            source_code_1[name] = escape(content);
-        }
+        models[filename] = jsmfjson.stringify(model);
     });
-    source_code_1 = JSON.stringify(source_code_1);
-
-
-    var data = fs.readFileSync(conf.bin_outputs + '1CA20CC2CCF0E981781B25BAD314098A168B6FAF848393A37D19A302A40F3F4C.apk.json', 'utf8');
-    model2 = jsmfjson.parse(data);
-    model2.modellingElements['Component'].map(function(component) {
-        var name;
-        name = component.name || component.class_name;
-        if (name) {
-            var file = conf.bin_outputs + 'jdcmd/' +
-            '1CA20CC2CCF0E981781B25BAD314098A168B6FAF848393A37D19A302A40F3F4C.apk/' +
-            name.replace(/\./g, '/')  + '.java';
-            var content;
-            try {
-                content = fs.readFileSync(file, 'utf-8')
-            } catch (err) {
-                console.log("Error when reading source code: " + err);
-            }
-            source_code_2[name] = escape(content);
-        }
-    });
-    source_code_2 = JSON.stringify(source_code_2);
-
-
-    model1 = jsmfjson.stringify(model1);
-    model2 = jsmfjson.stringify(model2);
+    models = JSON.stringify(models);
+    source_code = JSON.stringify(source_code);
 
 
     // Done during the hackathon: try to get directly the tab from compartor not the map.
-    if(model1!==undefined && model2 !==undefined) {
-        var metrics = comparator.compare(jsmfjson.parse(model1),jsmfjson.parse(model2));
-        var sourceMetricsTab = [];
-        var targetMetricsTab = [];
-        var diffMetrics = [];
-        for (var [key, value] of metrics.sourceMetrics) {
-           sourceMetricsTab.push({"key":key,"val":value});
-        }
-         for (var [key, value] of metrics.targetMetrics) {
-           targetMetricsTab.push({"key":key,"val":value});
-        }
-        //List are ordered the same way...
-        for(var i in sourceMetricsTab) {
-            var diffVal = (targetMetricsTab[i].val-sourceMetricsTab[i].val);
-            diffMetrics.push({"key":sourceMetricsTab[i].key,"val":diffVal});
-        }
-
-        var metricsToSend={sourceMetrics: sourceMetricsTab,targetMetrics:targetMetricsTab,diffMetrics:diffMetrics};
-        metrics = JSON.stringify(metricsToSend);
+    var metrics = Object.values(apk_analyzer.ICC_models).reduce(comparator.compare);
+    var sourceMetricsTab = [];
+    var targetMetricsTab = [];
+    var diffMetrics = [];
+    for (var [key, value] of metrics.sourceMetrics) {
+       sourceMetricsTab.push({"key":key,"val":value});
     }
-
+     for (var [key, value] of metrics.targetMetrics) {
+       targetMetricsTab.push({"key":key,"val":value});
+    }
+    //List are ordered the same way...
+    for(var i in sourceMetricsTab) {
+        var diffVal = (targetMetricsTab[i].val-sourceMetricsTab[i].val);
+        diffMetrics.push({"key":sourceMetricsTab[i].key,"val":diffVal});
+    }
+    var metricsToSend = {   sourceMetrics: sourceMetricsTab,
+                            targetMetrics:targetMetricsTab,
+                            diffMetrics:diffMetrics
+    };
+    metrics = JSON.stringify(metricsToSend);
 
 
     res.render('compare.html',{
-        model1: model1,
-        model2: model2,
-        source_code_1: source_code_1,
-        source_code_2: source_code_2,
+        models,
+        source_code,
         metrics: metrics
     });
 });
