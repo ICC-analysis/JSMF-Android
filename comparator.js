@@ -4,6 +4,7 @@ var jsmf = require('jsmf-core'),
 
 var _ =require('lodash');
 
+//Compare models with same/similar (i.e., with same name, not necessarily full similar signature) metamodels 
 function compare(ModelSource,ModelTarget) {
     
     //Compute values
@@ -15,63 +16,154 @@ function compare(ModelSource,ModelTarget) {
     var mSourceMetrics = new Map();
     var mTargetMetrics = new Map();
     
-    var currentMetaListTarget = [];
-    var currentMetaListSource = [];
-    
+    var sourcekeys = [];
+    var targetkeys = [];
     var keys = [];
+    
+    var sameSimilar = [];
+    
     //comparison class by class
     _.each(mSourceElements,function(elements,id){
-      //  console.log(id);
-        keys.push(id);
+        //assuming they have the same classes
+        sourcekeys.push(id);
         mSourceMetrics.set(id,elements.length);
-        currentMetaListSource.push(elements);
+        _.each(elements,function(elem){
+         //  var currentlnormal = normalizeModelElements(elem);
+            _.each(mTargetElements[id], function(target) {
+                
+                //Assumption: Objects have the same metamodel... should be tested before
+                var diff = modelElementDifference(elem,target);
+                
+                if(diff!==[]) {
+                    console.log('diff ',elem.name, ' : ', target.name, '/ ', diff);
+                    //compute too "much" difference (heuristic) -> see with bayesian approach
+                    //if all attributes are different => different modelling elements
+                    var attributeKeys = Object.keys(elem.conformsTo().getAllAttributes());
+                    console.log(diff.length);
+                    //if some attributes are common =>
+                    
+                } else {
+                    console.log('Same Objects');
+                    //Similar checked : add tuple source/target to list as similar
+                }
+            });
+           
+        });
+       // currentMetaListSource.push(elements);
      }); 
     
+    
     _.each(mTargetElements,function(elements,id){
+        targetkeys.push(id);
         mTargetMetrics.set(id,elements.length);
-        currentMetaListTarget.push(elements);
+        //currentMetaListTarget.push(elements);
     });
    
-    
-    _.each(keys,function(i) {
-          var zipped = _.zip(mSourceElements[i],mTargetElements[i]);
-            _.map(zipped,function(pair){
-                //console.log(pair[0]);
-               var keys= Object.keys(pair[1].conformsTo().getAllAttributes());
-                 _.each(keys, function(attName) {
-                     if(pair[0]!==undefined) {
-                        console.log(pair[0][attName],' : ',pair[1][attName]);
-                     }
-                });
-            })
-          
-              //  _.each(Object.keys(elems.conformsTo().getAllAttributes()), function(attName) {  
-                   // console.log(attName,elems[attName]);
-            //    });
-    });
-    
-            //console.log(id,'  ',i, ' : ')//,currentTarget,currentSource);
-          /*  _.each(Object.keys(currentTarget.conformsTo().getAllAttributes()), function(attName) {
-                if(currentSource!==undefined) {
-                    //console.log(attName,currentTarget[attName],currentSource[attName]);
-          */
-       /* _(mSourceElements[id]).each(function(jsmfS,id2){
-            _(mTargetElements[id]).each(function(jsmfT,id3){
-               // compareModelElement(jsmfS,jsmfT);
-            });
-        }); */
-    
     return ({"sourceMetrics": mSourceMetrics,"targetMetrics":mTargetMetrics});
 }
 
-
-function compareModelElement(elSource,elTarget) {
-       console.log(_.pick(elSource,Object.keys(elSource.conformsTo().getAllAttributes())));
-   return  true;
+/*
+function normalizeModelElements(modelElement) {
+    
+    var attributeKeys = Object.keys(modelElement.conformsTo().getAllAttributes());
+    
+    var referenceKeys = Object.keys(modelElement.conformsTo().getAllReferences());
+    
+    var result = new Map();
+    var attributes = [];
+    var references=[];
+    
+    _.each(attributeKeys,function(attName){
+           // console.log(attName, " : ",modelElement[attName]);
+         attributes.push(modelElement[attName]); 
+    });
+    
+    _.each(referenceKeys, function(refName) {
+          references.push(modelElement[refName]); // filter the target
+    });
+     
+    //model element is map key -> facilitate the retrieval using references
+    result.set(modelElement,{att: attributes,ref:references});
+    return result;
 }
+*/
+
 //function dryModel(c) {
   //return _.assign({__jsmf: {uuid: jsmf.jsmfId(c)}}, _.pick(c, ['__name', 'referenceModel', 'modellingElements']))
 //}
+
+function buildExample() {
+    var m1 = new Model('source');
+    var m2 = new Model('target');
+    
+    var MM = Class.newInstance('MM');
+    MM.setAttribute('name',String);
+    MM.setAttribute('permission',Boolean);
+    
+    var ms = MM.newInstance();
+    ms.name='sourceEl'
+    ms.permission=false;
+    
+    var mrav = MM.newInstance();
+    mrav.name='sourceRAV';
+    mrav.permission=false;
+      
+    var mt1 = MM.newInstance();
+    mt1.name='targetEL'
+    mt1.permission=false;
+    
+    var mt2= MM.newInstance();
+    mt2.name='sourceEl';
+    mt2.permission=false;
+    
+    var mt3=MM.newInstance();
+    mt3.name='sourceEl';
+    mt3.permission=true;
+    
+    m1.setModellingElements([ms,mrav]);
+    m2.setModellingElements([mt1,mt2,mt3]);
+    
+    return {sm: m1, tm:m2};
+    
+}
+
+/**
+
+@pre-condition: the two elements have common metamodel
+@return an object containing the difference (can/should be a JSMF model!)
+*/
+function modelElementDifference(source,target,depth) {
+
+    var attributeKeys = Object.keys(source.conformsTo().getAllAttributes());
+    var targetKeys = Object.keys(source.conformsTo().getAllAttributes());
+    
+    //do the same for references
+    var referenceSourceKeys = Object.keys(source.conformsTo().getAllReferences());
+    var referenceTargetKeys = Object.keys(source.conformsTo().getAllReferences());
+    
+    var diffObject = [];
+    
+  // console.log( _.difference(attributeKeys,targetKeys));
+    
+    _.each(attributeKeys,function(attName){
+       // console.log(attName, " : ",source[attName], "vs", target[attName]);
+        if(!(_.isEqual(source[attName],target[attName]))){
+            diffObject.push({name:attName,targetValue:target[attName],sourceValue:source[attName]});
+        }
+        
+    });
+    
+    _.each(referenceSourceKeys, function(refName) {
+       console.log(source[refName]);
+    });
+    
+    return diffObject;
+}
+
+
+var comparator = buildExample();
+compare(comparator.sm, comparator.tm);
+
 
 module.exports = {
     compare: compare
