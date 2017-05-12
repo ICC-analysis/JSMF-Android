@@ -82,34 +82,28 @@
 </main>
 <script>
 //Getting models from server
-if (<%- models %> ) {
-    var models = <%- models %>;
-    var source_code = <%- source_code %>;
+var models = <%- models %>;
+var source_code = <%- source_code %>;
 
-    Object.keys(models).forEach(function(filename, i) {
-        var model = models[filename];
-        model = jsmf.parse(model);
-        var root = _.first(model.elements());
+Object.keys(models).forEach(function(filename, i) {
+    var model = models[filename];
+    model = jsmf.parse(model);
+    var root = _.first(model.elements());
 
-        document.getElementById('appName'+ (i+1).toString() ).innerHTML =
-                                    `<h5>Application name: ${root.name}</h5>`;
+    document.getElementById('appName'+ (i+1).toString() ).innerHTML =
+                                `<h5>Application name: ${root.name}</h5>`;
 
-
-        console.log(filename.split(".", 1)[0]);
-
-
-
-        buildVisualization(buildModel(root), d3.select("#chart"+(i+1).toString()).append("svg:svg")
+    buildVisualization(buildModel(root),
+        d3.select("#chart"+(i+1).toString())
+        .append("svg:svg")
         .attr("id", filename.split(".", 1)[0])
         .attr("class", "sunburst")
         .attr("width", width)
         .attr("height", height)
         .append("g")
-        .attr("transform", "translate(" + width / 2 + "," + (height / 2) + ")"));
-    });
-}
-
-
+        .attr("transform",
+                    "translate(" + width / 2 + "," + (height / 2) + ")"));
+});
 
 if(<%- metrics %>) {
    var metrics = <%- metrics %>;
@@ -131,7 +125,6 @@ if(<%- metrics %>) {
         }
     }
 }
-
 </script>
 </body>
 </html>

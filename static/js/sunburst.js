@@ -179,7 +179,7 @@ function transition(chart_id, d) {
 function mouseover(d, i) {
     var chart_id = d3.event.originalTarget.farthestViewportElement.id;
     var svg = d3.select(chart_id);
-    console.log(chart_id);
+    console.log(svg);
 }
 
 function mouseover_back(d, i) {
