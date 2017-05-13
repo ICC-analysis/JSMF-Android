@@ -33,30 +33,36 @@ function compare(ModelSource,ModelTarget) {
                 
                 //Assumption: Objects have the same metamodel... should be tested before
                 var diff = modelElementDifference(elem,target);
-                
-                if(diff!==[]) {
-                    console.log('diff ',elem.name, ' : ', target.name, '/ ', diff);
+                const diflen= diff.length;
+               
+                if(diflen!==0) {
+                    //console.log('diff ',elem.name, ' : ', target.name, '/ ', diff);
                     //compute too "much" difference (heuristic) -> see with bayesian approach
-                    //if all attributes are different => different modelling elements
                     var attributeKeys = Object.keys(elem.conformsTo().getAllAttributes());
-                    console.log(diff.length);
-                    //if some attributes are common =>
+                  
+                        // if some attributes are common =>threshold 50%?
+                        if(diflen<=(attributeKeys.length/2)) {
+                        console.log('Similar');
+                        sameSimilar.push({type:'diff',src:elem,tgt:target,meta:id,diff:diff});
+                        } else {
+                            //if all attributes are different => different modelling elements
+                            console.log('too much difference');
+                        }
                     
                 } else {
                     console.log('Same Objects');
+                    sameSimilar.push({type:'same',src: elem, tgt: target, meta:id,diff:[]});
                     //Similar checked : add tuple source/target to list as similar
                 }
             });
            
         });
-       // currentMetaListSource.push(elements);
      }); 
     
     
     _.each(mTargetElements,function(elements,id){
         targetkeys.push(id);
         mTargetMetrics.set(id,elements.length);
-        //currentMetaListTarget.push(elements);
     });
    
     return ({"sourceMetrics": mSourceMetrics,"targetMetrics":mTargetMetrics});
@@ -87,10 +93,6 @@ function normalizeModelElements(modelElement) {
     return result;
 }
 */
-
-//function dryModel(c) {
-  //return _.assign({__jsmf: {uuid: jsmf.jsmfId(c)}}, _.pick(c, ['__name', 'referenceModel', 'modellingElements']))
-//}
 
 function buildExample() {
     var m1 = new Model('source');
