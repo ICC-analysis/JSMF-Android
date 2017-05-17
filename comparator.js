@@ -16,8 +16,6 @@ function compare(ModelSource,ModelTarget) {
     var mSourceMetrics = new Map();
     var mTargetMetrics = new Map();
     
-    var sourcekeys = [];
-    var targetkeys = [];
     var keys = [];
     
     var sameSimilar = [];
@@ -25,7 +23,7 @@ function compare(ModelSource,ModelTarget) {
     //comparison class by class
     _.each(mSourceElements,function(elements,id){
         //assuming they have the same classes
-        sourcekeys.push(id);
+        console.log(id);
         mSourceMetrics.set(id,elements.length);
         _.each(elements,function(elem){
          //  var currentlnormal = normalizeModelElements(elem);
@@ -46,7 +44,7 @@ function compare(ModelSource,ModelTarget) {
                         sameSimilar.push({type:'diff',src:elem,tgt:target,meta:id,diff:diff});
                         } else {
                             //if all attributes are different => different modelling elements
-                            console.log('too much difference');
+                            console.log('too much difference: probably not the same elements');
                         }
                     
                 } else {
@@ -61,38 +59,11 @@ function compare(ModelSource,ModelTarget) {
     
     
     _.each(mTargetElements,function(elements,id){
-        targetkeys.push(id);
         mTargetMetrics.set(id,elements.length);
     });
    
     return ({"sourceMetrics": mSourceMetrics,"targetMetrics":mTargetMetrics});
 }
-
-/*
-function normalizeModelElements(modelElement) {
-    
-    var attributeKeys = Object.keys(modelElement.conformsTo().getAllAttributes());
-    
-    var referenceKeys = Object.keys(modelElement.conformsTo().getAllReferences());
-    
-    var result = new Map();
-    var attributes = [];
-    var references=[];
-    
-    _.each(attributeKeys,function(attName){
-           // console.log(attName, " : ",modelElement[attName]);
-         attributes.push(modelElement[attName]); 
-    });
-    
-    _.each(referenceKeys, function(refName) {
-          references.push(modelElement[refName]); // filter the target
-    });
-     
-    //model element is map key -> facilitate the retrieval using references
-    result.set(modelElement,{att: attributes,ref:references});
-    return result;
-}
-*/
 
 function buildExample() {
     var m1 = new Model('source');
@@ -102,14 +73,29 @@ function buildExample() {
     MM.setAttribute('name',String);
     MM.setAttribute('permission',Boolean);
     
+    var MMbis = Class.newInstance('MMbis');
+    MMbis.setAttribute('name',String);
+    MMbis.setAttribute('inv',Number);
+    
+    MM.setReference('refMb', MMbis, -1);
+    
+    //Model 1
     var ms = MM.newInstance();
     ms.name='sourceEl'
     ms.permission=false;
     
+    
     var mrav = MM.newInstance();
     mrav.name='sourceRAV';
     mrav.permission=false;
-      
+    
+    var bis = MMbis.newInstance();
+    bis.name='bis';
+    bis.inv=12;
+    
+    ms.refMb=bis;
+    
+    // Model   2 compared
     var mt1 = MM.newInstance();
     mt1.name='targetEL'
     mt1.permission=false;
@@ -122,8 +108,12 @@ function buildExample() {
     mt3.name='sourceEl';
     mt3.permission=true;
     
-    m1.setModellingElements([ms,mrav]);
-    m2.setModellingElements([mt1,mt2,mt3]);
+    var b1 = MMbis.newInstance();
+    b1.name='bis';
+    b1.inv=12;
+    
+    m1.setModellingElements([ms,mrav,bis]);
+    m2.setModellingElements([mt1,mt2,mt3,b1]);
     
     return {sm: m1, tm:m2};
     
@@ -148,7 +138,7 @@ function modelElementDifference(source,target,depth) {
   // console.log( _.difference(attributeKeys,targetKeys));
     
     _.each(attributeKeys,function(attName){
-       // console.log(attName, " : ",source[attName], "vs", target[attName]);
+        //console.log(attName, " : ",source[attName], "vs", target[attName]);
         if(!(_.isEqual(source[attName],target[attName]))){
             diffObject.push({name:attName,targetValue:target[attName],sourceValue:source[attName]});
         }
@@ -156,7 +146,9 @@ function modelElementDifference(source,target,depth) {
     });
     
     _.each(referenceSourceKeys, function(refName) {
-       console.log(source[refName]);
+      if(source[refName].length!=0) {
+        console.log(refName,' : ' ,source[refName], 'vs',target[refName]);
+      }
     });
     
     return diffObject;
