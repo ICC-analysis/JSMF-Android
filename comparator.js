@@ -30,7 +30,7 @@ function compare(ModelSource,ModelTarget) {
             _.each(mTargetElements[id], function(target) {
                 
                 //Assumption: Objects have the same metamodel... should be tested before
-                var diff = modelElementDifference(elem,target);
+                var diff = modelElementDifference(elem,target,1);
                 const diflen= diff.length;
                
                 if(diflen!==0) {
@@ -102,7 +102,7 @@ function buildExample() {
     
     var mt2= MM.newInstance();
     mt2.name='sourceEl';
-    mt2.permission=false;
+    mt2.permission=false; //  // console.log( _.difference(attributeKeys,targetKeys))console.log( _.difference(attributeKeys,targetKeys))
     
     var mt3=MM.newInstance();
     mt3.name='sourceEl';
@@ -111,6 +111,8 @@ function buildExample() {
     var b1 = MMbis.newInstance();
     b1.name='bis';
     b1.inv=12;
+    
+    mt2.refMb=b1;
     
     m1.setModellingElements([ms,mrav,bis]);
     m2.setModellingElements([mt1,mt2,mt3,b1]);
@@ -122,35 +124,50 @@ function buildExample() {
 /**
 
 @pre-condition: the two elements have common metamodel
-@return an object containing the difference (can/should be a JSMF model!)
+@return an object containing the difference (can/should be a JSMF model!). Undefined  if any of source or target are undefined
 */
 function modelElementDifference(source,target,depth) {
+    
+    var depth = depth==undefined? 0 : depth;
+    if(target!==undefined && source!==undefined) {
+        var diffObject = [];
+    //precond : source / target !== undefined
+        var attributeKeys = Object.keys(source.conformsTo().getAllAttributes());
+        var targetKeys = Object.keys(source.conformsTo().getAllAttributes());
 
-    var attributeKeys = Object.keys(source.conformsTo().getAllAttributes());
-    var targetKeys = Object.keys(source.conformsTo().getAllAttributes());
-    
-    //do the same for references
-    var referenceSourceKeys = Object.keys(source.conformsTo().getAllReferences());
-    var referenceTargetKeys = Object.keys(source.conformsTo().getAllReferences());
-    
-    var diffObject = [];
-    
-  // console.log( _.difference(attributeKeys,targetKeys));
-    
-    _.each(attributeKeys,function(attName){
-        //console.log(attName, " : ",source[attName], "vs", target[attName]);
-        if(!(_.isEqual(source[attName],target[attName]))){
-            diffObject.push({name:attName,targetValue:target[attName],sourceValue:source[attName]});
+        //do the same for references
+        var referenceSourceKeys = Object.keys(source.conformsTo().getAllReferences());
+        var referenceTargetKeys = Object.keys(source.conformsTo().getAllReferences());
+
+        _.each(attributeKeys,function(attName){
+            //console.log(attName, " : ",source[attName], "vs", target[attName]);
+            if(!(_.isEqual(source[attName],target[attName]))){
+                diffObject.push({name:attName,targetValue:target[attName],sourceValue:source[attName]});
+            }
+
+        });
+
+        if(depth!=0) {
+            _.each(referenceSourceKeys, function(refName) {
+              if(source[refName].length!=0) {
+
+               // console.log(refName,' : ' , source[refName], 'vs', target[refName]);
+               console.log(source[refName].length,target[refName].length); //not the same cardinality
+                  
+                //check the types targetted? should be the same      
+                 
+             console.log('thediff',modelElementDifference(source[refName][0],target[refName][0],depth-1));
+                
+                //check the elements targetted  
+                var diffRef= modelElementDifference(source[refName][0],target[refName][0],depth-1);
+                  if(diffRef!=[]||diffRef!=undefined) {
+                      
+                  }
+                  
+              }
+            });
         }
-        
-    });
-    
-    _.each(referenceSourceKeys, function(refName) {
-      if(source[refName].length!=0) {
-        console.log(refName,' : ' ,source[refName], 'vs',target[refName]);
-      }
-    });
-    
+    }
     return diffObject;
 }
 
