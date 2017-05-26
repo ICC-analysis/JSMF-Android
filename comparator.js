@@ -122,22 +122,24 @@ function buildExample() {
 }
 
 /**
-
+* Pairwise comparison of two model elements conforms to the same metamodel element.
 @pre-condition: the two elements have common metamodel
 @return an object containing the difference (can/should be a JSMF model!). Undefined  if any of source or target are undefined
 */
 function modelElementDifference(source,target,depth) {
     
-    var depth = depth==undefined? 0 : depth;
+    //init the depth to one = checking references
+    var depth = depth==undefined? 1 : depth;
+    
     if(target!==undefined && source!==undefined) {
         var diffObject = [];
-    //precond : source / target !== undefined
+        //precond : source / target !== undefined
         var attributeKeys = Object.keys(source.conformsTo().getAllAttributes());
-        var targetKeys = Object.keys(source.conformsTo().getAllAttributes());
+        //var targetKeys = Object.keys(source.conformsTo().getAllAttributes());
 
         //do the same for references
-        var referenceSourceKeys = Object.keys(source.conformsTo().getAllReferences());
-        var referenceTargetKeys = Object.keys(source.conformsTo().getAllReferences());
+        var referenceKeys = Object.keys(source.conformsTo().getAllReferences());
+        //var referenceTargetKeys = Object.keys(source.conformsTo().getAllReferences());
 
         _.each(attributeKeys,function(attName){
             //console.log(attName, " : ",source[attName], "vs", target[attName]);
@@ -146,25 +148,35 @@ function modelElementDifference(source,target,depth) {
             }
 
         });
-
-        if(depth!=0) {
-            _.each(referenceSourceKeys, function(refName) {
+        //do not go to deep in the object comparisons
+        if(depth>0) {
+            _.each(referenceKeys, function(refName) {
               if(source[refName].length!=0) {
 
-               // console.log(refName,' : ' , source[refName], 'vs', target[refName]);
-               console.log(source[refName].length,target[refName].length); //not the same cardinality
+                //TODO: check the targetted types
                   
-                //check the types targetted? should be the same      
-                 
-             console.log('thediff',modelElementDifference(source[refName][0],target[refName][0],depth-1));
-                
-                //check the elements targetted  
-                var diffRef= modelElementDifference(source[refName][0],target[refName][0],depth-1);
-                  if(diffRef!=[]||diffRef!=undefined) {
-                      
-                  }
-                  
-              }
+                   //not the same "actual" cardinality
+                    if(!(source[refName].length==target[refName].length)) {
+                    //TODO : there are maybesame similar targetted elements...
+                            console.log('unsupported situation yet... but critical', target[refName].length);
+                    } else {
+                    //check the elements targetted  
+                            console.log('found one');
+                     var diffTargets = [];
+                        for(var ind=0;ind < source[refName].length; ind++){
+                           var srcElement = source[refName][ind];
+                           var tgtElement = target[refName][ind];
+                            //reducing the depth by one (i.e., getting down the relationship stream)
+                                // todo: try to stop before cycle...
+                            var diffRef= modelElementDifference(srcElement,tgtElement,depth-1);
+                            console.log(diffRef.length,diffRef);
+                            if(diffRef.length!=0 || diffRef==undefined) {
+                              diffTargets.push({src:srcElement,tgt:tgtElement})
+                            } else {console.log("verySame")}
+                        } //endFor traversal of relationships pointers
+                     diffObject.push({name:refName, diffCouples:diffTargets});
+                    }   
+              } //endif : if source[refName] is defined
             });
         }
     }
