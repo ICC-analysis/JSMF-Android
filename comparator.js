@@ -22,8 +22,7 @@ function compare(ModelSource,ModelTarget) {
     
     //comparison class by class
     _.each(mSourceElements,function(elements,id){
-        //assuming they have the same classes
-        console.log(id);
+        //assuming they have the same classes;
         mSourceMetrics.set(id,elements.length);
         _.each(elements,function(elem){
          //  var currentlnormal = normalizeModelElements(elem);
@@ -31,23 +30,28 @@ function compare(ModelSource,ModelTarget) {
                 
                 //Assumption: Objects have the same metamodel... should be tested before
                 var diff = modelElementDifference(elem,target,1);
+                var diffAtt = _.filter(diff,{type:"attribute"});
+                var diffRef = _.filter(diff,{type:"reference"});
+                
+               // console.log('diff: ',diffAtt);
                 const diflen= diff.length;
                
                 if(diflen!==0) {
                     //console.log('diff ',elem.name, ' : ', target.name, '/ ', diff);
                     //compute too "much" difference (heuristic) -> see with bayesian approach
-                    var attributeKeys = Object.keys(elem.conformsTo().getAllAttributes());
+                    const attributeKeys = Object.keys(elem.conformsTo().getAllAttributes());
+                    const referenceKeys = Object.keys(elem.conformsTo().getAllReferences());
                   
-                        // if some attributes are common =>threshold 50%?
-                        if(diflen<=(attributeKeys.length/2)) {
-                        console.log('Similar');
-                        sameSimilar.push({type:'diff',src:elem,tgt:target,meta:id,diff:diff});
+                        //WARNING: Heuristic, if some attributes are common =>threshold 50%?
+                        if(diffAtt.length<=(attributeKeys.length/2) && diffRef.length<=(referenceKeys.length/2)) {
+                            console.log('Similar');
+                            sameSimilar.push({type:'diff',src:elem,tgt:target,meta:id,diff:diff});
                         } else {
-                            //if all attributes are different => different modelling elements
+                            //if more than 50% of attributes are different => different modelling elements
                             console.log('too much difference: probably not the same elements');
                         }
                     
-                } else {
+                } else { //no differences between objects
                     console.log('Same Objects');
                     sameSimilar.push({type:'same',src: elem, tgt: target, meta:id,diff:[]});
                     //Similar checked : add tuple source/target to list as similar
@@ -57,6 +61,7 @@ function compare(ModelSource,ModelTarget) {
         });
      }); 
     
+    //console.log(sameSimilar);
     
     _.each(mTargetElements,function(elements,id){
         mTargetMetrics.set(id,elements.length);
@@ -93,7 +98,11 @@ function buildExample() {
     bis.name='bis';
     bis.inv=12;
     
-    ms.refMb=bis;
+    var tierce = MMbis.newInstance();
+    tierce.name='tierce';
+    tierce.inv=123;
+    
+    ms.refMb=[bis,tierce];
     
     // Model   2 compared
     var mt1 = MM.newInstance();
@@ -114,8 +123,8 @@ function buildExample() {
     
     mt2.refMb=b1;
     
-    m1.setModellingElements([ms,mrav,bis]);
-    m2.setModellingElements([mt1,mt2,mt3,b1]);
+    m1.setModellingElements([ms,bis,tierce]);
+    m2.setModellingElements([mt1,mt2,b1]);
     
     return {sm: m1, tm:m2};
     
@@ -144,43 +153,113 @@ function modelElementDifference(source,target,depth) {
         _.each(attributeKeys,function(attName){
             //console.log(attName, " : ",source[attName], "vs", target[attName]);
             if(!(_.isEqual(source[attName],target[attName]))){
-                diffObject.push({name:attName,targetValue:target[attName],sourceValue:source[attName]});
+                diffObject.push({name:attName,
+                                 targetValue:target[attName],
+                                 sourceValue:source[attName],
+                                 type:"attribute"
+                                });
             }
 
         });
         //do not go to deep in the object comparisons
-        if(depth>0) {
+        if(depth > 0) {
             _.each(referenceKeys, function(refName) {
-              if(source[refName].length!=0) {
+                const refSource = source[refName];
+                const refTarget = target[refName];
+              if(refSource.length!=0) {
 
                 //TODO: check the targetted types
+                  //Compare elements one by one
+                  var Msource = new Model();
+                  var Mtarget = new Model();
                   
-                   //not the same "actual" cardinality
-                    if(!(source[refName].length==target[refName].length)) {
+                  Msource.add(refSource);
+                  Mtarget.add(refTarget);
+                  
+                    //not the same "actual" cardinality
+                    if(!(refSource.length==refTarget.length)) {
                     //TODO : there are maybesame similar targetted elements...
-                            console.log('unsupported situation yet... but critical', target[refName].length);
+                        console.log('unsupported situation yet: different effective cardinalities', refTarget.length);
+                        var oID= orderIndependentDiff(Msource,Mtarget,depth-1);
+                        console.log('oid',oID);
+                        //remplace the smaller one by place holder/undefined -> use the orderIndependentDiff
+                        //
                     } else {
                     //check the elements targetted  
-                            console.log('found one');
+                    console.log('found one');
                      var diffTargets = [];
-                        for(var ind=0;ind < source[refName].length; ind++){
+                     var oID= orderIndependentDiff(Msource,Mtarget,depth-1);
+                     console.log("oid2 ",oID);
+                        /*for(var ind=0;ind < source[refName].length; ind++){
                            var srcElement = source[refName][ind];
                            var tgtElement = target[refName][ind];
                             //reducing the depth by one (i.e., getting down the relationship stream)
-                                // todo: try to stop before cycle...
+                                // todo: try to stop before cycle... warning: order should be kept...
                             var diffRef= modelElementDifference(srcElement,tgtElement,depth-1);
-                            console.log(diffRef.length,diffRef);
+                            //console.log(diffRef.length,diffRef);
                             if(diffRef.length!=0 || diffRef==undefined) {
                               diffTargets.push({src:srcElement,tgt:tgtElement})
                             } else {console.log("verySame")}
                         } //endFor traversal of relationships pointers
-                     diffObject.push({name:refName, diffCouples:diffTargets});
+                        if(diffTargets.length>0){
+                            diffObject.push({name:refName, diffCouples:diffTargets,type:"reference"});
+                        } */
                     }   
               } //endif : if source[refName] is defined
             });
-        }
+        } //endif check reference (depth !==  0)
     }
     return diffObject;
+}
+
+//Check Similarity/difference of two models conforms to the same metamodel
+function  orderIndependentDiff(ModelSource,ModelTarget,depth) {
+    
+    const mSourceElements = ModelSource.modellingElements;
+    const mTargetElements = ModelTarget.modellingElements; 
+    
+    var sameSimilar = [];
+    //comparison class by class
+    _.each(mSourceElements,function(elements,id){
+        //assuming they have the same classes
+       // console.log(id);
+        _.each(elements,function(elem){
+         //  var currentlnormal = normalizeModelElements(elem);
+            _.each(mTargetElements[id], function(target) {
+                
+                //Assumption: Objects have the same metamodel... should be tested before
+                //TODO Check the search depth..
+                var diff = modelElementDifference(elem,target,depth);
+                var diffAtt = _.filter(diff,{type:"attribute"});
+               // console.log('diff: ',diffAtt);
+                const diflen= diff.length;
+               
+                if(diflen!==0) {
+                    //console.log('diff ',elem.name, ' : ', target.name, '/ ', diff);
+                    //compute too "much" difference (heuristic) -> see with bayesian approach
+                    var attributeKeys = Object.keys(elem.conformsTo().getAllAttributes());
+                  
+                        // if some attributes are common =>threshold 50%?
+                        if(diffAtt.length<=(attributeKeys.length/2)) {
+                        console.log('OI-Similar');
+                        sameSimilar.push({type:'diff',src:elem,tgt:target,meta:id,diff:diff});
+                        } else {
+                            //if all attributes are different => different modelling elements
+                            console.log('OI-DiSimilar');
+                            sameSimilar.push({type:'largeDiff', src:elem, tgt:target,meta:id,diff:diff})
+                            //console.log('too much difference: probably not the same elements');
+                        }
+                    
+                } else {
+                    console.log('OI-same Objects');
+                    sameSimilar.push({type:'same',src: elem, tgt: target, meta:id,diff:[]});
+                    //Similar checked : add tuple source/target to list as similar
+                }
+            });
+           
+        });
+     }); 
+    return sameSimilar;
 }
 
 
