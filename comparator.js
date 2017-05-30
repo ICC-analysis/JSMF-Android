@@ -132,6 +132,9 @@ function buildExample() {
 
 /**
 * Pairwise comparison of two model elements conforms to the same metamodel element.
+@ param source : source model element to be compared to
+@ param target : target model element to be compared.
+@ param depth : relation traversal depth (to avoid circular to avoid complexe deep comparison);
 @pre-condition: the two elements have common metamodel
 @return an object containing the difference (can/should be a JSMF model!). Undefined  if any of source or target are undefined
 */
@@ -179,7 +182,7 @@ function modelElementDifference(source,target,depth) {
                     //not the same "actual" cardinality
                     if(!(refSource.length==refTarget.length)) {
                     //TODO : there are maybesame similar targetted elements...
-                        console.log('unsupported situation yet: different effective cardinalities', refTarget.length);
+                        console.log('Different effective cardinalities', refTarget.length);
                         var oID= orderIndependentDiff(Msource,Mtarget,depth-1);
                         console.log('oid',oID);
                         //remplace the smaller one by place holder/undefined -> use the orderIndependentDiff
@@ -190,20 +193,6 @@ function modelElementDifference(source,target,depth) {
                      var diffTargets = [];
                      var oID= orderIndependentDiff(Msource,Mtarget,depth-1);
                      console.log("oid2 ",oID);
-                        /*for(var ind=0;ind < source[refName].length; ind++){
-                           var srcElement = source[refName][ind];
-                           var tgtElement = target[refName][ind];
-                            //reducing the depth by one (i.e., getting down the relationship stream)
-                                // todo: try to stop before cycle... warning: order should be kept...
-                            var diffRef= modelElementDifference(srcElement,tgtElement,depth-1);
-                            //console.log(diffRef.length,diffRef);
-                            if(diffRef.length!=0 || diffRef==undefined) {
-                              diffTargets.push({src:srcElement,tgt:tgtElement})
-                            } else {console.log("verySame")}
-                        } //endFor traversal of relationships pointers
-                        if(diffTargets.length>0){
-                            diffObject.push({name:refName, diffCouples:diffTargets,type:"reference"});
-                        } */
                     }   
               } //endif : if source[refName] is defined
             });
