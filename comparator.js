@@ -33,7 +33,6 @@ function compare(ModelSource,ModelTarget) {
                 var diffAtt = _.filter(diff,{type:"attribute"});
                 var diffRef = _.filter(diff,{type:"reference"});
                 
-               // console.log('diff: ',diffAtt);
                 const diflen= diff.length;
                
                 if(diflen!==0) {
@@ -44,15 +43,15 @@ function compare(ModelSource,ModelTarget) {
                   
                         //WARNING: Heuristic, if some attributes are common =>threshold 50%?
                         if(diffAtt.length<=(attributeKeys.length/2) && diffRef.length<=(referenceKeys.length/2)) {
-                            console.log('Similar');
+                            //console.log('Similar');
                             sameSimilar.push({type:'diff',src:elem,tgt:target,meta:id,diff:diff});
                         } else {
                             //if more than 50% of attributes are different => different modelling elements
-                            console.log('too much difference: probably not the same elements');
+                            //console.log('too much difference: probably not the same elements');
                         }
                     
                 } else { //no differences between objects
-                    console.log('Same Objects');
+                    //console.log('Same Objects');
                     sameSimilar.push({type:'same',src: elem, tgt: target, meta:id,diff:[]});
                     //Similar checked : add tuple source/target to list as similar
                 }
@@ -61,7 +60,6 @@ function compare(ModelSource,ModelTarget) {
         });
      }); 
     
-    //console.log(sameSimilar);
     
     _.each(mTargetElements,function(elements,id){
         mTargetMetrics.set(id,elements.length);
@@ -179,20 +177,25 @@ function modelElementDifference(source,target,depth) {
                   Msource.add(refSource);
                   Mtarget.add(refTarget);
                   
-                    //not the same "actual" cardinality
+                  var oID= orderIndependentDiff(Msource,Mtarget,depth-1);
+                  
+                  //See if relevant to have same card or not?
                     if(!(refSource.length==refTarget.length)) {
-                    //TODO : there are maybesame similar targetted elements...
-                        console.log('Different effective cardinalities', refTarget.length);
-                        var oID= orderIndependentDiff(Msource,Mtarget,depth-1);
-                        console.log('oid',oID);
+                       // console.log('Different effective cardinalities', refTarget.length);
+                        
+                       // console.log('oid',oID);
+                        var diffref = _.reject(oID,{type:'same'});
+                        diffObject.push({name:refName,src:source,tgt:target, diff:diffref, type:"reference"})
                         //remplace the smaller one by place holder/undefined -> use the orderIndependentDiff
                         //
                     } else {
                     //check the elements targetted  
-                    console.log('found one');
-                     var diffTargets = [];
-                     var oID= orderIndependentDiff(Msource,Mtarget,depth-1);
-                     console.log("oid2 ",oID);
+                    //console.log('Same cardinality');
+                    //console.log("oid2 ",oID);    
+                    var diffref = _.reject(oID,{type:'same'});
+                        if(diffref.length!=0){
+                            diffObject.push({name:refName,src:source,tgt:target, diff:diffref, type:"reference"}) 
+                        }
                     }   
               } //endif : if source[refName] is defined
             });
@@ -205,7 +208,7 @@ function modelElementDifference(source,target,depth) {
 function  orderIndependentDiff(ModelSource,ModelTarget,depth) {
     
     const mSourceElements = ModelSource.modellingElements;
-    const mTargetElements = ModelTarget.modellingElements; 
+    const mTargetElements = ModelTarget.modellingElements;
     
     var sameSimilar = [];
     //comparison class by class
@@ -230,17 +233,17 @@ function  orderIndependentDiff(ModelSource,ModelTarget,depth) {
                   
                         // if some attributes are common =>threshold 50%?
                         if(diffAtt.length<=(attributeKeys.length/2)) {
-                        console.log('OI-Similar');
+                       // console.log('OI-Similar');
                         sameSimilar.push({type:'diff',src:elem,tgt:target,meta:id,diff:diff});
                         } else {
                             //if all attributes are different => different modelling elements
-                            console.log('OI-DiSimilar');
-                            sameSimilar.push({type:'largeDiff', src:elem, tgt:target,meta:id,diff:diff})
+                         //   console.log('OI-DiSimilar');
+                            sameSimilar.push({type:'largediff', src:elem, tgt:target,meta:id,diff:diff})
                             //console.log('too much difference: probably not the same elements');
                         }
                     
                 } else {
-                    console.log('OI-same Objects');
+                   // console.log('OI-same Objects');
                     sameSimilar.push({type:'same',src: elem, tgt: target, meta:id,diff:[]});
                     //Similar checked : add tuple source/target to list as similar
                 }
@@ -252,8 +255,8 @@ function  orderIndependentDiff(ModelSource,ModelTarget,depth) {
 }
 
 
-var comparator = buildExample();
-compare(comparator.sm, comparator.tm);
+//var comparator = buildExample();
+//compare(comparator.sm, comparator.tm);
 
 
 module.exports = {
